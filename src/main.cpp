@@ -11,7 +11,7 @@ CRGB leds[NUM_LEDS];
 static EspNowHandler<DeviceID, PacketType> *espHandler;
 static constexpr DeviceID selfID = DeviceID::KeyboardRight;
 static constexpr DeviceID targetID = DeviceID::KeyboardLeft;
-const uint8_t ping = 0xAA;
+const uint8_t ping[5] = {0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
 const uint8_t pong = 0xFF;
 
 #define ROW_1_PIN 9
@@ -54,7 +54,7 @@ void setup() {
   FastLED.show();
   // espHandler->registry->deleteFlash();
   bool beginSuccess = espHandler->begin();
-  bool registerSuccess = espHandler->registerComms(targetID, true);
+  bool registerSuccess = espHandler->registerComms(targetID, true, true);
   bool pingCallbackSuccess =
       espHandler->registerCallback(PacketType::Ping, pingCallback);
   bool pongCallbackSuccess =
@@ -107,20 +107,17 @@ void loop() {
     }
   }
 
-  uint8_t keyState[4] = {0};
-  memcpy(&keyState[0], &topLeftPressed, 1);
-  memcpy(&keyState[1], &topRightPressed, 1);
-  memcpy(&keyState[2], &bottomLeftPressed, 1);
-  memcpy(&keyState[3], &bottomRightPressed, 1);
+  uint8_t keyState = 0;
+  keyState = (topLeftPressed << 0) | (topRightPressed << 1) |
+             (bottomLeftPressed << 2) | (bottomRightPressed << 3);
 
   if (topLeftPressed || topRightPressed || bottomLeftPressed ||
       bottomRightPressed) {
-    espHandler->sendPacket(targetID, PacketType::KeyDataHalf, keyState,
+    espHandler->sendPacket(targetID, PacketType::KeyDataHalf, &keyState,
                            sizeof(keyState));
-    espHandler->sendPacket(targetID, PacketType::Ping, &ping, sizeof(ping));
+    espHandler->sendPacket(targetID, PacketType::Ping, ping, sizeof(ping));
     lastSendTime = millis();
-    printf("Keys Sent: %d %d %d %d\n", keyState[0], keyState[1], keyState[2],
-           keyState[3]);
+    printf("Keys Sent: %d\n", keyState);
   }
 
   delay(10);
@@ -151,13 +148,17 @@ const void pongCallback(const uint8_t *dataPtr, size_t len, DeviceID sender) {
 const void keyDataCallback(const uint8_t *dataPtr, size_t len,
                            DeviceID sender) {
   // printf("Key Data Received from %d: ", static_cast<uint8_t>(sender));
-  uint8_t keyData[4] = {};
-  memcpy(keyData, dataPtr, len);
-  if (keyData[0] || keyData[1] || keyData[2] || keyData[3]) {
+  uint8_t keyData = 0;
+  memcpy(&keyData, dataPtr, len);
+  bool keyTopLeft = keyData & 0x01;
+  bool keyTopRight = keyData & 0x02;
+  bool keyBottomLeft = keyData & 0x04;
+  bool keyBottomRight = keyData & 0x08;
+  if (keyData) {
     leds[0] = CRGB::Purple;
     FastLED.show();
-    printf("Keys: %d %d %d %d\n", keyData[0], keyData[1], keyData[2],
-           keyData[3]);
+    printf("Keys: %d %d %d %d\n", keyTopLeft, keyTopRight, keyBottomLeft,
+           keyBottomRight);
     lastKeyTime = millis();
   }
 }
