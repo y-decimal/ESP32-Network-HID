@@ -25,6 +25,10 @@ private:
   void clearKey(uint8_t *row, uint8_t *col);
   const uint8_t getBitIndex(uint8_t *row, uint8_t *col, uint8_t cols = COLS);
 
+#ifdef UNIT_TEST
+  friend class TestKeyScanner;
+#endif
+
 public:
   KeyScanner();
   const uint8_t *getKeyState();
