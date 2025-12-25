@@ -18,9 +18,8 @@ static constexpr int colPins[COLS] = {COL_1_PIN, COL_2_PIN};
 
 class KeyScanner {
 private:
-  uint8_t keyState[5] = {0};
+  uint8_t *keyState;
 
-  void updateKeyState();
   void setKey(uint8_t *row, uint8_t *col);
   void clearKey(uint8_t *row, uint8_t *col);
   const uint8_t getBitIndex(uint8_t *row, uint8_t *col, uint8_t cols = COLS);
@@ -30,8 +29,8 @@ private:
 #endif
 
 public:
-  KeyScanner();
-  const uint8_t *getKeyState();
+  KeyScanner(uint8_t *bitMapPtr);
+  void updateKeyState();
   const bool getKey(uint8_t *bitMap, uint8_t row, uint8_t col, uint8_t cols);
 };
 

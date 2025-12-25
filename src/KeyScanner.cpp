@@ -1,17 +1,14 @@
 #include <KeyScanner.h>
 
-KeyScanner::KeyScanner() {
+KeyScanner::KeyScanner(uint8_t *bitMapPtr) {
   pinMode(COL_1_PIN, INPUT_PULLUP);
   pinMode(COL_2_PIN, INPUT_PULLUP);
   // Idle rows float high via pull-up to avoid sneaky current paths.
   pinMode(ROW_1_PIN, INPUT_PULLUP);
   pinMode(ROW_2_PIN, INPUT_PULLUP);
+  keyState = bitMapPtr;
 }
 
-const uint8_t *KeyScanner::getKeyState() {
-  updateKeyState();
-  return keyState;
-}
 
 void KeyScanner::updateKeyState() {
   for (uint8_t row = 0; row < ROWS; row++) {
@@ -49,6 +46,6 @@ const bool KeyScanner::getKey(uint8_t *bitMap, uint8_t row, uint8_t col,
 };
 
 const uint8_t KeyScanner::getBitIndex(uint8_t *row, uint8_t *col,
-                                      uint8_t cols = COLS) {
+                                      uint8_t cols) {
   return *row * cols + *col;
 }
