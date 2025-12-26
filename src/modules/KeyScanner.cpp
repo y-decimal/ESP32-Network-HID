@@ -50,19 +50,30 @@ void KeyScanner::updateKeyState() {
       }
     }
   }
-  std::swap(workingBuffer, publishedBuffer);
+  swapBuffers();
 }
 
 void KeyScanner::setKey(uint8_t row, uint8_t col) {
   uint16_t bitIndex = getBitIndex(row, col);
-  workingBuffer[bitIndex / 8] |= (1 << (bitIndex % 8));
+  workingBuffer[getBitIndex(row, col)] |= (getBitMask(row, col));
 }
 
 bool KeyScanner::wasKeyPressed(uint8_t row, uint8_t col) {
-  uint16_t bitIndex = getBitIndex(row, col);
-  return (publishedBuffer[bitIndex / 8] & (1 << (bitIndex % 8))) != 0;
+  return (publishedBuffer[getBitIndex(row, col)] & (getBitMask(row, col))) != 0;
+}
+
+inline void KeyScanner::swapBuffers() {
+  std::swap(workingBuffer, publishedBuffer);
+}
+
+inline uint8_t KeyScanner::getBitMask(uint8_t row, uint8_t col) {
+  return (1 << (getBitIndex(row, col) % 8));
 }
 
 inline uint16_t KeyScanner::getBitIndex(uint8_t row, uint8_t col) {
-  return row * colCount + col;
+  return (row * colCount + col);
+}
+
+inline uint8_t KeyScanner::getByteIndex(uint8_t row, uint8_t col) {
+  return getBitIndex(row, col) / 8;
 }

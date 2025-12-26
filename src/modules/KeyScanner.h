@@ -23,7 +23,10 @@ private:
 
   void setKey(uint8_t row, uint8_t col);
   bool wasKeyPressed(uint8_t row, uint8_t col);
+  void swapBuffers();
+  uint8_t getBitMask(uint8_t row, uint8_t col);
   uint16_t getBitIndex(uint8_t row, uint8_t col);
+  uint8_t getByteIndex(uint8_t row, uint8_t col);
 
 #ifdef UNIT_TEST
   friend class TestKeyScanner;
