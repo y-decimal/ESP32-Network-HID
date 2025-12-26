@@ -39,33 +39,37 @@ void KeyScanner::updateKeyState() {
     // delayMicroseconds(5); // settle time after driving row
 
     for (uint8_t col = 0; col < colCount; col++) {
-      if (digitalRead(colPins[col]) == LOW)
+      bool isKeyPressed = (digitalRead(colPins[col]) == LOW);
+      bool wasPressed = wasKeyPressed(row, col);
+      if (isKeyPressed)
         setKey(row, col);
+      if (isKeyPressed && !wasPressed) {
+        // Key press event detected
+      } else if (!isKeyPressed && wasPressed) {
+        // Key release event detected
+      }
     }
   }
+  finishScan();
+}
 
+void KeyScanner::setKey(uint8_t row, uint8_t col) {
+  uint16_t bitIndex = getBitIndex(row, col);
+  workingBuffer[bitIndex / 8] |= (1 << (bitIndex % 8));
+}
+
+bool KeyScanner::wasKeyPressed(uint8_t row, uint8_t col) {
+  uint16_t bitIndex = getBitIndex(row, col);
+  return (publishedBuffer[bitIndex / 8] & (1 << (bitIndex % 8))) != 0;
+}
+
+void KeyScanner::finishScan() {
+  // Swap working and published buffers
   uint8_t *old = publishedBuffer;
   publishedBuffer = workingBuffer;
   workingBuffer = old;
 }
 
-void KeyScanner::setKey(uint8_t row, uint8_t col) {
-  uint16_t bitIndex = getBitIndex(row, col, colCount);
-  if (bitIndex == NULL)
-    return;
-  workingBuffer[bitIndex / 8] |= (1 << (bitIndex % 8));
-}
-
-void KeyScanner::clearKey(uint8_t row, uint8_t col) {
-  uint16_t bitIndex = getBitIndex(row, col, colCount);
-  if (bitIndex == NULL)
-    return;
-  workingBuffer[bitIndex / 8] &= ~(1 << (bitIndex % 8));
-}
-
-inline uint16_t KeyScanner::getBitIndex(uint8_t row, uint8_t col, size_t cols) {
-  if (row >= rowCount || col >= colCount) {
-    return NULL; // out of bounds
-  }
-  return row * cols + col;
+inline uint16_t KeyScanner::getBitIndex(uint8_t row, uint8_t col) {
+  return row * colCount + col;
 }

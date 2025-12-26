@@ -19,8 +19,9 @@ private:
   uint8_t *publishedBuffer;
 
   void setKey(uint8_t row, uint8_t col);
-  void clearKey(uint8_t row, uint8_t col);
-  uint16_t getBitIndex(uint8_t row, uint8_t col, size_t cols);
+  bool wasKeyPressed(uint8_t row, uint8_t col);
+  void finishScan();
+  uint16_t getBitIndex(uint8_t row, uint8_t col);
 
 #ifdef UNIT_TEST
   friend class TestKeyScanner;
