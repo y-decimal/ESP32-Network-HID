@@ -1,4 +1,4 @@
-#include <KeyScanner.h>
+#include <modules/KeyScanner.h>
 
 KeyScanner::KeyScanner(uint8_t *bitMapPtr, uint8_t *rowPins, uint8_t *colPins) {
 

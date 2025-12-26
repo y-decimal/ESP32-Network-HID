@@ -6,8 +6,8 @@
 class KeyScanner {
 private:
   uint8_t *keyState;
-  static uint8_t rows;
-  static uint8_t cols;
+  uint8_t rows;
+  uint8_t cols;
   uint8_t *rowPins;
   uint8_t *colPins;
   void setKey(uint8_t *row, uint8_t *col);
