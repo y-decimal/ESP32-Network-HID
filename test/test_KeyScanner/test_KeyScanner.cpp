@@ -1,5 +1,5 @@
-#include <KeyScanner.cpp>
-#include <KeyScanner.h>
+#include <modules/KeyScanner.cpp>
+#include <modules/KeyScanner.h>
 #include <unity.h>
 
 // Test wrapper class to access private members
@@ -17,9 +17,9 @@ public:
     scanner.clearKey(&row, &col);
   }
 
-  static uint8_t test_getBitIndex(KeyScanner &scanner, uint8_t row,
-                                  uint8_t col) {
-    return scanner.getBitIndex(&row, &col);
+  static uint8_t test_getBitIndex(KeyScanner &scanner, uint8_t row, uint8_t col,
+                                  uint8_t cols) {
+    return scanner.getBitIndex(&row, &col, &cols);
   }
 
   static uint8_t *test_getKeyStateArray(KeyScanner &scanner) {
@@ -30,16 +30,20 @@ public:
 // Test cases
 void test_getBitIndex() {
   uint8_t bitMap[5] = {0};
-  KeyScanner scanner = KeyScanner(bitMap);
-  TEST_ASSERT_EQUAL(0, TestKeyScanner::test_getBitIndex(scanner, 0, 0));
-  TEST_ASSERT_EQUAL(1, TestKeyScanner::test_getBitIndex(scanner, 0, 1));
-  TEST_ASSERT_EQUAL(2, TestKeyScanner::test_getBitIndex(scanner, 1, 0));
-  TEST_ASSERT_EQUAL(3, TestKeyScanner::test_getBitIndex(scanner, 1, 1));
+  uint8_t rowPins[2] = {9, 10};
+  uint8_t colPins[2] = {17, 17};
+  KeyScanner scanner = KeyScanner(bitMap, rowPins, colPins);
+  TEST_ASSERT_EQUAL(0, TestKeyScanner::test_getBitIndex(scanner, 0, 0, 2));
+  TEST_ASSERT_EQUAL(1, TestKeyScanner::test_getBitIndex(scanner, 0, 1, 2));
+  TEST_ASSERT_EQUAL(2, TestKeyScanner::test_getBitIndex(scanner, 1, 0, 2));
+  TEST_ASSERT_EQUAL(3, TestKeyScanner::test_getBitIndex(scanner, 1, 1, 2));
 }
 
 void test_setKey() {
   uint8_t bitMap[5] = {0};
-  KeyScanner scanner = KeyScanner(bitMap);
+  uint8_t rowPins[2] = {9, 10};
+  uint8_t colPins[2] = {17, 17};
+  KeyScanner scanner = KeyScanner(bitMap, rowPins, colPins);
   TestKeyScanner::test_setKey(scanner, 0, 0);
   uint8_t *state = TestKeyScanner::test_getKeyStateArray(scanner);
   TEST_ASSERT_EQUAL(1, state[0]);
@@ -47,7 +51,9 @@ void test_setKey() {
 
 void test_clearKey() {
   uint8_t bitMap[5] = {0};
-  KeyScanner scanner = KeyScanner(bitMap);
+  uint8_t rowPins[2] = {9, 10};
+  uint8_t colPins[2] = {17, 17};
+  KeyScanner scanner = KeyScanner(bitMap, rowPins, colPins);
   TestKeyScanner::test_setKey(scanner, 0, 0);
   TestKeyScanner::test_clearKey(scanner, 0, 0);
   uint8_t *state = TestKeyScanner::test_getKeyStateArray(scanner);
