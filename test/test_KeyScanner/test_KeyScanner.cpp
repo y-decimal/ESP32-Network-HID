@@ -97,9 +97,11 @@ void TestKeyScanner::test_updateKeyState_noKeysPressed() {
   uint8_t rowPins[2] = {9, 10};
   uint8_t colPins[2] = {17, 18};
   KeyScanner scanner = KeyScanner(rowPins, colPins);
+  size_t bitMapSize = scanner.getBitMapSize();
 
   scanner.updateKeyState();
-  const uint8_t *state = scanner.getBitMap();
+  uint8_t state[bitMapSize];
+  scanner.copyPublishedBitmap(state);
   TEST_ASSERT_EQUAL(0, state[0]);
 }
 
@@ -107,13 +109,17 @@ void TestKeyScanner::test_updateKeyState_singleKeyPressed() {
   uint8_t rowPins[2] = {9, 10};
   uint8_t colPins[2] = {17, 18};
   KeyScanner scanner = KeyScanner(rowPins, colPins);
+  size_t bitMapSize = scanner.getBitMapSize();
 
   scanner.setKey(0, 0);
   std::swap(scanner.workingBuffer, scanner.publishedBuffer);
-  const uint8_t *state = scanner.getBitMap();
+
+  uint8_t state[bitMapSize];
+  scanner.copyPublishedBitmap(state);
   TEST_ASSERT_EQUAL(1, state[0]);
+
   scanner.updateKeyState();
-  state = scanner.getBitMap();
+  scanner.copyPublishedBitmap(state);
   TEST_ASSERT_EQUAL(0, state[0]);
 }
 
@@ -121,12 +127,14 @@ void TestKeyScanner::test_updateKeyState_multipleKeysPressed() {
   uint8_t rowPins[2] = {9, 10};
   uint8_t colPins[2] = {17, 18};
   KeyScanner scanner = KeyScanner(rowPins, colPins);
+  size_t bitMapSize = scanner.getBitMapSize();
 
   scanner.setKey(0, 0);
   scanner.setKey(1, 1);
 
   scanner.swapBuffers();
-  const uint8_t *state = scanner.getBitMap();
+  uint8_t state[bitMapSize];
+  scanner.copyPublishedBitmap(state);
 
   uint8_t expected0_0 = scanner.getBitMask(0, 0);
   uint8_t expected1_1 = scanner.getBitMask(1, 1);
