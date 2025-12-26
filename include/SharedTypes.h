@@ -7,4 +7,11 @@ enum class PacketType : uint8_t { KeyDataHalf, KeyDataFull, Ping, Pong, Count };
 
 enum class DeviceID : uint8_t { KeyboardLeft, KeyboardRight, Dongle, Count };
 
+struct KeyData {
+  bool topLeftPressed = false;
+  bool topRightPressed = false;
+  bool bottomLeftPressed = false;
+  bool bottomRightPressed = false;
+};
+
 #endif

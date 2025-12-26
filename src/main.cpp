@@ -27,7 +27,7 @@ unsigned long lastKeyTime = 0;
 
 const void pingCallback(const uint8_t *dataPtr, size_t len, DeviceID sender);
 const void pongCallback(const uint8_t *dataPtr, size_t len, DeviceID sender);
-const void keyDataCallback(const uint8_t *dataPtr, size_t len, DeviceID sender);
+const void keyDataCallback(const KeyData &packet, DeviceID sender);
 uint8_t *keyDataBuffer = nullptr;
 
 void setup() {
@@ -59,8 +59,8 @@ void setup() {
       espHandler->registerCallback(PacketType::Ping, pingCallback);
   bool pongCallbackSuccess =
       espHandler->registerCallback(PacketType::Pong, pongCallback);
-  bool keyDataCallbackSuccess =
-      espHandler->registerCallback(PacketType::KeyDataHalf, keyDataCallback);
+  bool keyDataCallbackSuccess = espHandler->registerCallback<KeyData>(
+      PacketType::KeyDataHalf, keyDataCallback);
   if (registerSuccess && pingCallbackSuccess && beginSuccess &&
       keyDataCallbackSuccess && pongCallbackSuccess) {
     Serial.println("setup");
@@ -107,14 +107,16 @@ void loop() {
     }
   }
 
-  uint8_t keyState = 0;
-  keyState = (topLeftPressed << 0) | (topRightPressed << 1) |
-             (bottomLeftPressed << 2) | (bottomRightPressed << 3);
+  KeyData keyState;
+  keyState.topLeftPressed = topLeftPressed;
+  keyState.topRightPressed = topRightPressed;
+  keyState.bottomLeftPressed = bottomLeftPressed;
+  keyState.bottomRightPressed = bottomRightPressed;
 
   if (topLeftPressed || topRightPressed || bottomLeftPressed ||
       bottomRightPressed) {
-    espHandler->sendPacket(targetID, PacketType::KeyDataHalf, &keyState,
-                           sizeof(keyState));
+    espHandler->sendPacket<KeyData>(targetID, PacketType::KeyDataHalf,
+                                    keyState);
     espHandler->sendPacket(targetID, PacketType::Ping, ping, sizeof(ping));
     lastSendTime = millis();
     printf("Keys Sent: %d\n", keyState);
@@ -145,20 +147,11 @@ const void pongCallback(const uint8_t *dataPtr, size_t len, DeviceID sender) {
   printf("%lu\n", roundTripTime);
 }
 
-const void keyDataCallback(const uint8_t *dataPtr, size_t len,
-                           DeviceID sender) {
-  // printf("Key Data Received from %d: ", static_cast<uint8_t>(sender));
-  uint8_t keyData = 0;
-  memcpy(&keyData, dataPtr, len);
-  bool keyTopLeft = keyData & 0x01;
-  bool keyTopRight = keyData & 0x02;
-  bool keyBottomLeft = keyData & 0x04;
-  bool keyBottomRight = keyData & 0x08;
-  if (keyData) {
-    leds[0] = CRGB::Purple;
-    FastLED.show();
-    printf("Keys: %d %d %d %d\n", keyTopLeft, keyTopRight, keyBottomLeft,
-           keyBottomRight);
-    lastKeyTime = millis();
-  }
+const void keyDataCallback(const KeyData &packet, DeviceID sender) {
+
+  leds[0] = CRGB::Purple;
+  FastLED.show();
+  printf("Keys: %d %d %d %d\n", packet.topLeftPressed, packet.topRightPressed,
+         packet.bottomLeftPressed, packet.bottomRightPressed);
+  lastKeyTime = millis();
 }
