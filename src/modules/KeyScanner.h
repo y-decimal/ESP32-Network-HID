@@ -12,11 +12,14 @@ private:
   size_t colCount;
 
   size_t bitMapSize;
+
   std::vector<uint8_t> keyMapSwapBufferA;
   std::vector<uint8_t> keyMapSwapBufferB;
 
   uint8_t *workingBuffer;
   uint8_t *publishedBuffer;
+
+  std::function<void(uint16_t keyIndex, bool pressed)> onKeyChange;
 
   void setKey(uint8_t row, uint8_t col);
   bool wasKeyPressed(uint8_t row, uint8_t col);

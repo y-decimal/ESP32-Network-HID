@@ -44,8 +44,10 @@ void KeyScanner::updateKeyState() {
       if (isKeyPressed)
         setKey(row, col);
       if (isKeyPressed && !wasPressed) {
+        onKeyChange(getBitIndex(row, col), true);
         // Key press event detected
       } else if (!isKeyPressed && wasPressed) {
+        onKeyChange(getBitIndex(row, col), false);
         // Key release event detected
       }
     }
@@ -62,7 +64,6 @@ bool KeyScanner::wasKeyPressed(uint8_t row, uint8_t col) {
   uint16_t bitIndex = getBitIndex(row, col);
   return (publishedBuffer[bitIndex / 8] & (1 << (bitIndex % 8))) != 0;
 }
-
 
 inline uint16_t KeyScanner::getBitIndex(uint8_t row, uint8_t col) {
   return row * colCount + col;
