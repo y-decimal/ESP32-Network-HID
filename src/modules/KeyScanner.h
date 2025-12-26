@@ -64,7 +64,9 @@ public:
 
   void clearOnKeyChangeCallback() { onKeyChange = nullptr; }
 
-  const uint8_t *getBitMap() const { return publishedBuffer; }
+  void copyPublishedBitmap(uint8_t *dest) const {
+    memcpy(dest, publishedBuffer, bitMapSize);
+  }
 
   const size_t getBitMapSize() const { return bitMapSize; }
 
