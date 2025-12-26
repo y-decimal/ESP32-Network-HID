@@ -1,31 +1,5 @@
 #include <modules/KeyScanner.h>
 
-template <size_t Rows, size_t Cols>
-KeyScanner::KeyScanner(const uint8_t (&rowPins)[Rows],
-                       const uint8_t (&colPins)[Cols]) {
-
-  rowCount = Rows;
-  colCount = Cols;
-
-  this->rowPins.assign(rowPins, rowPins + Rows);
-  this->colPins.assign(colPins, colPins + Cols);
-
-  bitMapSize = (rowCount * colCount + 7) / 8;
-
-  keyMapSwapBufferA.resize(bitMapSize);
-  keyMapSwapBufferB.resize(bitMapSize);
-
-  workingBuffer = keyMapSwapBufferA.data();
-  publishedBuffer = keyMapSwapBufferB.data();
-
-  for (size_t r = 0; r < rowCount; r++) {
-    pinMode(rowPins[r], INPUT_PULLUP);
-  }
-  for (size_t c = 0; c < colCount; c++) {
-    pinMode(colPins[c], INPUT_PULLUP);
-  }
-}
-
 void KeyScanner::updateKeyState() {
   memset(workingBuffer, 0, bitMapSize);
 
@@ -59,7 +33,8 @@ void KeyScanner::setKey(uint8_t row, uint8_t col) {
 }
 
 bool KeyScanner::wasKeyPressed(uint8_t row, uint8_t col) {
-  return (publishedBuffer[getByteIndex(row, col)] & (getBitMask(row, col))) != 0;
+  return (publishedBuffer[getByteIndex(row, col)] & (getBitMask(row, col))) !=
+         0;
 }
 
 inline void KeyScanner::swapBuffers() {
