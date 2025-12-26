@@ -43,12 +43,10 @@ void KeyScanner::updateKeyState() {
       bool wasPressed = wasKeyPressed(row, col);
       if (isKeyPressed)
         setKey(row, col);
-      if (isKeyPressed && !wasPressed) {
-        onKeyChange(getBitIndex(row, col), true);
-        // Key press event detected
-      } else if (!isKeyPressed && wasPressed) {
-        onKeyChange(getBitIndex(row, col), false);
-        // Key release event detected
+      if (isKeyPressed && !wasPressed && onKeyChange) {
+        onKeyChange(getBitIndex(row, col), true); // Key press event detected
+      } else if (!isKeyPressed && wasPressed && onKeyChange) {
+        onKeyChange(getBitIndex(row, col), false); // Key release event detected
       }
     }
   }
