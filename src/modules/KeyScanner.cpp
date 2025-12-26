@@ -38,7 +38,7 @@ void KeyScanner::updateKeyState() {
 
     for (uint8_t col = 0; col < colCount; col++) {
       if (digitalRead(colPins[col]) == LOW)
-        setKey(&row, &col);
+        setKey(row, col);
     }
   }
 
