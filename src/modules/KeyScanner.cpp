@@ -51,14 +51,21 @@ void KeyScanner::updateKeyState() {
 
 void KeyScanner::setKey(uint8_t row, uint8_t col) {
   uint16_t bitIndex = getBitIndex(row, col, colCount);
+  if (bitIndex == NULL)
+    return;
   workingBuffer[bitIndex / 8] |= (1 << (bitIndex % 8));
 }
 
 void KeyScanner::clearKey(uint8_t row, uint8_t col) {
   uint16_t bitIndex = getBitIndex(row, col, colCount);
+  if (bitIndex == NULL)
+    return;
   workingBuffer[bitIndex / 8] &= ~(1 << (bitIndex % 8));
 }
 
 inline uint16_t KeyScanner::getBitIndex(uint8_t row, uint8_t col, size_t cols) {
+  if (row >= rowCount || col >= colCount) {
+    return NULL; // out of bounds
+  }
   return row * cols + col;
 }
