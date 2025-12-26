@@ -59,6 +59,6 @@ void KeyScanner::clearKey(uint8_t row, uint8_t col) {
   workingBuffer[bitIndex / 8] &= ~(1 << (bitIndex % 8));
 }
 
-inline uint16_t getBitIndex(uint8_t row, uint8_t col, size_t cols) {
+inline uint16_t KeyScanner::getBitIndex(uint8_t row, uint8_t col, size_t cols) {
   return row * cols + col;
 }

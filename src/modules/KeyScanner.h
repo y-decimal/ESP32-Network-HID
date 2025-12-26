@@ -20,6 +20,7 @@ private:
 
   void setKey(uint8_t row, uint8_t col);
   void clearKey(uint8_t row, uint8_t col);
+  uint16_t getBitIndex(uint8_t row, uint8_t col, size_t cols);
 
 #ifdef UNIT_TEST
   friend class TestKeyScanner;
