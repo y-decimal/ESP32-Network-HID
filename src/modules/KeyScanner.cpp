@@ -1,12 +1,14 @@
 #include <modules/KeyScanner.h>
 
-KeyScanner::KeyScanner(std::vector<uint8_t> &rowPins,
-                       std::vector<uint8_t> &colPins) {
+template <size_t Rows, size_t Cols>
+KeyScanner::KeyScanner(const uint8_t (&rowPins)[Rows],
+                       const uint8_t (&colPins)[Cols]) {
 
-  this->rowPins = rowPins;
-  this->colPins = colPins;
-  rowCount = rowPins.size();
-  colCount = colPins.size();
+  rowCount = Rows;
+  colCount = Cols;
+
+  this->rowPins.assign(rowPins, rowPins + Rows);
+  this->colPins.assign(colPins, colPins + Cols);
 
   bitMapSize = (rowCount * colCount + 7) / 8;
 

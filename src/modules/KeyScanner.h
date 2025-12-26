@@ -26,7 +26,8 @@ private:
 #endif
 
 public:
-  KeyScanner(std::vector<uint8_t> &rowPins, std::vector<uint8_t> &colPins);
+  template <size_t Rows, size_t Cols>
+  KeyScanner(const uint8_t (&rowPins)[Rows], const uint8_t (&colPins)[Cols]);
   void updateKeyState();
   const uint8_t *getBitMap() const { return publishedBuffer; }
   const size_t getBitMapSize() const { return bitMapSize; }
