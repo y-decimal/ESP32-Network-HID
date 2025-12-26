@@ -32,6 +32,10 @@ private:
 public:
   template <size_t Rows, size_t Cols>
   KeyScanner(const uint8_t (&rowPins)[Rows], const uint8_t (&colPins)[Cols]);
+  void registerOnKeyChangeCallback(
+      std::function<void(uint16_t keyIndex, bool pressed)> callback) {
+    onKeyChange = callback;
+  }
   void updateKeyState();
   const uint8_t *getBitMap() const { return publishedBuffer; }
   const size_t getBitMapSize() const { return bitMapSize; }
