@@ -1,0 +1,6 @@
+#pragma once
+
+static const UBaseType_t PRIORITY_KEYSCAN = 5;
+static const uint32_t STACK_KEYSCAN = 4096;
+static const TickType_t PERIOD_KEYSCAN_MS = 1;
+static const BaseType_t CORE_KEYSCAN = 1;
