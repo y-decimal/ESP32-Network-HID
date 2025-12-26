@@ -1,58 +1,62 @@
 #include <modules/KeyScanner.h>
 
-KeyScanner::KeyScanner(uint8_t *bitMapPtr, uint8_t *rowPins, uint8_t *colPins) {
+KeyScanner::KeyScanner(std::vector<uint8_t> &rowPins,
+                       std::vector<uint8_t> &colPins) {
 
-  rowPins = rowPins;
-  colPins = colPins;
-  rows = sizeof(rowPins);
-  cols = sizeof(colPins);
+  this->rowPins = rowPins;
+  this->colPins = colPins;
+  rowCount = rowPins.size();
+  colCount = colPins.size();
 
-  for (size_t r = 0; r < rows; r++) {
+  bitMapSize = (rowCount * colCount + 7) / 8;
+
+  keyMapSwapBufferA.resize(bitMapSize);
+  keyMapSwapBufferB.resize(bitMapSize);
+
+  workingBuffer = keyMapSwapBufferA.data();
+  publishedBuffer = keyMapSwapBufferB.data();
+
+  for (size_t r = 0; r < rowCount; r++) {
     pinMode(rowPins[r], INPUT_PULLUP);
   }
-  for (size_t c = 0; c < cols; c++) {
+  for (size_t c = 0; c < colCount; c++) {
     pinMode(colPins[c], INPUT_PULLUP);
   }
-
-  keyState = bitMapPtr;
 }
 
 void KeyScanner::updateKeyState() {
-  for (uint8_t row = 0; row < rows; row++) {
+  memset(workingBuffer, 0, bitMapSize);
+
+  for (uint8_t row = 0; row < rowCount; row++) {
     // Set all rows to high-Z, then drive only the active row low.
-    for (uint8_t pinIndex = 0; pinIndex < cols; pinIndex++) {
+    for (uint8_t pinIndex = 0; pinIndex < rowCount; pinIndex++) {
       pinMode(rowPins[pinIndex], INPUT_PULLUP);
     }
     pinMode(rowPins[row], OUTPUT);
     digitalWrite(rowPins[row], LOW);
-    delayMicroseconds(5); // settle time after driving row
+    // delayMicroseconds(5); // settle time after driving row
 
-    for (uint8_t col = 0; col < cols; col++) {
+    for (uint8_t col = 0; col < colCount; col++) {
       if (digitalRead(colPins[col]) == LOW)
         setKey(&row, &col);
-      else
-        clearKey(&row, &col);
     }
   }
+
+  uint8_t *old = publishedBuffer;
+  publishedBuffer = workingBuffer;
+  workingBuffer = old;
 }
 
-void KeyScanner::setKey(uint8_t *row, uint8_t *col) {
-  const uint8_t bitIndex = getBitIndex(row, col, &cols);
-  keyState[bitIndex / 8] |= (1 << (bitIndex % 8));
+void KeyScanner::setKey(uint8_t row, uint8_t col) {
+  uint16_t bitIndex = getBitIndex(row, col, colCount);
+  workingBuffer[bitIndex / 8] |= (1 << (bitIndex % 8));
 }
 
-void KeyScanner::clearKey(uint8_t *row, uint8_t *col) {
-  const uint8_t bitIndex = getBitIndex(row, col, &cols);
-  keyState[bitIndex / 8] &= ~(1 << (bitIndex % 8));
+void KeyScanner::clearKey(uint8_t row, uint8_t col) {
+  uint16_t bitIndex = getBitIndex(row, col, colCount);
+  workingBuffer[bitIndex / 8] &= ~(1 << (bitIndex % 8));
 }
 
-const bool KeyScanner::getKey(uint8_t *bitMap, uint8_t row, uint8_t col,
-                              uint8_t cols) {
-  const uint8_t bitIndex = getBitIndex(&row, &col, &cols);
-  return bitMap[bitIndex / 8] & (1 << (bitIndex % 8));
-};
-
-const uint8_t KeyScanner::getBitIndex(uint8_t *row, uint8_t *col,
-                                      uint8_t *cols) {
-  return (*row) * (*cols) + (*col);
+inline uint16_t getBitIndex(uint8_t row, uint8_t col, size_t cols) {
+  return row * cols + col;
 }
