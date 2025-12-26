@@ -20,7 +20,6 @@ private:
 
   void setKey(uint8_t row, uint8_t col);
   bool wasKeyPressed(uint8_t row, uint8_t col);
-  void finishScan();
   uint16_t getBitIndex(uint8_t row, uint8_t col);
 
 #ifdef UNIT_TEST

@@ -50,7 +50,7 @@ void KeyScanner::updateKeyState() {
       }
     }
   }
-  finishScan();
+  std::swap(workingBuffer, publishedBuffer);
 }
 
 void KeyScanner::setKey(uint8_t row, uint8_t col) {
@@ -63,12 +63,6 @@ bool KeyScanner::wasKeyPressed(uint8_t row, uint8_t col) {
   return (publishedBuffer[bitIndex / 8] & (1 << (bitIndex % 8))) != 0;
 }
 
-void KeyScanner::finishScan() {
-  // Swap working and published buffers
-  uint8_t *old = publishedBuffer;
-  publishedBuffer = workingBuffer;
-  workingBuffer = old;
-}
 
 inline uint16_t KeyScanner::getBitIndex(uint8_t row, uint8_t col) {
   return row * colCount + col;
