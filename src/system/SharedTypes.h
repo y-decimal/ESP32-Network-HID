@@ -7,4 +7,9 @@ enum class PacketType : uint8_t { KeyDataHalf, KeyDataFull, Count };
 
 enum class DeviceID : uint8_t { KeyboardLeft, KeyboardRight, Dongle, Count };
 
+struct KeyEvent {
+  uint16_t keyIndex;
+  bool state;
+};
+
 #endif
