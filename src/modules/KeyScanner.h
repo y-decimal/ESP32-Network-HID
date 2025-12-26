@@ -2,26 +2,34 @@
 #define KEYSCANNER_H
 
 #include <Arduino.h>
+#include <vector>
 
 class KeyScanner {
 private:
-  uint8_t *keyState;
-  uint8_t rows;
-  uint8_t cols;
-  uint8_t *rowPins;
-  uint8_t *colPins;
-  void setKey(uint8_t *row, uint8_t *col);
-  void clearKey(uint8_t *row, uint8_t *col);
-  const uint8_t getBitIndex(uint8_t *row, uint8_t *col, uint8_t *cols);
+  std::vector<uint8_t> rowPins;
+  std::vector<uint8_t> colPins;
+  size_t rowCount;
+  size_t colCount;
+
+  size_t bitMapSize;
+  std::vector<uint8_t> keyMapSwapBufferA;
+  std::vector<uint8_t> keyMapSwapBufferB;
+
+  uint8_t *workingBuffer;
+  uint8_t *publishedBuffer;
+
+  void setKey(uint8_t row, uint8_t col);
+  void clearKey(uint8_t row, uint8_t col);
 
 #ifdef UNIT_TEST
   friend class TestKeyScanner;
 #endif
 
 public:
-  KeyScanner(uint8_t *bitMapPtr, uint8_t *rowPins, uint8_t *colPins);
+  KeyScanner(std::vector<uint8_t> &rowPins, std::vector<uint8_t> &colPins);
   void updateKeyState();
-  const bool getKey(uint8_t *bitMap, uint8_t row, uint8_t col, uint8_t cols);
+  const uint8_t *getBitMap() const { return publishedBuffer; }
+  const size_t getBitMapSize() const { return bitMapSize; }
 };
 
 #endif
