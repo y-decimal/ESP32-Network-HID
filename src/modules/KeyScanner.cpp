@@ -28,10 +28,8 @@ void KeyScanner::updateKeyState() {
 }
 
 void KeyScanner::setKey(uint8_t row, uint8_t col) {
-  uint16_t bitIndex = getBitIndex(row, col);
   workingBuffer[getByteIndex(row, col)] |= (getBitMask(row, col));
 }
-
 bool KeyScanner::wasKeyPressed(uint8_t row, uint8_t col) {
   return (publishedBuffer[getByteIndex(row, col)] & (getBitMask(row, col))) !=
          0;
