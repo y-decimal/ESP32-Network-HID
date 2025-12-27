@@ -2,7 +2,7 @@
 #include <system/SharedTypes.h>
 #include <tasks/KeyScannerTask.h>
 
-QueueHandle_t keyEventQueue;
+extern QueueHandle_t keyEventQueue;
 
 extern KeyScanner keyScanner;
 
