@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <tasks/SystemTask.h>
 
+QueueHandle_t keyEventQueue;
 KeyScanner keyScanner = KeyScanner(ROWPINS, COLPINS);
 
 void setup() {
