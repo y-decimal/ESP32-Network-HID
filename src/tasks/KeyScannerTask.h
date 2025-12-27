@@ -18,6 +18,6 @@ void keyScannerTask(void *arg) {
 
   while (true) {
     keyScanner->updateKeyState();
-    xTaskDelayUntil(&previousWakeTime, PERIOD_KEYSCAN_MS);
+    xTaskDelayUntil(&previousWakeTime, pdMS_TO_TICKS(PERIOD_KEYSCAN_MS));
   }
 }
