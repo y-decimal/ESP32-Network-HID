@@ -1,5 +1,29 @@
 #include <modules/KeyScanner.h>
 
+KeyScanner::KeyScanner(const uint8_t *rowPins, const uint8_t *colPins,
+                       const uint8_t rowCount, const uint8_t colCount) {
+
+  this->rowPins = rowPins;
+  this->colPins = colPins;
+  this->rowCount = rowCount;
+  this->colCount = colCount;
+
+  bitMapSize = (rowCount * colCount + 7) / 8;
+
+  keyMapSwapBufferA.resize(bitMapSize);
+  keyMapSwapBufferB.resize(bitMapSize);
+
+  workingBuffer = keyMapSwapBufferA.data();
+  publishedBuffer = keyMapSwapBufferB.data();
+
+  for (size_t r = 0; r < rowCount; r++) {
+    pinMode(rowPins[r], INPUT_PULLUP);
+  }
+  for (size_t c = 0; c < colCount; c++) {
+    pinMode(colPins[c], INPUT_PULLUP);
+  }
+}
+
 void KeyScanner::updateKeyState() {
   memset(workingBuffer, 0, bitMapSize);
 
