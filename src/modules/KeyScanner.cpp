@@ -10,7 +10,6 @@ void KeyScanner::updateKeyState() {
     }
     pinMode(rowPins[row], OUTPUT);
     digitalWrite(rowPins[row], LOW);
-    // delayMicroseconds(5); // settle time after driving row
 
     for (uint8_t col = 0; col < colCount; col++) {
       bool isKeyPressed = (digitalRead(colPins[col]) == LOW);
