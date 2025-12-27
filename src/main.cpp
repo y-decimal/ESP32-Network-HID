@@ -11,6 +11,7 @@ void setup() {
 
 void loop() {
   KeyEvent event;
-  xQueueReceive(keyEventQueue, &event, portMAX_DELAY);
-  printf("Key %d %s\n", event.keyIndex, (event.state ? "pressed" : "released"));
+  if (xQueueReceive(keyEventQueue, &event, pdMS_TO_TICKS(100)) == pdPASS) {
+    printf("Key %d %s\n", event.keyIndex, (event.state ? "pressed" : "released"));
+  }
 }
