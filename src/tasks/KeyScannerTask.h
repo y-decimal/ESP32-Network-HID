@@ -1,6 +1,6 @@
 #pragma once
 #include <modules/KeyScanner.h>
-#include <system/SharedTypes.h>
+#include <shared/CommTypes.h>
 #include <system/SystemConfig.h>
 
 extern QueueHandle_t keyEventQueue;
