@@ -55,7 +55,7 @@ void TestKeyScanner::test_setKey() {
   TEST_ASSERT_EQUAL_UINT8(0b00000001, bitMask0_0);
 
   uint8_t bitMask0_6 = scanner.getBitMask(0, 6);
-  TEST_ASSERT_EQUAL_UINT8(0b1000000, bitMask0_6);
+  TEST_ASSERT_EQUAL_UINT8(0b01000000, bitMask0_6);
 
   uint16_t mapSize = scanner.getBitMapSize();
   uint16_t expectedSize = ((7 * 7 + 7) / 8);
@@ -77,8 +77,8 @@ void TestKeyScanner::test_setKey() {
 
   scanner.setKey(0, 6);
   state = scanner.workingBuffer;
-  keyStateKey0_0 = state[byteIndex0_0];
-  TEST_ASSERT_EQUAL_UINT8(keyStateKey0_0 | bitMask0_6, keyStateKey0_0);
+  keyStateKey0_0 = state[byteIndex0_0] & bitMask0_0;
+  TEST_ASSERT_EQUAL_UINT8(0, keyStateKey0_0);
 
   keyStateKey0_6 = state[byteIndex0_6] & bitMask0_6;
   TEST_ASSERT_EQUAL_UINT8(bitMask0_6, keyStateKey0_6);
