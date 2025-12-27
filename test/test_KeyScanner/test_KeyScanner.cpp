@@ -16,14 +16,15 @@ public:
 };
 
 void setup() {
+  TestKeyScanner keyScannerTest;
 
   UNITY_BEGIN();
-  RUN_TEST(TestKeyScanner::test_getBitMask);
-  RUN_TEST(TestKeyScanner::test_getBitMask);
-  RUN_TEST(TestKeyScanner::test_setKey);
-  RUN_TEST(TestKeyScanner::test_updateKeyState_noKeysPressed);
-  RUN_TEST(TestKeyScanner::test_updateKeyState_singleKeyPressed);
-  RUN_TEST(TestKeyScanner::test_updateKeyState_multipleKeysPressed);
+  RUN_TEST(keyScannerTest.test_getBitMask);
+  RUN_TEST(keyScannerTest.test_setKey);
+  RUN_TEST(keyScannerTest.test_updateKeyState_noKeysPressed);
+  RUN_TEST(keyScannerTest.test_updateKeyState_singleKeyPressed);
+  RUN_TEST(keyScannerTest.test_updateKeyState_multipleKeysPressed);
+  UNITY_END();
 }
 
 void loop() {}
@@ -31,9 +32,8 @@ void loop() {}
 // Test cases
 void TestKeyScanner::test_getBitMask() {
   uint8_t rowPins[2] = {9, 10};
-  uint8_t colPins[2] = {17, 18};
+  uint8_t colPins[2] = {17, 17};
   KeyScanner scanner = KeyScanner(rowPins, colPins);
-
   TEST_ASSERT_EQUAL(0b00000001, scanner.getBitMask(0, 0));
   TEST_ASSERT_EQUAL(0b00000010, scanner.getBitMask(0, 1));
   TEST_ASSERT_EQUAL(0b00000100, scanner.getBitMask(1, 0));
