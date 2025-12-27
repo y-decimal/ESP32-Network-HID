@@ -1,18 +1,17 @@
 #include <Arduino.h>
+#include <tasks/SystemTask.h>
 
-// put function declarations here:
-int myFunction(int, int);
+QueueHandle_t keyEventQueue;
+KeyScanner keyScanner = KeyScanner(ROWPINS, COLPINS);
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  Serial.begin(115200);
+  initSystemTasks();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  KeyEvent event;
+  if (xQueueReceive(keyEventQueue, &event, pdMS_TO_TICKS(100)) == pdPASS) {
+    printf("Key %d %s\n", event.keyIndex, (event.state ? "pressed" : "released"));
+  }
 }
