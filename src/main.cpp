@@ -11,8 +11,6 @@ CRGB leds[NUM_LEDS];
 static EspNowHandler<DeviceID, PacketType> *espHandler;
 static constexpr DeviceID selfID = DeviceID::KeyboardRight;
 static constexpr DeviceID targetID = DeviceID::KeyboardLeft;
-const uint8_t ping[5] = {0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
-const uint8_t pong = 0xFF;
 
 #define ROW_1_PIN 9
 #define ROW_2_PIN 10
@@ -25,8 +23,9 @@ static constexpr int colPins[2] = {COL_1_PIN, COL_2_PIN};
 volatile long unsigned lastSendTime = 0;
 unsigned long lastKeyTime = 0;
 
-const void pingCallback(const uint8_t *dataPtr, size_t len, DeviceID sender);
-const void pongCallback(const uint8_t *dataPtr, size_t len, DeviceID sender);
+unsigned long sequence = 0;
+const void pingCallback(const PingPacket ping, DeviceID sender);
+const void pongCallback(const PongPacket &pong, DeviceID sender);
 const void keyDataCallback(const KeyData &packet, DeviceID sender);
 uint8_t *keyDataBuffer = nullptr;
 
@@ -56,9 +55,9 @@ void setup() {
   bool beginSuccess = espHandler->begin();
   bool registerSuccess = espHandler->registerComms(targetID, true, true);
   bool pingCallbackSuccess =
-      espHandler->registerCallback(PacketType::Ping, pingCallback);
+      espHandler->registerCallback<PingPacket>(PacketType::Ping, pingCallback);
   bool pongCallbackSuccess =
-      espHandler->registerCallback(PacketType::Pong, pongCallback);
+      espHandler->registerCallback<PongPacket>(PacketType::Pong, pongCallback);
   bool keyDataCallbackSuccess = espHandler->registerCallback<KeyData>(
       PacketType::KeyDataHalf, keyDataCallback);
   if (registerSuccess && pingCallbackSuccess && beginSuccess &&
@@ -117,9 +116,14 @@ void loop() {
       bottomRightPressed) {
     espHandler->sendPacket<KeyData>(targetID, PacketType::KeyDataHalf,
                                     keyState);
-    espHandler->sendPacket(targetID, PacketType::Ping, ping, sizeof(ping));
+    sequence++;
+    PingPacket ping;
+    ping.identifier = selfID;
+    ping.sequence = sequence;
+    ping.timestamp_ms = millis();
+    espHandler->sendPacket<PingPacket>(targetID, PacketType::Ping, ping);
     lastSendTime = millis();
-    printf("Keys Sent: %d\n", keyState);
+    // printf("Keys Sent: %d\n", sizeof(keyState));
   }
 
   delay(10);
@@ -135,16 +139,20 @@ void loop() {
   // delay(500);
 }
 
-const void pingCallback(const uint8_t *dataPtr, size_t len, DeviceID sender) {
-  espHandler->sendPacket(sender, PacketType::Pong, &pong, sizeof(pong));
+const void pingCallback(const PingPacket ping, DeviceID sender) {
+  PongPacket pong;
+  pong.sequence = ping.sequence;
+  pong.timestamp_ms = ping.timestamp_ms;
+  espHandler->sendPacket<PongPacket>(sender, PacketType::Pong, pong);
 }
 
-const void pongCallback(const uint8_t *dataPtr, size_t len, DeviceID sender) {
+const void pongCallback(const PongPacket &pong, DeviceID sender) {
   // printf("Data Received: %d\n", *dataPtr);
-  unsigned long roundTripTime = millis() - lastSendTime;
-
+  uint32_t now = millis();
+  uint32_t rtt = now - pong.timestamp_ms;
+  printf("Pong Packet Size: %d\n", sizeof(PongPacket));
   printf(">RTT:");
-  printf("%lu\n", roundTripTime);
+  printf("%lu\n", rtt);
 }
 
 const void keyDataCallback(const KeyData &packet, DeviceID sender) {
