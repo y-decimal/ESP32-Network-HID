@@ -1,7 +1,10 @@
+#ifndef EVENTHANDLERTASK_H
+#define EVENTHANDLERTASK_H
+
 #include <FreeRTOS.h>
+#include <queue.h>
 #include <submodules/EventRegistry.h>
 #include <submodules/EventTypes.h>
-#include <queue.h>
 
 void EventTask(void *arg) {
   QueueHandle_t queue = static_cast<QueueHandle_t>(arg);
@@ -15,3 +18,5 @@ void EventTask(void *arg) {
     }
   }
 }
+
+#endif
