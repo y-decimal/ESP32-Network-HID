@@ -1,6 +1,7 @@
 #ifndef KEYSCANNERTASK_H
 #define KEYSCANNERTASK_H
 
+#include <modules/TaskParameters.h>
 #include <shared/ConfigTypes.h>
 #include <shared/EventTypes.h>
 #include <submodules/KeyScanner.h>
@@ -17,7 +18,10 @@ void keyEventCallback(uint16_t keyIndex, bool state) {
 }
 
 void keyScannerTask(void *arg) {
-  KeyScannerConfig *moduleCfg = static_cast<KeyScannerConfig *>(arg);
+  KeyScannerParameters *params = static_cast<KeyScannerParameters *>(arg);
+
+  KeyScannerConfig *moduleCfg = params->config;
+  KeyScannerState *state = params->state;
 
   // Copy only the values we need to local stack variables
   countType rows = moduleCfg->rows;
@@ -45,6 +49,7 @@ void keyScannerTask(void *arg) {
 
   while (true) {
     keyScanner.updateKeyState();
+    keyScanner.copyPublishedBitmap(state->bitMap);
     xTaskDelayUntil(&previousWakeTime, refreshRateToTicks);
   }
 }
