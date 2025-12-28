@@ -8,7 +8,9 @@ extern QueueHandle_t priorityEventQueue;
 
 void keyEventCallback(uint16_t keyIndex, bool state) {
   KeyEvent keyEvent{keyIndex, state};
-  Event event{EventType::Key, keyEvent};
+  Event event{};
+  event.type = EventType::Key;
+  event.keyEvent = keyEvent;
   xQueueSend(priorityEventQueue, &event, pdMS_TO_TICKS(10));
 }
 
