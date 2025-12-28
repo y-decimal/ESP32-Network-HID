@@ -14,7 +14,7 @@ extern QueueHandle_t eventQueue;
 extern KeyScannerConfig keyCfg;
 extern BitMapSenderConfig bitmapCfg;
 
-void initSystemTasks(ConfigManager *cfgManager) {
+inline void initSystemTasks(ConfigManager *cfgManager) {
 
   priorityEventQueue = xQueueCreate(32, sizeof(Event));
   eventQueue = xQueueCreate(32, sizeof(Event));
