@@ -8,8 +8,6 @@
 #include <shared/DataTypes.h>
 #include <task.h>
 
-extern uint8_t *bitMapBuffer;
-
 void bitMapSenderTask(void *arg) {
   BitMapSenderParameters *params = static_cast<BitMapSenderParameters *>(arg);
 
@@ -18,8 +16,8 @@ void bitMapSenderTask(void *arg) {
     vTaskDelete(nullptr);
   }
   if (!params->config || !params->state || !params->callback) {
-    printf(
-        "[BitMapSenderTask]: Received invalid config/state/callback, aborting\n");
+    printf("[BitMapSenderTask]: Received invalid config/state/callback, "
+           "aborting\n");
     vTaskDelete(nullptr);
   }
 
