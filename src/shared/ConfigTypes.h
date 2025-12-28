@@ -6,7 +6,6 @@
 
 using pinType = uint8_t;
 using countType = uint8_t;
-using NodeIdType = uint8_t;
 
 static constexpr uint8_t MAX_PIN_COUNT = UINT8_MAX;
 
@@ -26,11 +25,12 @@ struct HardwareConfig {
 
   //
 
-  NodeIdType selfID;
   KeyMatrixConfig keyMatrix;
   InternalPinConfig internalPin;
 };
 
-struct UserConfig {};
+struct UserConfig {
+  DeviceRole role;
+};
 
 #endif
