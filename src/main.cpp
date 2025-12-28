@@ -9,6 +9,7 @@ ConfigManager mainCfg;
 QueueHandle_t priorityEventQueue;
 QueueHandle_t eventQueue;
 KeyScannerConfig keyCfg;
+BitMapSenderConfig bitmapCfg;
 
 void keyPrintCallback(const Event &event) {
   if (event.type != EventType::Key) {
@@ -36,7 +37,7 @@ void simulateConfig() {
   MacAddress mac = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
   gCfg.setMac(mac);
 
-  mainCfg.setGlobalConfig(gCfg);
+  mainCfg.setConfig(gCfg);
 
   KeyScannerConfig kCfg;
 
@@ -52,7 +53,14 @@ void simulateConfig() {
   kCfg.setColPins(COLPINS, 2);
   kCfg.refreshRate = refreshRate;
 
-  mainCfg.setKeyConfig(kCfg);
+  mainCfg.setConfig(kCfg);
+
+  BitMapSenderConfig bCfg;
+
+  uint16_t bitMapRefresh = 250;
+
+  bCfg.refreshRate = bitMapRefresh;
+  mainCfg.setConfig(bCfg);
 
   if (mainCfg.saveConfig())
     printf("Config saved to flash\n");
