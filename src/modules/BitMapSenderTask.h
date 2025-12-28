@@ -14,12 +14,12 @@ void bitMapSenderTask(void *arg) {
   BitMapSenderParameters *params = static_cast<BitMapSenderParameters *>(arg);
 
   if (!params) {
-    printf("[KeyScannerTask]: Received invalid parameters, aborting");
+    printf("[KeyScannerTask]: Received invalid parameters, aborting\n");
     vTaskDelete(nullptr);
   }
   if (!params->config || !params->state || !params->callback) {
     printf(
-        "[KeyScannerTask]: Received invalid config/state/callback, aborting");
+        "[KeyScannerTask]: Received invalid config/state/callback, aborting\n");
     vTaskDelete(nullptr);
   }
 

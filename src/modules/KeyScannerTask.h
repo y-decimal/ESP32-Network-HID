@@ -21,11 +21,11 @@ void keyScannerTask(void *arg) {
   KeyScannerParameters *params = static_cast<KeyScannerParameters *>(arg);
 
   if (!params) {
-    printf("[KeyScannerTask]: Received invalid parameters, aborting");
+    printf("[KeyScannerTask]: Received invalid parameters, aborting\n");
     vTaskDelete(nullptr);
   }
   if (!params->config || !params->state) {
-    printf("[KeyScannerTask]: Received invalid config or state, aborting");
+    printf("[KeyScannerTask]: Received invalid config or state, aborting\n");
     vTaskDelete(nullptr);
   }
 
