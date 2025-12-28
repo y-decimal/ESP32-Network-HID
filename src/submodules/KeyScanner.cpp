@@ -1,4 +1,4 @@
-#include <modules/KeyScanner.h>
+#include <submodules/KeyScanner.h>
 
 KeyScanner::KeyScanner(const uint8_t *rowPins, const uint8_t *colPins,
                        const uint8_t rowCount, const uint8_t colCount) {
