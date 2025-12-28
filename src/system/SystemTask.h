@@ -17,7 +17,9 @@ extern BitMapSenderConfig bitmapCfg;
 inline void initSystemTasks(ConfigManager *cfgManager) {
 
   priorityEventQueue = xQueueCreate(32, sizeof(Event));
+  configASSERT(priorityEventQueue != NULL);
   eventQueue = xQueueCreate(32, sizeof(Event));
+  configASSERT(eventQueue != NULL);
 
   keyCfg = cfgManager->getConfig<KeyScannerConfig>();
   bitmapCfg = cfgManager->getConfig<BitMapSenderConfig>();
