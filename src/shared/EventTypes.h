@@ -1,5 +1,5 @@
-#ifndef KEYTYPES_H
-#define KEYTYPES_H
+#ifndef EVENTTYPES_H
+#define EVENTTYPES_H
 
 #include <stdint.h>
 
