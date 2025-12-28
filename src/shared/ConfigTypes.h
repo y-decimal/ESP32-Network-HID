@@ -41,4 +41,9 @@ struct KeyScannerConfig {
   }
 };
 
+struct BitMapSenderConfig {
+  uint8_t bitMapSize = 1;
+  uint16_t refreshRate = 1;
+};
+
 #endif
