@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SYTEMTASK_H
+#define SYSTEMTASK_H
+
 #include <FreeRTOS.h>
 #include <shared/EventTypes.h>
 #include <tasks/KeyScannerTask.h>
@@ -13,3 +15,5 @@ void initSystemTasks() {
   xTaskCreatePinnedToCore(keyScannerTask, "KeyScanner", STACK_KEYSCAN,
                           &keyScanner, PRIORITY_KEYSCAN, nullptr, CORE_KEYSCAN);
 }
+
+#endif
