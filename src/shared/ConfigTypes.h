@@ -15,6 +15,8 @@ struct GlobalConfig {
   MacAddress deviceMac{};
 
   void setRoles(DeviceRole *roleArray, size_t arrSize) {
+    if (arrSize > (size_t)DeviceRole::Count)
+      return;
     memcpy(roles, roleArray, arrSize);
   }
   void setMac(MacAddress mac) { memcpy(deviceMac, mac, 6); }
@@ -28,9 +30,13 @@ struct KeyScannerConfig {
   uint16_t refreshRate = 1;
 
   void setRowPins(pinType *rowPinArray, size_t arrSize) {
+    if (arrSize > MAX_PIN_COUNT)
+      return;
     memcpy(rowPins, rowPinArray, arrSize);
   }
   void setColPins(pinType *colPinArray, size_t arrSize) {
+    if (arrSize > MAX_PIN_COUNT)
+      return;
     memcpy(colPins, colPinArray, arrSize);
   }
 };
