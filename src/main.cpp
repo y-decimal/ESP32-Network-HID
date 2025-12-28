@@ -52,7 +52,6 @@ void simulateConfig() {
   kCfg.setColPins(COLPINS, 2);
   kCfg.refreshRate = refreshRate;
 
-  mainCfg.setGlobalConfig(gCfg);
   mainCfg.setKeyConfig(kCfg);
 
   if (mainCfg.saveConfig())
