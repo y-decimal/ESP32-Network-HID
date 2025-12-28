@@ -1,5 +1,5 @@
 #ifndef CONFIGMANAGER_H
-#define CONFIGMANAGER_h
+#define CONFIGMANAGER_H
 
 #include <shared/ConfigTypes.h>
 #include <submodules/GenericStorage.h>
