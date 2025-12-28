@@ -6,15 +6,16 @@
 #include <modules/KeyScannerTask.h>
 #include <submodules/ConfigManager.h>
 
-QueueHandle_t priorityEventQueue;
-QueueHandle_t eventQueue;
-ConfigManager cfgManager;
+extern QueueHandle_t priorityEventQueue;
+extern QueueHandle_t eventQueue;
 
-void initSystemTasks() {
+extern KeyScannerConfig keyCfg;
+
+void initSystemTasks(ConfigManager *cfgManager) {
   priorityEventQueue = xQueueCreate(32, sizeof(Event));
   eventQueue = xQueueCreate(32, sizeof(Event));
 
-  KeyScannerConfig keyCfg = cfgManager.getKeyConfig();
+  keyCfg = cfgManager->getKeyConfig();
 
   xTaskCreatePinnedToCore(EventTask, "PriorityEventHandler",
                           STACK_PRIORITYEVENT, priorityEventQueue,
