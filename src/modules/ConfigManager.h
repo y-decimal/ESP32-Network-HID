@@ -6,7 +6,12 @@
 
 class ConfigManager {
 private:
-  GenericStorage<uint8_t> hardwareConfig;
+  GlobalConfig globalCfg;
+  KeyScannerConfig keyScannerCfg;
+
+public:
+  GlobalConfig getGlobalConfig() const;
+  KeyScannerConfig getKeyConfig() const;
 };
 
 #endif

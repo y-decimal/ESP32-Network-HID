@@ -1,6 +1,7 @@
 #ifndef CONFIGTYPES_G
 #define CONFIGTYPES_H
 
+#include <cstring>
 #include <shared/CommTypes.h>
 #include <stdint.h>
 
@@ -9,28 +10,17 @@ using countType = uint8_t;
 
 static constexpr uint8_t MAX_PIN_COUNT = UINT8_MAX;
 
-struct HardwareConfig {
-
-  struct KeyMatrixConfig {
-    countType rows;
-    countType cols;
-    pinType rowPins[MAX_PIN_COUNT];
-    pinType colPins[MAX_PIN_COUNT];
-  };
-
-  struct InternalPinConfig {
-    pinType internalLedPin;
-    pinType internalRgbPin;
-  };
-
-  //
-
-  KeyMatrixConfig keyMatrix;
-  InternalPinConfig internalPin;
+struct GlobalConfig {
+  DeviceRole roles[(size_t)DeviceRole::Count];
+  MacAddress deviceMac;
 };
 
-struct UserConfig {
-  DeviceRole role;
+struct KeyScannerConfig {
+  countType rows;
+  countType cols;
+  pinType rowPins[MAX_PIN_COUNT];
+  pinType colPins[MAX_PIN_COUNT];
+  uint16_t refreshRate;
 };
 
 #endif
