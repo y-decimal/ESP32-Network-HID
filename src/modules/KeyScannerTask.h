@@ -20,6 +20,15 @@ void keyEventCallback(uint16_t keyIndex, bool state) {
 void keyScannerTask(void *arg) {
   KeyScannerParameters *params = static_cast<KeyScannerParameters *>(arg);
 
+  if (!params) {
+    printf("[KeyScannerTask]: Received invalid parameters, aborting");
+    return;
+  }
+  if (!params->config || !params->state) {
+    printf("[KeyScannerTask]: Received invalid config or state, aborting");
+    return;
+  }
+
   KeyScannerConfig *moduleCfg = params->config;
   KeyScannerState *state = params->state;
 

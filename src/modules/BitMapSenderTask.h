@@ -13,6 +13,16 @@ extern uint8_t *bitMapBuffer;
 void bitMapSenderTask(void *arg) {
   BitMapSenderParameters *params = static_cast<BitMapSenderParameters *>(arg);
 
+  if (!params) {
+    printf("[KeyScannerTask]: Received invalid parameters, aborting");
+    return;
+  }
+  if (!params->config || !params->state || !params->callback) {
+    printf(
+        "[KeyScannerTask]: Received invalid config/state/callback, aborting");
+    return;
+  }
+
   BitMapSenderConfig *moduleCfg = params->config;
   KeyScannerState *state = params->state;
 
@@ -27,8 +37,7 @@ void bitMapSenderTask(void *arg) {
 
   while (true) {
     memcpy(localBitmapCopy, state->bitMap, state->bitMapSize);
-    if (params->callback)
-      params->callback(localBitmapCopy, state->bitMapSize);
+    params->callback(localBitmapCopy, state->bitMapSize);
     xTaskDelayUntil(&previousWakeTime, refreshRateTicks);
   }
 }
