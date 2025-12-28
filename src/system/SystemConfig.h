@@ -1,6 +1,11 @@
 #ifndef SYSTEMCONFIG_H
 #define SYSTEMCONFIG_H
 
+// Priority Event Task Config
+static const uint32_t STACK_PRIORITYEVENT = 4096;
+static const UBaseType_t PRIORITY_PRIORITYEVENT = 4;
+static const BaseType_t CORE_PRIORITYEVENT = 1;
+
 // KeyScanner Task Config
 static const uint32_t STACK_KEYSCAN = 4096;
 static const UBaseType_t PRIORITY_KEYSCAN = 5;
