@@ -11,16 +11,16 @@ using countType = uint8_t;
 static constexpr uint8_t MAX_PIN_COUNT = 50;
 
 struct GlobalConfig {
-  DeviceRole roles[(size_t)DeviceRole::Count];
-  MacAddress deviceMac;
+  DeviceRole roles[(size_t)DeviceRole::Count]{};
+  MacAddress deviceMac{};
 };
 
 struct KeyScannerConfig {
-  countType rows;
-  countType cols;
-  pinType rowPins[MAX_PIN_COUNT];
-  pinType colPins[MAX_PIN_COUNT];
-  uint16_t refreshRate;
+  countType rows = 0;
+  countType cols = 0;
+  pinType rowPins[MAX_PIN_COUNT]{};
+  pinType colPins[MAX_PIN_COUNT]{};
+  uint16_t refreshRate = 1;
 };
 
 #endif
