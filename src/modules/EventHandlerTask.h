@@ -3,8 +3,8 @@
 
 #include <FreeRTOS.h>
 #include <queue.h>
+#include <shared/EventTypes.h>
 #include <submodules/EventRegistry.h>
-#include <submodules/EventTypes.h>
 
 void EventTask(void *arg) {
   QueueHandle_t queue = static_cast<QueueHandle_t>(arg);
