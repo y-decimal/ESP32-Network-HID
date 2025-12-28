@@ -21,7 +21,7 @@ void bitMapSenderTask(void *arg) {
 
   uint8_t localBitmapCopy[bitMapSize];
 
-  TickType_t refreshRateTicks = pdMS_TO_TICKS(refreshRate / 1000);
+  TickType_t refreshRateTicks = pdMS_TO_TICKS(1000 / refreshRate);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
 

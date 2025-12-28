@@ -45,7 +45,7 @@ void keyScannerTask(void *arg) {
   keyScanner.registerOnKeyChangeCallback(keyEventCallback);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
-  TickType_t refreshRateToTicks = pdMS_TO_TICKS((refreshRate / 1000));
+  TickType_t refreshRateToTicks = pdMS_TO_TICKS((1000 / refreshRate));
 
   while (true) {
     keyScanner.updateKeyState();
