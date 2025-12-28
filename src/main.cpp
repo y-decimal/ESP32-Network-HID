@@ -44,7 +44,7 @@ void simulateConfig() {
   uint8_t colCount = 2;
   uint8_t ROWPINS[2] = {9, 10};
   uint8_t COLPINS[2] = {17, 18};
-  uint16_t refreshRate = 1000;
+  uint16_t refreshRate = refreshRate;
 
   kCfg.rows = rowCount;
   kCfg.cols = colCount;
