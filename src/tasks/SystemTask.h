@@ -2,13 +2,13 @@
 #define SYSTEMTASK_H
 
 #include <FreeRTOS.h>
+#include <modules/ConfigManager.h>
 #include <tasks/EventHandlerTask.h>
 #include <tasks/KeyScannerTask.h>
 
-extern QueueHandle_t priorityEventQueue;
-extern QueueHandle_t eventQueue;
-
-extern KeyScanner keyScanner;
+static QueueHandle_t priorityEventQueue;
+static QueueHandle_t eventQueue;
+static ConfigManager cfgManager;
 
 void initSystemTasks() {
   priorityEventQueue = xQueueCreate(32, sizeof(Event));
@@ -19,7 +19,8 @@ void initSystemTasks() {
                           PRIORITY_PRIORITYEVENT, nullptr, CORE_PRIORITYEVENT);
 
   xTaskCreatePinnedToCore(keyScannerTask, "KeyScanner", STACK_KEYSCAN,
-                          &keyScanner, PRIORITY_KEYSCAN, nullptr, CORE_KEYSCAN);
+                          (void *)&cfgManager.getKeyConfig(), PRIORITY_KEYSCAN, nullptr,
+                          CORE_KEYSCAN);
 }
 
 #endif
