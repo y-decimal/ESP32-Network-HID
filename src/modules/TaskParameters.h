@@ -9,4 +9,9 @@ struct KeyScannerParameters {
   KeyScannerState *state;
 };
 
+struct BitMapSenderParameters {
+  BitMapSenderConfig *config;
+  KeyScannerState *state;
+};
+
 #endif
