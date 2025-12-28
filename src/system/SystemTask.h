@@ -12,7 +12,7 @@ extern QueueHandle_t priorityEventQueue;
 extern QueueHandle_t eventQueue;
 
 extern KeyScannerConfig keyCfg;
-extern BitMapSenderConfig bitmapCfg;
+extern BitMapSenderConfig bitMapCfg;
 
 inline void initSystemTasks(ConfigManager *cfgManager) {
 
@@ -22,7 +22,7 @@ inline void initSystemTasks(ConfigManager *cfgManager) {
   configASSERT(eventQueue != NULL);
 
   keyCfg = cfgManager->getConfig<KeyScannerConfig>();
-  bitmapCfg = cfgManager->getConfig<BitMapSenderConfig>();
+  bitMapCfg = cfgManager->getConfig<BitMapSenderConfig>();
 
   static KeyScannerState scannerState;
   scannerState.bitMapSize = (keyCfg.rows * keyCfg.cols + 7) / 8;
@@ -34,7 +34,7 @@ inline void initSystemTasks(ConfigManager *cfgManager) {
   keyParams.state = &scannerState;
 
   static BitMapSenderParameters bitmapParams;
-  bitmapParams.config = &bitmapCfg;
+  bitmapParams.config = &bitMapCfg;
   bitmapParams.state = &scannerState;
 
   xTaskCreatePinnedToCore(EventTask, "PriorityEventHandler",

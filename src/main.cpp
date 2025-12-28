@@ -9,7 +9,7 @@ ConfigManager mainCfg;
 QueueHandle_t priorityEventQueue;
 QueueHandle_t eventQueue;
 KeyScannerConfig keyCfg;
-BitMapSenderConfig bitmapCfg;
+BitMapSenderConfig bitMapCfg;
 
 void keyPrintCallback(const Event &event) {
   if (event.type != EventType::Key) {

@@ -10,8 +10,8 @@ private:
       GenericStorage<GlobalConfig>("globalCfg");
   GenericStorage<KeyScannerConfig> keyScannerCfg =
       GenericStorage<KeyScannerConfig>("keyScannerCfg");
-  GenericStorage<BitMapSenderConfig> bitmapCfg =
-      GenericStorage<BitMapSenderConfig>("bitmapCfg");
+  GenericStorage<BitMapSenderConfig> bitMapCfg =
+      GenericStorage<BitMapSenderConfig>("bitMapCfg");
 
 public:
   template <typename T> T getConfig() const;
@@ -34,7 +34,7 @@ inline KeyScannerConfig ConfigManager::getConfig<KeyScannerConfig>() const {
 
 template <>
 inline BitMapSenderConfig ConfigManager::getConfig<BitMapSenderConfig>() const {
-  return bitmapCfg.get();
+  return bitMapCfg.get();
 }
 
 template <>
@@ -51,7 +51,7 @@ ConfigManager::setConfig<KeyScannerConfig>(const KeyScannerConfig &cfg) {
 template <>
 inline void
 ConfigManager::setConfig<BitMapSenderConfig>(const BitMapSenderConfig &cfg) {
-  bitmapCfg.set(cfg);
+  bitMapCfg.set(cfg);
 }
 
 #endif

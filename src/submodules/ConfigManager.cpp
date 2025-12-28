@@ -14,8 +14,8 @@ bool ConfigManager::saveConfig() {
     keySaved = keyScannerCfg.save();
   else
     keySaved = true;
-  if (bitmapCfg.isDirty())
-    bitmapSaved = bitmapCfg.save();
+  if (bitMapCfg.isDirty())
+    bitmapSaved = bitMapCfg.save();
   else
     bitmapSaved = true;
   return globalSaved && keySaved && bitmapSaved;
@@ -35,8 +35,8 @@ bool ConfigManager::loadConfig() {
     keyLoaded = keyScannerCfg.load();
   else
     keyLoaded = true;
-  if (!bitmapCfg.isDirty())
-    bitmapLoaded = bitmapCfg.load();
+  if (!bitMapCfg.isDirty())
+    bitmapLoaded = bitMapCfg.load();
   else
     bitmapLoaded = true;
 
