@@ -1,4 +1,6 @@
-#pragma once
+#ifndef KEYSCANNERTASK_H
+#define KEYSCANNERTASK_H
+
 #include <shared/ConfigTypes.h>
 #include <shared/EventTypes.h>
 #include <submodules/KeyScanner.h>
@@ -43,6 +45,8 @@ void keyScannerTask(void *arg) {
 
   while (true) {
     keyScanner.updateKeyState();
-    xTaskDelayUntil(&previousWakeTime, pdMS_TO_TICKS(refreshRateToTicks));
+    xTaskDelayUntil(&previousWakeTime, refreshRateToTicks);
   }
 }
+
+#endif
