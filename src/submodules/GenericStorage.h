@@ -22,7 +22,7 @@ private:
 public:
   GenericStorage(const char *key) : key(key) {}
 
-  Data get() const { return dataBlock.data; }
+  DATA get() const { return dataBlock.data; }
 
   void set(const DATA &in) {
     dataBlock.data = in;
@@ -52,7 +52,7 @@ public:
     if (chkSumBuffer != dataBuffer.checksum)
       return false;
 
-    dataBlock = buffer;
+    dataBlock = dataBuffer;
     dirty = false;
 
     return true;
