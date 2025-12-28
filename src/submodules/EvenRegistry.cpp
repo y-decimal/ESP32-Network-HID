@@ -1,4 +1,4 @@
-#include <modules/EventRegistry.h>
+#include <submodules/EventRegistry.h>
 
 EventRegistry::EventCallback EventRegistry::handlers[(size_t)EventType::COUNT] =
     {nullptr};

@@ -2,9 +2,9 @@
 #define SYSTEMTASK_H
 
 #include <FreeRTOS.h>
-#include <modules/ConfigManager.h>
-#include <tasks/EventHandlerTask.h>
-#include <tasks/KeyScannerTask.h>
+#include <submodules/ConfigManager.h>
+#include <modules/EventHandlerTask.h>
+#include <modules/KeyScannerTask.h>
 
 static QueueHandle_t priorityEventQueue;
 static QueueHandle_t eventQueue;

@@ -1,7 +1,7 @@
 #ifndef CONFIGMANAGER_H
 #define CONFIGMANAGER_h
 
-#include <modules/GenericStorage.h>
+#include <submodules/GenericStorage.h>
 #include <shared/ConfigTypes.h>
 
 class ConfigManager {

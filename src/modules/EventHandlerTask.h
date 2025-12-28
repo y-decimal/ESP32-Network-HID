@@ -1,5 +1,5 @@
 #include <FreeRTOS.h>
-#include <modules/EventRegistry.h>
+#include <submodules/EventRegistry.h>
 #include <queue.h>
 
 void EventTask(void *arg) {

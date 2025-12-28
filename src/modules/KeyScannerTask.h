@@ -1,5 +1,5 @@
 #pragma once
-#include <modules/KeyScanner.h>
+#include <submodules/KeyScanner.h>
 #include <shared/ConfigTypes.h>
 #include <shared/EventTypes.h>
 #include <system/SystemConfig.h>
