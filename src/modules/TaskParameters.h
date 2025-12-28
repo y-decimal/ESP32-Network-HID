@@ -5,13 +5,16 @@
 #include <submodules/ConfigManager.h>
 
 struct KeyScannerParameters {
-  KeyScannerConfig *config;
-  KeyScannerState *state;
+  KeyScannerConfig *config = nullptr;
+  KeyScannerState *state = nullptr;
 };
 
 struct BitMapSenderParameters {
-  BitMapSenderConfig *config;
-  KeyScannerState *state;
+  using BitmapSendCallback = void (*)(const uint8_t *data, uint8_t size);
+
+  BitMapSenderConfig *config = nullptr;
+  KeyScannerState *state = nullptr;
+  BitmapSendCallback callback = nullptr;
 };
 
 #endif
