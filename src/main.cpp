@@ -24,7 +24,7 @@ void keyPrintCallback(const Event &event) {
 void simulateConfig() {
 
   if (mainCfg.loadConfig()) {
-    printf("Congif loaded from flash\n");
+    printf("Config loaded from flash\n");
     return;
   }
 
