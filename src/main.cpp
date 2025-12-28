@@ -22,6 +22,12 @@ void keyPrintCallback(const Event &event) {
 }
 
 void simulateConfig() {
+
+  if (mainCfg.loadConfig()) {
+    printf("Congif loaded from flash\n");
+    return;
+  }
+
   GlobalConfig gCfg;
 
   DeviceRole roles[1] = {DeviceRole::Keyboard};
@@ -48,6 +54,11 @@ void simulateConfig() {
 
   mainCfg.setGlobalConfig(gCfg);
   mainCfg.setKeyConfig(kCfg);
+
+  if (mainCfg.saveConfig())
+    printf("Config saved to flash\n");
+  else
+    printf("Saving config failed\n");
 }
 
 void setup() {
