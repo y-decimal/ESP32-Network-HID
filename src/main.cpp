@@ -50,7 +50,7 @@ void simulateConfig() {
   kCfg.cols = colCount;
   kCfg.setRowPins(ROWPINS, 2);
   kCfg.setColPins(COLPINS, 2);
-  kCfg.refreshRate = 1000;
+  kCfg.refreshRate = refreshRate;
 
   mainCfg.setGlobalConfig(gCfg);
   mainCfg.setKeyConfig(kCfg);
