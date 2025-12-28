@@ -3,11 +3,11 @@
 #include <shared/CommTypes.h>
 #include <system/SystemConfig.h>
 
-extern QueueHandle_t EventQueue;
+extern QueueHandle_t priorityEventQueue;
 
 void keyEventCallback(uint16_t keyIndex, bool state) {
   KeyEvent event{keyIndex, state};
-  xQueueSend(EventQueue, &event, pdMS_TO_TICKS(10));
+  xQueueSend(priorityEventQueue, &event, pdMS_TO_TICKS(10));
 }
 
 void keyScannerTask(void *arg) {
