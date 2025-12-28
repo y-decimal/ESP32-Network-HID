@@ -1,4 +1,4 @@
-#ifndef CONFIGTYPES_G
+#ifndef CONFIGTYPES_H
 #define CONFIGTYPES_H
 
 #include <cstring>
