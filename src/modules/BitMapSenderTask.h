@@ -27,6 +27,8 @@ void bitMapSenderTask(void *arg) {
 
   while (true) {
     memcpy(localBitmapCopy, state->bitMap, state->bitMapSize);
+    if (params->callback)
+      params->callback(localBitmapCopy, state->bitMapSize);
     xTaskDelayUntil(&previousWakeTime, refreshRateTicks);
   }
 }
