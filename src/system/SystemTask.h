@@ -22,28 +22,28 @@ inline void initSystemTasks(ConfigManager *cfgManager) {
   keyCfg = cfgManager->getConfig<KeyScannerConfig>();
   bitmapCfg = cfgManager->getConfig<BitMapSenderConfig>();
 
-  KeyScannerState *scannerState = new KeyScannerState;
-  scannerState->bitMapSize = (keyCfg.rows * keyCfg.cols + 7) / 8;
-  scannerState->bitMap = new uint8_t[scannerState->bitMapSize];
-  memset(scannerState->bitMap, 0, scannerState->bitMapSize);
+  static KeyScannerState scannerState;
+  scannerState.bitMapSize = (keyCfg.rows * keyCfg.cols + 7) / 8;
+  scannerState.bitMap = new uint8_t[scannerState.bitMapSize];
+  memset(scannerState.bitMap, 0, scannerState.bitMapSize);
 
-  KeyScannerParameters *keyParams = new KeyScannerParameters;
-  keyParams->config = &keyCfg;
-  keyParams->state = scannerState;
+  static KeyScannerParameters keyParams;
+  keyParams.config = &keyCfg;
+  keyParams.state = &scannerState;
 
-  BitMapSenderParameters *bitmapParams = new BitMapSenderParameters;
-  bitmapParams->config = &bitmapCfg;
-  bitmapParams->state = scannerState;
+  static BitMapSenderParameters bitmapParams;
+  bitmapParams.config = &bitmapCfg;
+  bitmapParams.state = &scannerState;
 
   xTaskCreatePinnedToCore(EventTask, "PriorityEventHandler",
                           STACK_PRIORITYEVENT, priorityEventQueue,
                           PRIORITY_PRIORITYEVENT, nullptr, CORE_PRIORITYEVENT);
 
   xTaskCreatePinnedToCore(keyScannerTask, "KeyScanner", STACK_KEYSCAN,
-                          keyParams, PRIORITY_KEYSCAN, nullptr, CORE_KEYSCAN);
+                          &keyParams, PRIORITY_KEYSCAN, nullptr, CORE_KEYSCAN);
 
   xTaskCreatePinnedToCore(bitMapSenderTask, "BitmapSender", STACK_BITMAP,
-                          bitmapParams, PRIORITY_BITMAP, nullptr, CORE_BITMAP);
+                          &bitmapParams, PRIORITY_BITMAP, nullptr, CORE_BITMAP);
 }
 
 #endif
