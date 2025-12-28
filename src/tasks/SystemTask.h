@@ -1,6 +1,6 @@
 #pragma once
 #include <FreeRTOS.h>
-#include <shared/KeyTypes.h>
+#include <shared/EventTypes.h>
 #include <tasks/KeyScannerTask.h>
 
 extern QueueHandle_t keyEventQueue;
