@@ -1,12 +1,13 @@
 #pragma once
 #include <modules/KeyScanner.h>
-#include <shared/CommTypes.h>
+#include <shared/EventTypes.h>
 #include <system/SystemConfig.h>
 
 extern QueueHandle_t priorityEventQueue;
 
 void keyEventCallback(uint16_t keyIndex, bool state) {
-  KeyEvent event{keyIndex, state};
+  KeyEvent keyEvent{keyIndex, state};
+  Event event{EventType::Key, keyEvent};
   xQueueSend(priorityEventQueue, &event, pdMS_TO_TICKS(10));
 }
 
