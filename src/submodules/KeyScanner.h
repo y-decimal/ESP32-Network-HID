@@ -6,8 +6,8 @@
 
 class KeyScanner {
 private:
-  std::vector<uint8_t> rowPins;
-  std::vector<uint8_t> colPins;
+  const uint8_t *rowPins;
+  const uint8_t *colPins;
   size_t rowCount;
   size_t colCount;
 
@@ -33,29 +33,8 @@ private:
 #endif
 
 public:
-  template <size_t Rows, size_t Cols>
-  KeyScanner(const uint8_t (&rowPins)[Rows], const uint8_t (&colPins)[Cols]) {
-    rowCount = Rows;
-    colCount = Cols;
-
-    this->rowPins.assign(rowPins, rowPins + Rows);
-    this->colPins.assign(colPins, colPins + Cols);
-
-    bitMapSize = (rowCount * colCount + 7) / 8;
-
-    keyMapSwapBufferA.resize(bitMapSize);
-    keyMapSwapBufferB.resize(bitMapSize);
-
-    workingBuffer = keyMapSwapBufferA.data();
-    publishedBuffer = keyMapSwapBufferB.data();
-
-    for (size_t r = 0; r < rowCount; r++) {
-      pinMode(rowPins[r], INPUT_PULLUP);
-    }
-    for (size_t c = 0; c < colCount; c++) {
-      pinMode(colPins[c], INPUT_PULLUP);
-    }
-  }
+  KeyScanner(const uint8_t *rowPins, const uint8_t *colPins,
+             const uint8_t rowCount, const uint8_t colCount);
 
   void registerOnKeyChangeCallback(
       const std::function<void(uint16_t keyIndex, bool pressed)> &callback) {
