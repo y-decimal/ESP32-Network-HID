@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+typedef uint8_t MacAddress[6];
+
 enum class NodeID : uint8_t {
   // Fixed NodeIDs, number of elements limits maximum concurrent connections
   // 10 should be enough, but can easily be increased if necessary
