@@ -19,9 +19,12 @@ bool ConfigManager::saveConfig() {
 
   if (globalCfg.isDirty())
     globalSaved = globalCfg.save();
+  else
+    globalSaved = true;
   if (keyScannerCfg.isDirty())
     keySaved = keyScannerCfg.save();
-
+  else
+    keySaved = true;
   return globalSaved && keySaved;
 }
 
@@ -32,8 +35,12 @@ bool ConfigManager::loadConfig() {
 
   if (!globalCfg.isDirty())
     globalLoaded = globalCfg.load();
+  else
+    globalLoaded = true;
   if (!keyScannerCfg.isDirty())
     keyLoaded = keyScannerCfg.load();
+  else
+    keyLoaded = true;
 
   return globalLoaded && keyLoaded;
 }
