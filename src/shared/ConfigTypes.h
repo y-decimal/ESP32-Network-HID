@@ -8,7 +8,7 @@
 using pinType = uint8_t;
 using countType = uint8_t;
 
-static constexpr uint8_t MAX_PIN_COUNT = UINT8_MAX;
+static constexpr uint8_t MAX_PIN_COUNT = 50;
 
 struct GlobalConfig {
   DeviceRole roles[(size_t)DeviceRole::Count];
