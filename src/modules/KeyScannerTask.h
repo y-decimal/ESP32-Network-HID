@@ -1,7 +1,7 @@
 #pragma once
-#include <submodules/KeyScanner.h>
 #include <shared/ConfigTypes.h>
 #include <shared/EventTypes.h>
+#include <submodules/KeyScanner.h>
 #include <system/SystemConfig.h>
 
 extern QueueHandle_t priorityEventQueue;
@@ -13,15 +13,31 @@ void keyEventCallback(uint16_t keyIndex, bool state) {
 }
 
 void keyScannerTask(void *arg) {
-  KeyScannerConfig moduleCfg = *static_cast<KeyScannerConfig *>(arg);
+  KeyScannerConfig *moduleCfg = static_cast<KeyScannerConfig *>(arg);
 
-  KeyScanner keyScanner = KeyScanner(moduleCfg.rowPins, moduleCfg.colPins,
-                                     moduleCfg.rows, moduleCfg.cols);
+  // Copy only the values we need to local stack variables
+  countType rows = moduleCfg->rows;
+  countType cols = moduleCfg->cols;
+  uint16_t refreshRate = moduleCfg->refreshRate;
+
+  // Create appropriately-sized local arrays and copy pin data
+  pinType rowPins[rows];
+  pinType colPins[cols];
+
+  for (countType i = 0; i < rows; i++) {
+    rowPins[i] = moduleCfg->rowPins[i];
+  }
+
+  for (countType i = 0; i < cols; i++) {
+    colPins[i] = moduleCfg->colPins[i];
+  }
+
+  KeyScanner keyScanner = KeyScanner(rowPins, colPins, rows, cols);
 
   keyScanner.registerOnKeyChangeCallback(keyEventCallback);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
-  TickType_t refreshRateToTicks = pdMS_TO_TICKS((moduleCfg.refreshRate / 1000));
+  TickType_t refreshRateToTicks = pdMS_TO_TICKS((refreshRate / 1000));
 
   while (true) {
     keyScanner.updateKeyState();
