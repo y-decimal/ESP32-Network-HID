@@ -6,8 +6,10 @@
 
 class ConfigManager {
 private:
-  GlobalConfig globalCfg;
-  KeyScannerConfig keyScannerCfg;
+  GenericStorage<GlobalConfig> globalCfg =
+      GenericStorage<GlobalConfig>("globalCfg");
+  GenericStorage<KeyScannerConfig> keyScannerCfg =
+      GenericStorage<KeyScannerConfig>("keyScannerCfg");
 
 public:
   GlobalConfig getGlobalConfig() const;
@@ -15,6 +17,9 @@ public:
 
   void setGlobalConfig(GlobalConfig cfg);
   void setKeyConfig(KeyScannerConfig cfg);
+
+  bool saveConfig();
+  bool loadConfig();
 };
 
 #endif
