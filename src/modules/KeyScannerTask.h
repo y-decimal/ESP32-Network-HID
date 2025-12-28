@@ -12,7 +12,7 @@ void keyEventCallback(uint16_t keyIndex, bool state) {
   KeyEvent keyEvent{keyIndex, state};
   Event event{};
   event.type = EventType::Key;
-  event.keyEvent = keyEvent;
+  event.key = keyEvent;
   xQueueSend(priorityEventQueue, &event, pdMS_TO_TICKS(10));
 }
 
