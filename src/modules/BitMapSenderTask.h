@@ -15,12 +15,12 @@ void bitMapSenderTask(void *arg) {
 
   if (!params) {
     printf("[KeyScannerTask]: Received invalid parameters, aborting");
-    return;
+    vTaskDelete(nullptr);
   }
   if (!params->config || !params->state || !params->callback) {
     printf(
         "[KeyScannerTask]: Received invalid config/state/callback, aborting");
-    return;
+    vTaskDelete(nullptr);
   }
 
   BitMapSenderConfig *moduleCfg = params->config;

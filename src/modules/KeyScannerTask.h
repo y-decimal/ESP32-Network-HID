@@ -22,11 +22,11 @@ void keyScannerTask(void *arg) {
 
   if (!params) {
     printf("[KeyScannerTask]: Received invalid parameters, aborting");
-    return;
+    vTaskDelete(nullptr);
   }
   if (!params->config || !params->state) {
     printf("[KeyScannerTask]: Received invalid config or state, aborting");
-    return;
+    vTaskDelete(nullptr);
   }
 
   KeyScannerConfig *moduleCfg = params->config;
