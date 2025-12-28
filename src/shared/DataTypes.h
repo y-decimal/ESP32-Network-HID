@@ -1,12 +1,12 @@
 #ifndef DATATYPES_H
 #define DATATYPES_H
 
-#include <stdint.h>
 #include <cstring>
+#include <stdint.h>
 
 struct KeyScannerState {
   uint8_t *bitMap;
-  size_t bitMapSize;
+  uint8_t bitMapSize;
 };
 
 #endif
