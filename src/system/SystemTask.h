@@ -2,6 +2,7 @@
 #define SYSTEMTASK_H
 
 #include <FreeRTOS.h>
+#include <modules/BitMapSenderTask.h>
 #include <modules/EventHandlerTask.h>
 #include <modules/KeyScannerTask.h>
 #include <modules/TaskParameters.h>
@@ -11,13 +12,15 @@ extern QueueHandle_t priorityEventQueue;
 extern QueueHandle_t eventQueue;
 
 extern KeyScannerConfig keyCfg;
+extern BitMapSenderConfig bitmapCfg;
 
 void initSystemTasks(ConfigManager *cfgManager) {
 
   priorityEventQueue = xQueueCreate(32, sizeof(Event));
   eventQueue = xQueueCreate(32, sizeof(Event));
 
-  keyCfg = cfgManager->getKeyConfig();
+  keyCfg = cfgManager->getConfig<KeyScannerConfig>();
+  bitmapCfg = cfgManager->getConfig<BitMapSenderConfig>();
 
   KeyScannerState *scannerState = new KeyScannerState;
   scannerState->bitMapSize = (keyCfg.rows * keyCfg.cols + 7) / 8;
@@ -28,12 +31,19 @@ void initSystemTasks(ConfigManager *cfgManager) {
   keyParams->config = &keyCfg;
   keyParams->state = scannerState;
 
+  BitMapSenderParameters *bitmapParams = new BitMapSenderParameters;
+  bitmapParams->config = &bitmapCfg;
+  bitmapParams->state = scannerState;
+
   xTaskCreatePinnedToCore(EventTask, "PriorityEventHandler",
                           STACK_PRIORITYEVENT, priorityEventQueue,
                           PRIORITY_PRIORITYEVENT, nullptr, CORE_PRIORITYEVENT);
 
   xTaskCreatePinnedToCore(keyScannerTask, "KeyScanner", STACK_KEYSCAN,
                           keyParams, PRIORITY_KEYSCAN, nullptr, CORE_KEYSCAN);
+
+  xTaskCreatePinnedToCore(bitMapSenderTask, "BitmapSender", STACK_BITMAP,
+                          bitmapParams, PRIORITY_BITMAP, nullptr, CORE_BITMAP);
 }
 
 #endif
