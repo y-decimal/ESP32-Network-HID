@@ -25,7 +25,7 @@ void bitMapSenderTask(void *arg) {
   KeyScannerState *state = params->state;
 
   uint8_t bitMapSize = state->bitMapSize;
-  uint16_t refreshRate = moduleCfg->refreshRate;
+  uint16_t refreshRate = moduleCfg->getRefreshRate();
 
   uint8_t localBitmapCopy[bitMapSize];
 

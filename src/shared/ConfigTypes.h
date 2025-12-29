@@ -23,11 +23,13 @@ struct GlobalConfig {
 };
 
 struct KeyScannerConfig {
+  static constexpr uint16_t MIN_REFRESH_RATE = 1;
+  static constexpr uint16_t MAX_REFRESH_RATE = 4000;
+
   countType rows = 0;
   countType cols = 0;
   pinType rowPins[MAX_PIN_COUNT]{};
   pinType colPins[MAX_PIN_COUNT]{};
-  uint16_t refreshRate = 1;
 
   void setRowPins(pinType *rowPinArray, size_t arrSize) {
     if (arrSize > MAX_PIN_COUNT)
@@ -39,9 +41,29 @@ struct KeyScannerConfig {
       return;
     memcpy(colPins, colPinArray, arrSize);
   }
+  void setRefreshRate(uint16_t rate) {
+    if (rate < MIN_REFRESH_RATE || rate > MAX_REFRESH_RATE)
+      return;
+    refreshRate = rate;
+  }
+  uint16_t getRefreshRate() const { return refreshRate; }
+
+private:
+  uint16_t refreshRate = 1;
 };
 
 struct BitMapSenderConfig {
+  static constexpr uint16_t MIN_REFRESH_RATE = 1;
+  static constexpr uint16_t MAX_REFRESH_RATE = 1000;
+
+  void setRefreshRate(uint16_t rate) {
+    if (rate < MIN_REFRESH_RATE || rate > MAX_REFRESH_RATE)
+      return;
+    refreshRate = rate;
+  }
+  uint16_t getRefreshRate() const { return refreshRate; }
+
+private:
   uint16_t refreshRate = 1;
 };
 

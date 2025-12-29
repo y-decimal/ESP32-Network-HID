@@ -51,15 +51,15 @@ void simulateConfig() {
   kCfg.cols = colCount;
   kCfg.setRowPins(ROWPINS, 2);
   kCfg.setColPins(COLPINS, 2);
-  kCfg.refreshRate = refreshRate;
+  kCfg.setRefreshRate(refreshRate);
 
   mainCfg.setConfig(kCfg);
 
   BitMapSenderConfig bCfg;
 
-  uint16_t bitMapRefresh = 250;
+  uint16_t bitMapRefresh = refreshRate / 4;
 
-  bCfg.refreshRate = bitMapRefresh;
+  bCfg.setRefreshRate(bitMapRefresh);
   mainCfg.setConfig(bCfg);
 
   if (mainCfg.saveConfig())

@@ -35,7 +35,7 @@ void keyScannerTask(void *arg) {
   // Copy only the values we need to local stack variables
   countType rows = moduleCfg->rows;
   countType cols = moduleCfg->cols;
-  uint16_t refreshRate = moduleCfg->refreshRate;
+  uint16_t refreshRate = moduleCfg->getRefreshRate();
 
   // Create appropriately-sized local arrays and copy pin data
   pinType rowPins[rows];
