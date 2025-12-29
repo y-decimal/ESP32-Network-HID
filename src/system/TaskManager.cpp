@@ -22,17 +22,5 @@ void TaskManager::initializeTasks() {
 
   // EventHandler always runs
   startPriorityEventHandler();
-
-  for (size_t i = 0; i < sizeof(roles); i++) {
-    switch (roles[i]) {
-    case DeviceRole::Keyboard:
-      startKeyScanner();
-      break;
-    case DeviceRole::Master:
-      // start master modules here
-      break;
-    default:
-      break;
-    }
-  }
+  startKeyScanner();
 }
