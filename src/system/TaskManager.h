@@ -2,7 +2,6 @@
 #define TASKMANAGER_H
 
 #include <FreeRTOS.h>
-#include <shared/DataTypes.h>
 #include <submodules/ConfigManager.h>
 #include <submodules/EventRegistry.h>
 #include <system/SystemConfig.h>
@@ -40,7 +39,6 @@ private:
   // === Internal helpers ===
   void applyConfigChanges();
   void checkTaskHealth();
-  IBitMapRoutingStrategy *createRoutingStrategy();
   void registerEventCallbacks();
 
   // === State ===
@@ -53,8 +51,6 @@ private:
   TaskHandle_t bitmapSenderHandle = nullptr;
   TaskHandle_t eventManagerHandle = nullptr;
   TaskHandle_t managerHandle = nullptr;
-
-  KeyScannerState *keyScannerState = nullptr;
 };
 
 #endif

@@ -1,3 +1,4 @@
+#include <shared/EventTypes.h>
 #include <submodules/KeyScanner.h>
 #include <system/TaskManager.h>
 
@@ -11,6 +12,19 @@ void keyEventCallback(uint16_t keyIndex, bool state) {
   xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10));
 }
 
+void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap) {
+  BitMapEvent bitMapEvent{};
+  uint8_t copySize = bitMapSize;
+  if (copySize > sizeof(bitMapEvent.bitMap)) {
+    copySize = static_cast<uint8_t>(sizeof(bitMapEvent.bitMap));
+  }
+  memcpy(bitMapEvent.bitMap, bitMap, copySize);
+  Event event{};
+  event.type = EventType::BitMap;
+  event.bitMap = bitMapEvent;
+  xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10));
+}
+
 void TaskManager::keyScannerTask(void *arg) {
   KeyScannerParameters *params = static_cast<KeyScannerParameters *>(arg);
 
@@ -18,9 +32,8 @@ void TaskManager::keyScannerTask(void *arg) {
     printf("[KeyScannerTask]: Received invalid parameters, aborting\n");
     vTaskDelete(nullptr);
   }
-  if (!params->configManager || !params->state) {
-    printf("[KeyScannerTask]: Received invalid configManager or state, "
-           "aborting\n");
+  if (!params->configManager) {
+    printf("[KeyScannerTask]: Received invalid configManager, aborting\n");
     vTaskDelete(nullptr);
   }
 
@@ -31,7 +44,6 @@ void TaskManager::keyScannerTask(void *arg) {
   // snapshot.
   KeyScannerConfig localConfig =
       params->configManager->getConfig<KeyScannerConfig>();
-  KeyScannerState *state = params->state;
 
   delete params;
 
@@ -39,6 +51,7 @@ void TaskManager::keyScannerTask(void *arg) {
   countType rows = localConfig.rows;
   countType cols = localConfig.cols;
   uint16_t refreshRate = localConfig.getRefreshRate();
+  uint16_t bitMapRatio = localConfig.getBitMapSendInterval();
 
   // Create appropriately-sized local arrays and copy pin data
   pinType rowPins[rows];
@@ -59,9 +72,18 @@ void TaskManager::keyScannerTask(void *arg) {
   TickType_t previousWakeTime = xTaskGetTickCount();
   TickType_t refreshRateToTicks = pdMS_TO_TICKS((1000 / refreshRate));
 
+  uint16_t loopsSinceLastBitMap = 0;
+  uint8_t bitMapCopy[BITMAPSIZE]{};
+
   while (true) {
+    loopsSinceLastBitMap++;
     keyScanner.updateKeyState();
-    keyScanner.copyPublishedBitmap(state->bitMap);
+    if (loopsSinceLastBitMap >= bitMapRatio) {
+      uint8_t bitMapSize = (uint8_t)keyScanner.getBitMapSize();
+      keyScanner.copyPublishedBitmap(bitMapCopy);
+      sendBitMapEvent(bitMapSize, bitMapCopy);
+      loopsSinceLastBitMap = 0;
+    }
     xTaskDelayUntil(&previousWakeTime, refreshRateToTicks);
   }
 }
@@ -75,7 +97,6 @@ void TaskManager::startKeyScanner() {
 
   KeyScannerParameters keyParams;
   keyParams.configManager = &configManager;
-  keyParams.state = keyScannerState;
   keyParams.eventQueueHandle = highPrioEventQueue;
   xTaskCreatePinnedToCore(keyScannerTask, "KeyScanner", STACK_KEYSCAN,
                           &keyParams, PRIORITY_KEYSCAN, &keyScannerHandle,

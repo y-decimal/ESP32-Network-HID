@@ -36,35 +36,35 @@ struct KeyScannerConfig {
       return;
     memcpy(rowPins, rowPinArray, arrSize);
   }
+
   void setColPins(pinType *colPinArray, size_t arrSize) {
     if (arrSize > MAX_PIN_COUNT)
       return;
     memcpy(colPins, colPinArray, arrSize);
   }
-  void setRefreshRate(uint16_t rate) {
-    if (rate < MIN_REFRESH_RATE || rate > MAX_REFRESH_RATE)
-      return;
-    refreshRate = rate;
-  }
-  uint16_t getRefreshRate() const { return refreshRate; }
-
-private:
-  uint16_t refreshRate = 1;
-};
-
-struct BitMapSenderConfig {
-  static constexpr uint16_t MIN_REFRESH_RATE = 1;
-  static constexpr uint16_t MAX_REFRESH_RATE = 1000;
 
   void setRefreshRate(uint16_t rate) {
     if (rate < MIN_REFRESH_RATE || rate > MAX_REFRESH_RATE)
       return;
     refreshRate = rate;
   }
+
+  void setBitMapSendInterval(uint16_t rateDivisor) {
+    if (rateDivisor < 2 || rateDivisor > 5000)
+      // Limited to a range of 2-5000, to ensure bitmaps aren't sent every
+      // single loop (as this would most likely block the ESP communication),
+      // and 5000 to ensure we don't exceed the uin16_t limit and also stay
+      // wihtin reasonable bounds for regular bitMap refreshes
+      return;
+    bitMapSendInterval = rateDivisor;
+  }
+
   uint16_t getRefreshRate() const { return refreshRate; }
+  uint16_t getBitMapSendInterval() const { return bitMapSendInterval; }
 
 private:
   uint16_t refreshRate = 1;
+  uint16_t bitMapSendInterval = 5;
 };
 
 #endif
