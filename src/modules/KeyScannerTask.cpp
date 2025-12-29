@@ -27,7 +27,9 @@ void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap) {
   Event event{};
   event.type = EventType::BitMap;
   event.bitMap = bitMapEvent;
-  xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10));
+
+  if (xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
+    printf("[KeyScanner]: Could not push bitmap event to queue\n");
 }
 
 void TaskManager::keyScannerTask(void *arg) {
