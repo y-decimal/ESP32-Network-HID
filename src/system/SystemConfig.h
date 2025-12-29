@@ -19,6 +19,11 @@ static constexpr uint32_t STACK_PRIORITYEVENT = 4096;
 static constexpr UBaseType_t PRIORITY_PRIORITYEVENT = 5;
 static constexpr BaseType_t CORE_PRIORITYEVENT = 1;
 
+// Event Task Config
+static constexpr uint32_t STACK_EVENT = 4096;
+static constexpr UBaseType_t PRIORITY_EVENT = 1;
+static constexpr BaseType_t CORE_EVENT = 0;
+
 // KeyScanner Task Config
 static constexpr uint32_t STACK_KEYSCAN = 4096;
 static constexpr UBaseType_t PRIORITY_KEYSCAN = 5;
