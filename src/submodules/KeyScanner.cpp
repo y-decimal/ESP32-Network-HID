@@ -73,3 +73,11 @@ inline uint16_t KeyScanner::getBitIndex(uint8_t row, uint8_t col) {
 inline uint8_t KeyScanner::getByteIndex(uint8_t row, uint8_t col) {
   return getBitIndex(row, col) / 8;
 }
+
+void KeyScanner::copyPublishedBitmap(uint8_t* dest, size_t destSize) const {
+  size_t n = std::min(bitMapSize, destSize);
+  memcpy(dest, publishedBuffer, n);
+  if (destSize > n) {
+    memset(dest + n, 0, destSize - n);
+  }
+}

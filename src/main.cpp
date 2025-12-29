@@ -1,15 +1,10 @@
 #include <Arduino.h>
-#include <system/SystemTask.h>
+#include <system/TaskManager.h>
 
 // temp local definitions for testing
 
 ConfigManager mainCfg;
-
-// Define global variables from SystemTask.h
-QueueHandle_t priorityEventQueue;
-QueueHandle_t eventQueue;
-KeyScannerConfig keyCfg;
-BitMapSenderConfig bitMapCfg;
+TaskManager taskManager(mainCfg); // Move outside setup()
 
 void keyPrintCallback(const Event &event) {
   if (event.type != EventType::Key) {
@@ -46,21 +41,16 @@ void simulateConfig() {
   uint8_t ROWPINS[2] = {9, 10};
   uint8_t COLPINS[2] = {17, 18};
   uint16_t refreshRate = 1000;
+  uint16_t bitMapSendInterval = 250;
 
   kCfg.rows = rowCount;
   kCfg.cols = colCount;
   kCfg.setRowPins(ROWPINS, 2);
   kCfg.setColPins(COLPINS, 2);
   kCfg.setRefreshRate(refreshRate);
+  kCfg.setBitMapSendInterval(bitMapSendInterval);
 
   mainCfg.setConfig(kCfg);
-
-  BitMapSenderConfig bCfg;
-
-  uint16_t bitMapRefresh = refreshRate / 4;
-
-  bCfg.setRefreshRate(bitMapRefresh);
-  mainCfg.setConfig(bCfg);
 
   if (mainCfg.saveConfig())
     printf("Config saved to flash\n");
@@ -74,7 +64,7 @@ void setup() {
   printf("initializing...\n");
   simulateConfig();
   EventRegistry::registerHandler(EventType::Key, keyPrintCallback);
-  initSystemTasks(&mainCfg);
+  taskManager.start();
   printf("setup done\n");
 }
 
