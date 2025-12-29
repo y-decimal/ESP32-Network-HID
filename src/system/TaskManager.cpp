@@ -20,7 +20,7 @@ void TaskManager::initializeTasks() {
 
   // EventHandler always runs
   registerEventCallbacks();
-  startEventHandler();
+  startPriorityEventHandler();
 
   for (size_t i = 0; i < sizeof(roles); i++) {
     switch (roles[i]) {

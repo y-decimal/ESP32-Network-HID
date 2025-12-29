@@ -19,7 +19,7 @@ private:
   // === Internal task entry points ===
   static void keyScannerTask(void *arg);
   static void bitMapSenderTask(void *arg);
-  static void eventHandlerTask(void *arg);
+  static void priorityEventTask(void *arg);
   static void taskManagerTask(void *arg); // the supervisor loop
 
   // === Lifecycle helpers ===
@@ -31,9 +31,9 @@ private:
   void stopBitmapSender();
   void restartBitmapSender();
 
-  void startEventHandler();
-  void stopEventHandler();
-  void restartEventHandler();
+  void startPriorityEventHandler();
+  void stopPriorityEventHandler();
+  void restartPriorityEventHandler();
 
   // === Internal helpers ===
   void initializeTasks(); // initializes tasks depending on the role
@@ -48,9 +48,8 @@ private:
   ConfigManager &configManager;
 
   TaskHandle_t keyScannerHandle = nullptr;
-  TaskHandle_t bitmapSenderHandle = nullptr;
-  TaskHandle_t eventManagerHandle = nullptr;
-  TaskHandle_t managerHandle = nullptr;
+  TaskHandle_t priorityEventHandle = nullptr;
+  TaskHandle_t eventHandle = nullptr;
 };
 
 #endif

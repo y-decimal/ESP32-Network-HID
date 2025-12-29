@@ -1,6 +1,6 @@
 #include <system/TaskManager.h>
 
-void TaskManager::eventHandlerTask(void *arg) {
+void TaskManager::priorityEventTask(void *arg) {
   QueueHandle_t queue = static_cast<QueueHandle_t>(arg);
   Event event;
 
@@ -15,29 +15,29 @@ void TaskManager::eventHandlerTask(void *arg) {
 
 // EventHandler helper functions
 
-void TaskManager::startEventHandler() {
+void TaskManager::startPriorityEventHandler() {
 
-  if (eventManagerHandle != nullptr)
+  if (priorityEventHandle != nullptr)
     return;
 
   registerEventCallbacks(); // sets the correct callbacks based on whether the
                             // device has the master role
 
-  xTaskCreatePinnedToCore(eventHandlerTask, "PriorityEventHandler",
+  xTaskCreatePinnedToCore(priorityEventTask, "PriorityEventHandler",
                           STACK_PRIORITYEVENT, highPrioEventQueue,
-                          PRIORITY_PRIORITYEVENT, &eventManagerHandle,
+                          PRIORITY_PRIORITYEVENT, &priorityEventHandle,
                           CORE_PRIORITYEVENT);
 }
 
-void TaskManager::stopEventHandler() {
-  if (eventManagerHandle == nullptr)
+void TaskManager::stopPriorityEventHandler() {
+  if (priorityEventHandle == nullptr)
     return;
-  vTaskDelete(eventManagerHandle);
-  eventManagerHandle = nullptr;
+  vTaskDelete(priorityEventHandle);
+  priorityEventHandle = nullptr;
 }
 
-void TaskManager::restartEventHandler() {
-  if (eventManagerHandle != nullptr)
-    stopEventHandler();
-  startEventHandler();
+void TaskManager::restartPriorityEventHandler() {
+  if (priorityEventHandle != nullptr)
+    stopPriorityEventHandler();
+  startPriorityEventHandler();
 }
