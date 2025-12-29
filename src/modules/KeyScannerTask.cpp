@@ -18,6 +18,9 @@ void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap) {
   bitMapEvent.bitMapSize = bitMapSize;
   uint8_t copySize = bitMapSize;
   if (copySize > sizeof(bitMapEvent.bitMap)) {
+    printf("[KeyScannerTask]: Truncating BitMapEvent from %u to %u bytes\n",
+           static_cast<unsigned int>(bitMapSize),
+           static_cast<unsigned int>(sizeof(bitMapEvent.bitMap)));
     copySize = static_cast<uint8_t>(sizeof(bitMapEvent.bitMap));
   }
   memcpy(bitMapEvent.bitMap, bitMap, copySize);
