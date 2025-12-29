@@ -2,6 +2,7 @@
 #define SYSTEMTASK_H
 
 #include <FreeRTOS.h>
+#include <cstring>
 #include <modules/BitMapSenderTask.h>
 #include <modules/EventHandlerTask.h>
 #include <modules/KeyScannerTask.h>
