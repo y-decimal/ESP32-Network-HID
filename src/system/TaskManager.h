@@ -1,0 +1,57 @@
+#ifndef TASKMANAGER_H
+#define TASKMANAGER_H
+
+#include <modules/BitMapSenderTask.h>
+#include <modules/EventHandlerTask.h>
+#include <modules/KeyScannerTask.h>
+#include <modules/TaskParameters.h>
+#include <submodules/ConfigManager.h>
+
+class TaskManager {
+public:
+  TaskManager(ConfigManager &config);
+
+  void start();               // starts the TaskManager task itself
+  void notifyConfigChanged(); // called by event handler
+
+private:
+  // === Internal task entry points ===
+  static void keyScannerTask(void *arg);
+  static void bitmapSenderTask(void *arg);
+  static void eventHandlerTask(void *arg);
+  static void taskManagerTask(void *arg); // the supervisor loop
+
+  // === Lifecycle helpers ===
+  void startKeyScanner();
+  void stopKeyScanner();
+  void restartKeyScanner();
+
+  void startBitmapSender();
+  void stopBitmapSender();
+  void restartBitmapSender();
+
+  void startEventHandler();
+  void stopEventHandler();
+  void restartEventHandler();
+
+  // === Internal helpers ===
+  void applyConfigChanges();
+  void checkTaskHealth();
+
+  // === State ===
+  ConfigManager &configManager;
+
+  TaskHandle_t keyScannerHandle = nullptr;
+  TaskHandle_t bitmapSenderHandle = nullptr;
+  TaskHandle_t eventManagerHandle = nullptr;
+  TaskHandle_t managerHandle = nullptr;
+
+  KeyScannerState *keyScannerState = nullptr;
+
+  GlobalConfig lastGlobalConfig;
+  KeyScannerConfig lastKeyScannerConfig;
+  BitMapSenderConfig lastBitMapSenderConfig;
+  // ... store last-known configs for diffing
+};
+
+#endif
