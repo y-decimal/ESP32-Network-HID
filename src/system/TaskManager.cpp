@@ -37,5 +37,3 @@ void TaskManager::initializeTasks() {
     }
   }
 }
-
-void TaskManager::startPriorityEventHandler() {}
