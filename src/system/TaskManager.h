@@ -41,6 +41,7 @@ private:
   void applyConfigChanges();
   void checkTaskHealth();
   IBitMapRoutingStrategy *createRoutingStrategy();
+  void registerEventCallbacks();
 
   // === State ===
   QueueHandle_t highPrioEventQueue = nullptr;
