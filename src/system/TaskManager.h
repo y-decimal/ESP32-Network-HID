@@ -87,6 +87,12 @@ private:
   QueueHandle_t highPrioEventQueue = nullptr;
   QueueHandle_t lowPrioEventQueue = nullptr;
 
+  // NOTE: This reference may be accessed from multiple FreeRTOS tasks.
+  // It is required that either:
+  //   - ConfigManager provides its own internal thread-safety for concurrent
+  //     access from multiple tasks, or
+  //   - All accesses to configManager via TaskManager are externally
+  //     synchronized so that no data races occur.
   ConfigManager &configManager;
 
   TaskHandle_t keyScannerHandle = nullptr;
