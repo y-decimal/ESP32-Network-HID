@@ -1,3 +1,4 @@
+#include <shared/EventTypes.h>
 #include <submodules/KeyScanner.h>
 #include <system/TaskManager.h>
 
