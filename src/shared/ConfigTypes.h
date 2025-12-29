@@ -57,6 +57,10 @@ struct KeyScannerConfig {
 
   uint16_t getRefreshRate() const { return refreshRate; }
   uint16_t getBitMapSendRatio() const { return bitMapSendRatio; }
+
+private:
+  uint16_t refreshRate = 1;
+  uint16_t bitMapSendRatio = 5;
 };
 
 struct BitMapSenderConfig {
