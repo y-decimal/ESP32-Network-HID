@@ -24,7 +24,6 @@ void TaskManager::start() {
     switch (roles[i]) {
     case DeviceRole::Keyboard:
       startKeyScanner();
-      startBitmapSender();
       break;
     case DeviceRole::Master:
       // start master modules here
