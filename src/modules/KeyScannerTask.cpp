@@ -83,6 +83,8 @@ void TaskManager::stopKeyScanner() {
   }
 }
 void TaskManager::restartKeyScanner() {
-  stopKeyScanner();
-  startKeyScanner();
+  if (keyScannerHandle != nullptr) {
+    stopKeyScanner();
+    startKeyScanner();
+  }
 }
