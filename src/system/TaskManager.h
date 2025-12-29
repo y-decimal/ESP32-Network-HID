@@ -12,7 +12,9 @@ class TaskManager {
 public:
   TaskManager(ConfigManager &config);
 
-  void start();               // starts the TaskManager task itself
+  void start();           // starts the TaskManager task itself
+  void initializeTasks(); // initializes tasks depending on the role
+
   void notifyConfigChanged(); // called by event handler
 
 private:
