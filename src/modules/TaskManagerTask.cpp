@@ -7,8 +7,14 @@ void TaskManager::taskManagerTask(void *args) {
 
   TickType_t previousWakeTime = xTaskGetTickCount();
 
+  uint16_t loopsSincePrint = 0;
+
   while (true) {
-    printf("running...\n");
+    loopsSincePrint++;
+    if (loopsSincePrint > 10) {
+      printf("running...\n");
+      loopsSincePrint = 0;
+    }
     xTaskDelayUntil(&previousWakeTime, PERIOD_TASKMANAGER);
   }
 }
