@@ -4,6 +4,7 @@
 // temp local definitions for testing
 
 ConfigManager mainCfg;
+TaskManager taskManager(mainCfg); // Move outside setup()
 
 void keyPrintCallback(const Event &event) {
   if (event.type != EventType::Key) {
@@ -63,7 +64,6 @@ void setup() {
   printf("initializing...\n");
   simulateConfig();
   EventRegistry::registerHandler(EventType::Key, keyPrintCallback);
-  TaskManager taskManager(mainCfg);
   taskManager.start();
   printf("setup done\n");
 }
