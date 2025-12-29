@@ -13,6 +13,7 @@ static constexpr uint8_t BITMAPSIZE = 16;
 static constexpr uint32_t STACK_TASKMANAGER = 4096;
 static constexpr UBaseType_t PRIORITY_TASKMANAGER = 10;
 static constexpr BaseType_t CORE_TASKMANAGER = 0;
+static constexpr TickType_t PERIOD_TASKMANAGER = pdMS_TO_TICKS(500);
 
 // Priority Event Task Config
 static constexpr uint32_t STACK_PRIORITYEVENT = 4096;
@@ -28,6 +29,5 @@ static constexpr BaseType_t CORE_EVENT = 0;
 static constexpr uint32_t STACK_KEYSCAN = 4096;
 static constexpr UBaseType_t PRIORITY_KEYSCAN = 5;
 static constexpr BaseType_t CORE_KEYSCAN = 1;
-
 
 #endif
