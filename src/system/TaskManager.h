@@ -38,6 +38,9 @@ private:
   void checkTaskHealth();
 
   // === State ===
+  QueueHandle_t highPrioEventQueue = nullptr;
+  QueueHandle_t lowPrioEventQueue = nullptr;
+
   ConfigManager &configManager;
 
   TaskHandle_t keyScannerHandle = nullptr;
