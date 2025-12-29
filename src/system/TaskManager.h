@@ -72,10 +72,6 @@ private:
   void stopKeyScanner();
   void restartKeyScanner();
 
-  void startBitmapSender();
-  void stopBitmapSender();
-  void restartBitmapSender();
-
   void startPriorityEventHandler();
   void stopPriorityEventHandler();
   void restartPriorityEventHandler();
