@@ -6,6 +6,7 @@
 #include <queue.h>
 #include <shared/ConfigTypes.h>
 #include <shared/DataTypes.h>
+#include <submodules/ConfigManager.h>
 #include <task.h>
 
 void bitMapSenderTask(void *arg) {
@@ -15,17 +16,21 @@ void bitMapSenderTask(void *arg) {
     printf("[BitMapSenderTask]: Received invalid parameters, aborting\n");
     vTaskDelete(nullptr);
   }
-  if (!params->config || !params->state || !params->callback) {
-    printf("[BitMapSenderTask]: Received invalid config/state/callback, "
+  if (!params->configManager || !params->state || !params->callback) {
+    printf("[BitMapSenderTask]: Received invalid configManager/state/callback, "
            "aborting\n");
     vTaskDelete(nullptr);
   }
 
-  BitMapSenderConfig *moduleCfg = params->config;
+  // Get immutable local copy of config at task startup.
+  // ConfigManager holds the live reference; this task operates only on its
+  // snapshot.
+  BitMapSenderConfig localConfig =
+      params->configManager->getConfig<BitMapSenderConfig>();
   KeyScannerState *state = params->state;
 
   uint8_t bitMapSize = state->bitMapSize;
-  uint16_t refreshRate = moduleCfg->getRefreshRate();
+  uint16_t refreshRate = localConfig.getRefreshRate();
 
   uint8_t localBitmapCopy[bitMapSize];
 
