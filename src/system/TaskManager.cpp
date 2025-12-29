@@ -10,7 +10,9 @@ void TaskManager::start() {
   lowPrioEventQueue = xQueueCreate(32, sizeof(Event));
   configASSERT(lowPrioEventQueue != NULL);
 
-  initializeTasks();
+  xTaskCreatePinnedToCore(taskManagerTask, "taskManager", STACK_TASKMANAGER,
+                          this, PRIORITY_TASKMANAGER, nullptr,
+                          CORE_TASKMANAGER);
 }
 
 void TaskManager::initializeTasks() {
@@ -35,3 +37,5 @@ void TaskManager::initializeTasks() {
     }
   }
 }
+
+void TaskManager::startPriorityEventHandler() {}
