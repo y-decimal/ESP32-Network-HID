@@ -20,10 +20,19 @@ void TaskManager::startPriorityEventHandler() {
   if (priorityEventHandle != nullptr)
     return;
 
-  xTaskCreatePinnedToCore(priorityEventTask, "PriorityEventHandler",
-                          STACK_PRIORITYEVENT, highPrioEventQueue,
-                          PRIORITY_PRIORITYEVENT, &priorityEventHandle,
-                          CORE_PRIORITYEVENT);
+  TaskHandle_t handle = nullptr;
+  BaseType_t result = xTaskCreatePinnedToCore(
+      priorityEventTask,
+      "PriorityEventHandler",
+      STACK_PRIORITYEVENT,
+      highPrioEventQueue,
+      PRIORITY_PRIORITYEVENT,
+      &handle,
+      CORE_PRIORITYEVENT);
+
+  if (result == pdPASS) {
+    priorityEventHandle = handle;
+  }
 }
 
 void TaskManager::stopPriorityEventHandler() {
