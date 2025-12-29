@@ -1,10 +1,12 @@
 #ifndef TASKMANAGER_H
 #define TASKMANAGER_H
 
-#include <modules/TaskParameters.h>
+#include <FreeRTOS.h>
 #include <shared/DataTypes.h>
 #include <submodules/ConfigManager.h>
 #include <submodules/EventRegistry.h>
+#include <system/SystemConfig.h>
+#include <system/TaskParameters.h>
 
 class TaskManager {
 public:
