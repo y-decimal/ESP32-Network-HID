@@ -11,17 +11,14 @@ void TaskManager::start() {
   configASSERT(lowPrioEventQueue != NULL);
 
   BaseType_t taskCreated = xTaskCreatePinnedToCore(
-      taskManagerTask, "taskManager", STACK_TASKMANAGER,
-      this, PRIORITY_TASKMANAGER, nullptr, CORE_TASKMANAGER);
+      taskManagerTask, "taskManager", STACK_TASKMANAGER, this,
+      PRIORITY_TASKMANAGER, nullptr, CORE_TASKMANAGER);
   configASSERT(taskCreated == pdPASS);
 }
 
 void TaskManager::initializeTasks() {
-  // Retrieve roles from config
-  DeviceRole roles[(size_t)DeviceRole::Count];
-  memcpy(roles, configManager.getConfig<GlobalConfig>().roles, sizeof(roles));
 
-  // EventHandler always runs
+  // Implement role based logic here later
   startPriorityEventHandler();
   startKeyScanner();
 }
