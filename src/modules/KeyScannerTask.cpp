@@ -14,8 +14,11 @@ void keyEventCallback(uint16_t keyIndex, bool state) {
 
 void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap) {
   BitMapEvent bitMapEvent{};
-  bitMapEvent.bitMapSize = bitMapSize;
-  memcpy(bitMapEvent.bitMap, bitMap, bitMapSize);
+  uint8_t copySize = bitMapSize;
+  if (copySize > sizeof(bitMapEvent.bitMap)) {
+    copySize = static_cast<uint8_t>(sizeof(bitMapEvent.bitMap));
+  }
+  memcpy(bitMapEvent.bitMap, bitMap, copySize);
   Event event{};
   event.type = EventType::BitMap;
   event.bitMap = bitMapEvent;
