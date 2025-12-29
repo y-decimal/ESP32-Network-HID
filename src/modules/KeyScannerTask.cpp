@@ -1,24 +1,17 @@
-#ifndef KEYSCANNERTASK_H
-#define KEYSCANNERTASK_H
-
-#include <modules/TaskParameters.h>
-#include <shared/ConfigTypes.h>
-#include <shared/EventTypes.h>
-#include <submodules/ConfigManager.h>
 #include <submodules/KeyScanner.h>
-#include <system/SystemConfig.h>
+#include <system/TaskManager.h>
 
-extern QueueHandle_t priorityEventQueue;
+static QueueHandle_t localEventQueueReference = nullptr;
 
 void keyEventCallback(uint16_t keyIndex, bool state) {
   KeyEvent keyEvent{keyIndex, state};
   Event event{};
   event.type = EventType::Key;
   event.key = keyEvent;
-  xQueueSend(priorityEventQueue, &event, pdMS_TO_TICKS(10));
+  xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10));
 }
 
-void keyScannerTask(void *arg) {
+void TaskManager::keyScannerTask(void *arg) {
   KeyScannerParameters *params = static_cast<KeyScannerParameters *>(arg);
 
   if (!params) {
@@ -30,6 +23,8 @@ void keyScannerTask(void *arg) {
            "aborting\n");
     vTaskDelete(nullptr);
   }
+
+  localEventQueueReference = params->eventQueueHandle;
 
   // Get immutable local copy of config at task startup.
   // ConfigManager holds the live reference; this task operates only on its
@@ -68,5 +63,3 @@ void keyScannerTask(void *arg) {
     xTaskDelayUntil(&previousWakeTime, refreshRateToTicks);
   }
 }
-
-#endif

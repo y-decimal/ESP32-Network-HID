@@ -1,15 +1,6 @@
-#ifndef BITMAPSENDERTASK_H
-#define BITMAPSENDERTASK_H
+#include <system/TaskManager.h>
 
-#include <FreeRTOS.h>
-#include <modules/TaskParameters.h>
-#include <queue.h>
-#include <shared/ConfigTypes.h>
-#include <shared/DataTypes.h>
-#include <submodules/ConfigManager.h>
-#include <task.h>
-
-void bitMapSenderTask(void *arg) {
+void TaskManager::bitMapSenderTask(void *arg) {
   BitMapSenderParameters *params = static_cast<BitMapSenderParameters *>(arg);
 
   if (!params) {
@@ -44,5 +35,3 @@ void bitMapSenderTask(void *arg) {
     xTaskDelayUntil(&previousWakeTime, refreshRateTicks);
   }
 }
-
-#endif
