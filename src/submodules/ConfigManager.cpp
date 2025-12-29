@@ -4,41 +4,34 @@ bool ConfigManager::saveConfig() {
 
   bool globalSaved = false;
   bool keySaved = false;
-  bool bitmapSaved = false;
 
   if (globalCfg.isDirty())
     globalSaved = globalCfg.save();
   else
     globalSaved = true;
+
   if (keyScannerCfg.isDirty())
     keySaved = keyScannerCfg.save();
   else
     keySaved = true;
-  if (bitMapCfg.isDirty())
-    bitmapSaved = bitMapCfg.save();
-  else
-    bitmapSaved = true;
-  return globalSaved && keySaved && bitmapSaved;
+
+  return globalSaved && keySaved;
 }
 
 bool ConfigManager::loadConfig() {
 
   bool globalLoaded = false;
   bool keyLoaded = false;
-  bool bitmapLoaded = false;
 
   if (!globalCfg.isDirty())
     globalLoaded = globalCfg.load();
   else
     globalLoaded = true;
+
   if (!keyScannerCfg.isDirty())
     keyLoaded = keyScannerCfg.load();
   else
     keyLoaded = true;
-  if (!bitMapCfg.isDirty())
-    bitmapLoaded = bitMapCfg.load();
-  else
-    bitmapLoaded = true;
 
-  return globalLoaded && keyLoaded && bitmapLoaded;
+  return globalLoaded && keyLoaded;
 }
