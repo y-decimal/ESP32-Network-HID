@@ -11,8 +11,7 @@ class TaskManager {
 public:
   TaskManager(ConfigManager &config);
 
-  void start();           // starts the TaskManager task itself
-  void initializeTasks(); // initializes tasks depending on the role
+  void start(); // starts the TaskManager task itself
 
   void notifyConfigChanged(); // called by event handler
 
@@ -37,6 +36,7 @@ private:
   void restartEventHandler();
 
   // === Internal helpers ===
+  void initializeTasks(); // initializes tasks depending on the role
   void applyConfigChanges();
   void checkTaskHealth();
   void registerEventCallbacks();
