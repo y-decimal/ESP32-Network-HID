@@ -19,6 +19,7 @@ struct Event {
   EventType type;
   union {
     KeyEvent key;
+    BitMapEvent bitMap;
   };
 };
 
