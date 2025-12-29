@@ -12,6 +12,15 @@ void keyEventCallback(uint16_t keyIndex, bool state) {
   xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10));
 }
 
+void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap) {
+  BitMapEvent bitMapEvent{};
+  memcpy(bitMapEvent.bitMap, bitMap, bitMapSize);
+  Event event{};
+  event.type = EventType::BitMap;
+  event.bitMap = bitMapEvent;
+  xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10));
+}
+
 void TaskManager::keyScannerTask(void *arg) {
   KeyScannerParameters *params = static_cast<KeyScannerParameters *>(arg);
 
