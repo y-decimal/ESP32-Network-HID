@@ -49,18 +49,18 @@ struct KeyScannerConfig {
     refreshRate = rate;
   }
 
-  void setBitMapSendRatio(uint16_t rateDivisor) {
+  void setBitMapSendInterval(uint16_t rateDivisor) {
     if (rateDivisor < 2 || rateDivisor > 5000)
       return;
-    bitMapSendRatio = rateDivisor;
+    bitMapSendInterval = rateDivisor;
   }
 
   uint16_t getRefreshRate() const { return refreshRate; }
-  uint16_t getBitMapSendRatio() const { return bitMapSendRatio; }
+  uint16_t getBitMapSendInterval() const { return bitMapSendInterval; }
 
 private:
   uint16_t refreshRate = 1;
-  uint16_t bitMapSendRatio = 5;
+  uint16_t bitMapSendInterval = 5;
 };
 
 #endif

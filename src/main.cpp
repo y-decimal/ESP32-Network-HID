@@ -47,7 +47,7 @@ void simulateConfig() {
   kCfg.setRowPins(ROWPINS, 2);
   kCfg.setColPins(COLPINS, 2);
   kCfg.setRefreshRate(refreshRate);
-  kCfg.setBitMapSendRatio(bitMapRatio);
+  kCfg.setBitMapSendInterval(bitMapRatio);
 
   mainCfg.setConfig(kCfg);
 
