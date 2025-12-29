@@ -5,14 +5,14 @@
 #include <shared/DataTypes.h>
 
 struct KeyScannerParameters {
-  KeyScannerConfig *config = nullptr;
+  KeyScannerConfig config{};
   KeyScannerState *state = nullptr;
 };
 
 struct BitMapSenderParameters {
   using BitmapSendCallback = void (*)(const uint8_t *data, uint8_t size);
 
-  BitMapSenderConfig *config = nullptr;
+  BitMapSenderConfig config{};
   KeyScannerState *state = nullptr;
   BitmapSendCallback callback = nullptr;
 };

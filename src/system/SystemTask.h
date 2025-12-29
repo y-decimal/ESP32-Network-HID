@@ -13,9 +13,6 @@
 extern QueueHandle_t priorityEventQueue;
 extern QueueHandle_t eventQueue;
 
-extern KeyScannerConfig keyCfg;
-extern BitMapSenderConfig bitMapCfg;
-
 inline void initSystemTasks(ConfigManager *cfgManager) {
 
   priorityEventQueue = xQueueCreate(32, sizeof(Event));
@@ -23,25 +20,26 @@ inline void initSystemTasks(ConfigManager *cfgManager) {
   eventQueue = xQueueCreate(32, sizeof(Event));
   configASSERT(eventQueue != NULL);
 
-  keyCfg = cfgManager->getConfig<KeyScannerConfig>();
-  bitMapCfg = cfgManager->getConfig<BitMapSenderConfig>();
-
   static KeyScannerState scannerState;
   // Free previously allocated bitmap (if any) before allocating a new one
   if (scannerState.bitMap != nullptr) {
     delete[] scannerState.bitMap;
     scannerState.bitMap = nullptr;
   }
-  scannerState.bitMapSize = (keyCfg.rows * keyCfg.cols + 7) / 8;
+
+  uint8_t rows = cfgManager->getConfig<KeyScannerConfig>().rows;
+  uint8_t cols = cfgManager->getConfig<KeyScannerConfig>().cols;
+
+  scannerState.bitMapSize = (rows * cols + 7) / 8;
   scannerState.bitMap = new uint8_t[scannerState.bitMapSize];
   memset(scannerState.bitMap, 0, scannerState.bitMapSize);
 
   static KeyScannerParameters keyParams;
-  keyParams.config = &keyCfg;
+  keyParams.config = cfgManager->getConfig<KeyScannerConfig>();
   keyParams.state = &scannerState;
 
   static BitMapSenderParameters bitmapParams;
-  bitmapParams.config = &bitMapCfg;
+  bitmapParams.config = cfgManager->getConfig<BitMapSenderConfig>();
   bitmapParams.state = &scannerState;
 
   xTaskCreatePinnedToCore(EventTask, "PriorityEventHandler",

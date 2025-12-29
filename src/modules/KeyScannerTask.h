@@ -24,29 +24,29 @@ void keyScannerTask(void *arg) {
     printf("[KeyScannerTask]: Received invalid parameters, aborting\n");
     vTaskDelete(nullptr);
   }
-  if (!params->config || !params->state) {
-    printf("[KeyScannerTask]: Received invalid config or state, aborting\n");
+  if (!params->state) {
+    printf("[KeyScannerTask]: Received invalid state, aborting\n");
     vTaskDelete(nullptr);
   }
 
-  KeyScannerConfig *moduleCfg = params->config;
+  KeyScannerConfig &moduleCfg = params->config;
   KeyScannerState *state = params->state;
 
   // Copy only the values we need to local stack variables
-  countType rows = moduleCfg->rows;
-  countType cols = moduleCfg->cols;
-  uint16_t refreshRate = moduleCfg->getRefreshRate();
+  countType rows = moduleCfg.rows;
+  countType cols = moduleCfg.cols;
+  uint16_t refreshRate = moduleCfg.getRefreshRate();
 
   // Create appropriately-sized local arrays and copy pin data
   pinType rowPins[rows];
   pinType colPins[cols];
 
   for (countType i = 0; i < rows; i++) {
-    rowPins[i] = moduleCfg->rowPins[i];
+    rowPins[i] = moduleCfg.rowPins[i];
   }
 
   for (countType i = 0; i < cols; i++) {
-    colPins[i] = moduleCfg->colPins[i];
+    colPins[i] = moduleCfg.colPins[i];
   }
 
   KeyScanner keyScanner = KeyScanner(rowPins, colPins, rows, cols);

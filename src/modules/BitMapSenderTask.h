@@ -15,17 +15,16 @@ void bitMapSenderTask(void *arg) {
     printf("[BitMapSenderTask]: Received invalid parameters, aborting\n");
     vTaskDelete(nullptr);
   }
-  if (!params->config || !params->state || !params->callback) {
-    printf("[BitMapSenderTask]: Received invalid config/state/callback, "
-           "aborting\n");
+  if (!params->state || !params->callback) {
+    printf("[BitMapSenderTask]: Received invalid state/callback, aborting\n");
     vTaskDelete(nullptr);
   }
 
-  BitMapSenderConfig *moduleCfg = params->config;
+  BitMapSenderConfig &moduleCfg = params->config;
   KeyScannerState *state = params->state;
 
   uint8_t bitMapSize = state->bitMapSize;
-  uint16_t refreshRate = moduleCfg->getRefreshRate();
+  uint16_t refreshRate = moduleCfg.getRefreshRate();
 
   uint8_t localBitmapCopy[bitMapSize];
 
