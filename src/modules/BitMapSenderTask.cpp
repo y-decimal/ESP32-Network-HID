@@ -7,8 +7,8 @@ void TaskManager::bitMapSenderTask(void *arg) {
     printf("[BitMapSenderTask]: Received invalid parameters, aborting\n");
     vTaskDelete(nullptr);
   }
-  if (!params->configManager || !params->state || !params->callback) {
-    printf("[BitMapSenderTask]: Received invalid configManager/state/callback, "
+  if (!params->configManager || !params->state || !params->routing) {
+    printf("[BitMapSenderTask]: Received invalid configManager/state/routing, "
            "aborting\n");
     vTaskDelete(nullptr);
   }
@@ -18,7 +18,12 @@ void TaskManager::bitMapSenderTask(void *arg) {
   // snapshot.
   BitMapSenderConfig localConfig =
       params->configManager->getConfig<BitMapSenderConfig>();
+
   KeyScannerState *state = params->state;
+
+  IBitMapRoutingStrategy *routing = params->routing;
+
+  delete params;
 
   uint8_t bitMapSize = state->bitMapSize;
   uint16_t refreshRate = localConfig.getRefreshRate();
@@ -31,7 +36,7 @@ void TaskManager::bitMapSenderTask(void *arg) {
 
   while (true) {
     memcpy(localBitmapCopy, state->bitMap, state->bitMapSize);
-    params->callback(localBitmapCopy, state->bitMapSize);
+    routing->routeBitMap(localBitmapCopy, state->bitMapSize);
     xTaskDelayUntil(&previousWakeTime, refreshRateTicks);
   }
 }
