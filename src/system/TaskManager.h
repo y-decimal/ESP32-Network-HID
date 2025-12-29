@@ -49,11 +49,6 @@ private:
   TaskHandle_t managerHandle = nullptr;
 
   KeyScannerState *keyScannerState = nullptr;
-
-  GlobalConfig lastGlobalConfig;
-  KeyScannerConfig lastKeyScannerConfig;
-  BitMapSenderConfig lastBitMapSenderConfig;
-  // ... store last-known configs for diffing
 };
 
 #endif
