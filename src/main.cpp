@@ -41,14 +41,14 @@ void simulateConfig() {
   uint8_t ROWPINS[2] = {9, 10};
   uint8_t COLPINS[2] = {17, 18};
   uint16_t refreshRate = 1000;
-  uint16_t bitMapRatio = 250;
+  uint16_t bitMapSendInterval = 250;
 
   kCfg.rows = rowCount;
   kCfg.cols = colCount;
   kCfg.setRowPins(ROWPINS, 2);
   kCfg.setColPins(COLPINS, 2);
   kCfg.setRefreshRate(refreshRate);
-  kCfg.setBitMapSendInterval(bitMapRatio);
+  kCfg.setBitMapSendInterval(bitMapSendInterval);
 
   mainCfg.setConfig(kCfg);
 

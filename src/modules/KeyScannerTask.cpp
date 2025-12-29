@@ -52,7 +52,7 @@ void TaskManager::keyScannerTask(void *arg) {
   countType rows = localConfig.rows;
   countType cols = localConfig.cols;
   uint16_t refreshRate = localConfig.getRefreshRate();
-  uint16_t bitMapRatio = localConfig.getBitMapSendInterval();
+  uint16_t bitMapInterval = localConfig.getBitMapSendInterval();
 
   // Create appropriately-sized local arrays and copy pin data
   pinType rowPins[rows];
@@ -79,7 +79,7 @@ void TaskManager::keyScannerTask(void *arg) {
   while (true) {
     loopsSinceLastBitMap++;
     keyScanner.updateKeyState();
-    if (loopsSinceLastBitMap >= bitMapRatio) {
+    if (loopsSinceLastBitMap >= bitMapInterval) {
       keyScanner.copyPublishedBitmap(bitMapCopy, sizeof(bitMapCopy));
       uint8_t bitMapSize = static_cast<uint8_t>(keyScanner.getBitMapSize());
       sendBitMapEvent(bitMapSize, bitMapCopy);
