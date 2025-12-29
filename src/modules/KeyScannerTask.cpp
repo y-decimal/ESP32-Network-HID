@@ -18,9 +18,8 @@ void TaskManager::keyScannerTask(void *arg) {
     printf("[KeyScannerTask]: Received invalid parameters, aborting\n");
     vTaskDelete(nullptr);
   }
-  if (!params->configManager || !params->state) {
-    printf("[KeyScannerTask]: Received invalid configManager or state, "
-           "aborting\n");
+  if (!params->configManager) {
+    printf("[KeyScannerTask]: Received invalid configManager, aborting\n");
     vTaskDelete(nullptr);
   }
 
@@ -31,7 +30,6 @@ void TaskManager::keyScannerTask(void *arg) {
   // snapshot.
   KeyScannerConfig localConfig =
       params->configManager->getConfig<KeyScannerConfig>();
-  KeyScannerState *state = params->state;
 
   delete params;
 
@@ -61,7 +59,6 @@ void TaskManager::keyScannerTask(void *arg) {
 
   while (true) {
     keyScanner.updateKeyState();
-    keyScanner.copyPublishedBitmap(state->bitMap);
     xTaskDelayUntil(&previousWakeTime, refreshRateToTicks);
   }
 }
@@ -75,7 +72,6 @@ void TaskManager::startKeyScanner() {
 
   KeyScannerParameters keyParams;
   keyParams.configManager = &configManager;
-  keyParams.state = keyScannerState;
   keyParams.eventQueueHandle = highPrioEventQueue;
   xTaskCreatePinnedToCore(keyScannerTask, "KeyScanner", STACK_KEYSCAN,
                           &keyParams, PRIORITY_KEYSCAN, &keyScannerHandle,
