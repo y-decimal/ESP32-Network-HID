@@ -53,8 +53,8 @@ struct KeyScannerConfig {
     if (rateDivisor < 2 || rateDivisor > 5000)
       // Limited to a range of 2-5000, to ensure bitmaps aren't sent every
       // single loop (as this would most likely block the ESP communication),
-      // and 5000 to ensure we don't exceed the uin16_t limit and also stay
-      // wihtin reasonable bounds for regular bitMap refreshes
+      // and 5000 to ensure we don't exceed the uint16_t limit and also stay
+      // within reasonable bounds for regular bitMap refreshes
       return;
     bitMapSendInterval = rateDivisor;
   }
