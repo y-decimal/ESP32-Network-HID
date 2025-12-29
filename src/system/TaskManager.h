@@ -16,7 +16,7 @@ public:
 private:
   // === Internal task entry points ===
   static void keyScannerTask(void *arg);
-  static void bitmapSenderTask(void *arg);
+  static void bitMapSenderTask(void *arg);
   static void eventHandlerTask(void *arg);
   static void taskManagerTask(void *arg); // the supervisor loop
 
