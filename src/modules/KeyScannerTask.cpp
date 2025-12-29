@@ -71,16 +71,18 @@ void TaskManager::keyScannerTask(void *arg) {
 
   TickType_t previousWakeTime = xTaskGetTickCount();
   TickType_t refreshRateToTicks = pdMS_TO_TICKS((1000 / refreshRate));
-  uint16_t loopsSinceLastBitMap = 0;
 
+  uint16_t loopsSinceLastBitMap = 0;
   uint8_t bitMapCopy[BITMAPSIZE]{};
 
   while (true) {
+    loopsSinceLastBitMap++;
     keyScanner.updateKeyState();
-    if (loopsSinceLastBitMap > bitMapRatio) {
+    if (loopsSinceLastBitMap >= bitMapRatio) {
       uint8_t bitMapSize = (uint8_t)keyScanner.getBitMapSize();
       keyScanner.copyPublishedBitmap(bitMapCopy);
       sendBitMapEvent(bitMapSize, bitMapCopy);
+      loopsSinceLastBitMap = 0;
     }
     xTaskDelayUntil(&previousWakeTime, refreshRateToTicks);
   }
