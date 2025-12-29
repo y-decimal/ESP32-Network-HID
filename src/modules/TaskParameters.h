@@ -1,8 +1,8 @@
 #ifndef TASKPARAMETERS_H
 #define TASKPARAMETERS_H
 
+#include <shared/ConfigTypes.h>
 #include <shared/DataTypes.h>
-#include <submodules/ConfigManager.h>
 
 struct KeyScannerParameters {
   KeyScannerConfig *config = nullptr;
