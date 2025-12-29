@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <system/SystemConfig.h>
 
-enum class EventType : uint8_t { Key, ConfigUpdate, COUNT };
+enum class EventType : uint8_t { Key, BitMap, ConfigUpdate, COUNT };
 
 struct KeyEvent {
   uint16_t keyIndex;
