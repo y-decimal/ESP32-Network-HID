@@ -63,3 +63,26 @@ void TaskManager::keyScannerTask(void *arg) {
     xTaskDelayUntil(&previousWakeTime, refreshRateToTicks);
   }
 }
+
+// KeyScanner helper functions
+
+void TaskManager::startKeyScanner() {
+  KeyScannerParameters keyParams;
+  keyParams.configManager = &configManager;
+  keyParams.state = keyScannerState;
+  keyParams.eventQueueHandle = highPrioEventQueue;
+  xTaskCreatePinnedToCore(keyScannerTask, "KeyScanner", STACK_KEYSCAN,
+                          &keyParams, PRIORITY_KEYSCAN, &keyScannerHandle,
+                          CORE_KEYSCAN);
+}
+
+void TaskManager::stopKeyScanner() {
+  if (keyScannerHandle != nullptr) {
+    vTaskDelete(keyScannerHandle);
+    keyScannerHandle = nullptr;
+  }
+}
+void TaskManager::restartKeyScanner() {
+  stopKeyScanner();
+  startKeyScanner();
+}
