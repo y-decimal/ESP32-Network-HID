@@ -33,6 +33,8 @@ void TaskManager::keyScannerTask(void *arg) {
       params->configManager->getConfig<KeyScannerConfig>();
   KeyScannerState *state = params->state;
 
+  delete params;
+
   // Copy only the values we need to local stack variables
   countType rows = localConfig.rows;
   countType cols = localConfig.cols;
