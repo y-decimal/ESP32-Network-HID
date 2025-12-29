@@ -67,6 +67,9 @@ void TaskManager::keyScannerTask(void *arg) {
 
   TickType_t previousWakeTime = xTaskGetTickCount();
   TickType_t refreshRateToTicks = pdMS_TO_TICKS((1000 / refreshRate));
+  uint16_t loopsSinceLastBitMap = 0;
+
+  uint8_t bitMapCopy[BITMAPSIZE]{};
 
   while (true) {
     keyScanner.updateKeyState();
