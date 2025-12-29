@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <modules/SystemTask.h>
+#include <system/SystemTask.h>
 
 // temp local definitions for testing
 
@@ -9,6 +9,7 @@ ConfigManager mainCfg;
 QueueHandle_t priorityEventQueue;
 QueueHandle_t eventQueue;
 KeyScannerConfig keyCfg;
+BitMapSenderConfig bitMapCfg;
 
 void keyPrintCallback(const Event &event) {
   if (event.type != EventType::Key) {
@@ -36,7 +37,7 @@ void simulateConfig() {
   MacAddress mac = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
   gCfg.setMac(mac);
 
-  mainCfg.setGlobalConfig(gCfg);
+  mainCfg.setConfig(gCfg);
 
   KeyScannerConfig kCfg;
 
@@ -50,9 +51,16 @@ void simulateConfig() {
   kCfg.cols = colCount;
   kCfg.setRowPins(ROWPINS, 2);
   kCfg.setColPins(COLPINS, 2);
-  kCfg.refreshRate = refreshRate;
+  kCfg.setRefreshRate(refreshRate);
 
-  mainCfg.setKeyConfig(kCfg);
+  mainCfg.setConfig(kCfg);
+
+  BitMapSenderConfig bCfg;
+
+  uint16_t bitMapRefresh = refreshRate / 4;
+
+  bCfg.setRefreshRate(bitMapRefresh);
+  mainCfg.setConfig(bCfg);
 
   if (mainCfg.saveConfig())
     printf("Config saved to flash\n");

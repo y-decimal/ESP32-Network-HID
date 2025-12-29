@@ -1,21 +1,10 @@
 #include <submodules/ConfigManager.h>
 
-GlobalConfig ConfigManager::getGlobalConfig() const { return globalCfg.get(); }
-
-KeyScannerConfig ConfigManager::getKeyConfig() const {
-  return keyScannerCfg.get();
-}
-
-void ConfigManager::setGlobalConfig(GlobalConfig cfg) { globalCfg.set(cfg); }
-
-void ConfigManager::setKeyConfig(KeyScannerConfig cfg) {
-  keyScannerCfg.set(cfg);
-}
-
 bool ConfigManager::saveConfig() {
 
   bool globalSaved = false;
   bool keySaved = false;
+  bool bitmapSaved = false;
 
   if (globalCfg.isDirty())
     globalSaved = globalCfg.save();
@@ -25,13 +14,18 @@ bool ConfigManager::saveConfig() {
     keySaved = keyScannerCfg.save();
   else
     keySaved = true;
-  return globalSaved && keySaved;
+  if (bitMapCfg.isDirty())
+    bitmapSaved = bitMapCfg.save();
+  else
+    bitmapSaved = true;
+  return globalSaved && keySaved && bitmapSaved;
 }
 
 bool ConfigManager::loadConfig() {
 
   bool globalLoaded = false;
   bool keyLoaded = false;
+  bool bitmapLoaded = false;
 
   if (!globalCfg.isDirty())
     globalLoaded = globalCfg.load();
@@ -41,6 +35,10 @@ bool ConfigManager::loadConfig() {
     keyLoaded = keyScannerCfg.load();
   else
     keyLoaded = true;
+  if (!bitMapCfg.isDirty())
+    bitmapLoaded = bitMapCfg.load();
+  else
+    bitmapLoaded = true;
 
-  return globalLoaded && keyLoaded;
+  return globalLoaded && keyLoaded && bitmapLoaded;
 }
