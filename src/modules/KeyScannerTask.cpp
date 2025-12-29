@@ -69,6 +69,10 @@ void TaskManager::keyScannerTask(void *arg) {
 // KeyScanner helper functions
 
 void TaskManager::startKeyScanner() {
+
+  if (keyScannerHandle != nullptr)
+    return;
+
   KeyScannerParameters keyParams;
   keyParams.configManager = &configManager;
   keyParams.state = keyScannerState;
@@ -79,14 +83,13 @@ void TaskManager::startKeyScanner() {
 }
 
 void TaskManager::stopKeyScanner() {
-  if (keyScannerHandle != nullptr) {
-    vTaskDelete(keyScannerHandle);
-    keyScannerHandle = nullptr;
-  }
+  if (keyScannerHandle == nullptr)
+    return;
+  vTaskDelete(keyScannerHandle);
+  keyScannerHandle = nullptr;
 }
 void TaskManager::restartKeyScanner() {
-  if (keyScannerHandle != nullptr) {
+  if (keyScannerHandle != nullptr)
     stopKeyScanner();
-    startKeyScanner();
-  }
+  startKeyScanner();
 }

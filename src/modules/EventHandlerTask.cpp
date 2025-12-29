@@ -16,6 +16,13 @@ void TaskManager::eventHandlerTask(void *arg) {
 // EventHandler helper functions
 
 void TaskManager::startEventHandler() {
+
+  if (eventManagerHandle != nullptr)
+    return;
+
+  registerEventCallbacks(); // sets the correct callbacks based on whether the
+                            // device has the master role
+
   xTaskCreatePinnedToCore(eventHandlerTask, "PriorityEventHandler",
                           STACK_PRIORITYEVENT, highPrioEventQueue,
                           PRIORITY_PRIORITYEVENT, &eventManagerHandle,
@@ -23,8 +30,9 @@ void TaskManager::startEventHandler() {
 }
 
 void TaskManager::stopEventHandler() {
-  if (eventManagerHandle != nullptr)
-    vTaskDelete(eventManagerHandle);
+  if (eventManagerHandle == nullptr)
+    return;
+  vTaskDelete(eventManagerHandle);
   eventManagerHandle = nullptr;
 }
 

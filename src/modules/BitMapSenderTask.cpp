@@ -44,6 +44,10 @@ void TaskManager::bitMapSenderTask(void *arg) {
 // BitMapHandler Helper functions
 
 void TaskManager::startBitmapSender() {
+
+  if (bitmapSenderHandle != nullptr)
+    return;
+
   BitMapSenderParameters bitMapParams;
   bitMapParams.configManager = &configManager;
   bitMapParams.state = keyScannerState;
@@ -54,13 +58,13 @@ void TaskManager::startBitmapSender() {
 }
 
 void TaskManager::stopBitmapSender() {
-  if (bitmapSenderHandle != nullptr)
-    vTaskDelete(bitmapSenderHandle);
+  if (bitmapSenderHandle == nullptr)
+    return;
+  vTaskDelete(bitmapSenderHandle);
   bitmapSenderHandle == nullptr;
 }
 void TaskManager::restartBitmapSender() {
-  if (bitmapSenderHandle != nullptr) {
+  if (bitmapSenderHandle != nullptr)
     stopBitmapSender();
-    startBitmapSender();
-  }
+  startBitmapSender();
 }
