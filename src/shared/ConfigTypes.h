@@ -63,19 +63,4 @@ private:
   uint16_t bitMapSendRatio = 5;
 };
 
-struct BitMapSenderConfig {
-  static constexpr uint16_t MIN_REFRESH_RATE = 1;
-  static constexpr uint16_t MAX_REFRESH_RATE = 1000;
-
-  void setRefreshRate(uint16_t rate) {
-    if (rate < MIN_REFRESH_RATE || rate > MAX_REFRESH_RATE)
-      return;
-    refreshRate = rate;
-  }
-  uint16_t getRefreshRate() const { return refreshRate; }
-
-private:
-  uint16_t refreshRate = 1;
-};
-
 #endif
