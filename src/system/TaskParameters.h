@@ -14,11 +14,9 @@ struct KeyScannerParameters {
 };
 
 struct BitMapSenderParameters {
-  using BitmapSendCallback = void (*)(const uint8_t *data, uint8_t size);
-
   ConfigManager *configManager = nullptr;
   KeyScannerState *state = nullptr;
-  BitmapSendCallback callback = nullptr;
+  IBitMapRoutingStrategy *routing = nullptr;
 };
 
 #endif
