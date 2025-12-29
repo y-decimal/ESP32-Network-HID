@@ -16,7 +16,7 @@ static constexpr BaseType_t CORE_TASKMANAGER = 0;
 
 // Priority Event Task Config
 static constexpr uint32_t STACK_PRIORITYEVENT = 4096;
-static constexpr UBaseType_t PRIORITY_PRIORITYEVENT = 4;
+static constexpr UBaseType_t PRIORITY_PRIORITYEVENT = 5;
 static constexpr BaseType_t CORE_PRIORITYEVENT = 1;
 
 // KeyScanner Task Config
