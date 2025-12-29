@@ -47,6 +47,7 @@ void TaskManager::keyScannerTask(void *arg) {
   countType rows = localConfig.rows;
   countType cols = localConfig.cols;
   uint16_t refreshRate = localConfig.getRefreshRate();
+  uint16_t bitMapRatio = localConfig.getBitMap();
 
   // Create appropriately-sized local arrays and copy pin data
   pinType rowPins[rows];
