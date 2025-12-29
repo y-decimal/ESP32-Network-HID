@@ -11,7 +11,7 @@ static constexpr uint8_t BITMAPSIZE = 16;
 
 // Task Manager Task Config
 static constexpr uint32_t STACK_TASKMANAGER = 4096;
-static constexpr UBaseType_t PRIORITY_TASKMANAGER = 10;
+static constexpr UBaseType_t PRIORITY_TASKMANAGER = 5;
 static constexpr BaseType_t CORE_TASKMANAGER = 0;
 static constexpr TickType_t PERIOD_TASKMANAGER = pdMS_TO_TICKS(500);
 
