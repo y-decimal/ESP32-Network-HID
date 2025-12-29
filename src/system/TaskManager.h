@@ -39,7 +39,6 @@ private:
   void initializeTasks(); // initializes tasks depending on the role
   void applyConfigChanges();
   void checkTaskHealth();
-  void registerEventCallbacks();
 
   // === State ===
   QueueHandle_t highPrioEventQueue = nullptr;

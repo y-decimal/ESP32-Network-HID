@@ -21,7 +21,6 @@ void TaskManager::initializeTasks() {
   memcpy(roles, configManager.getConfig<GlobalConfig>().roles, sizeof(roles));
 
   // EventHandler always runs
-  registerEventCallbacks();
   startPriorityEventHandler();
 
   for (size_t i = 0; i < sizeof(roles); i++) {
