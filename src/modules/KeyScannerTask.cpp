@@ -91,16 +91,15 @@ void TaskManager::keyScannerTask(void *arg) {
 // KeyScanner helper functions
 
 void TaskManager::startKeyScanner() {
-
   if (keyScannerHandle != nullptr)
     return;
 
-  KeyScannerParameters keyParams;
-  keyParams.configManager = &configManager;
-  keyParams.eventQueueHandle = highPrioEventQueue;
+  KeyScannerParameters *keyParams = new KeyScannerParameters();
+  keyParams->configManager = &configManager;
+  keyParams->eventQueueHandle = highPrioEventQueue;
   xTaskCreatePinnedToCore(keyScannerTask, "KeyScanner", STACK_KEYSCAN,
-                          &keyParams, PRIORITY_KEYSCAN, &keyScannerHandle,
-                          CORE_KEYSCAN);
+                          keyParams, // Pass the pointer directly
+                          PRIORITY_KEYSCAN, &keyScannerHandle, CORE_KEYSCAN);
 }
 
 void TaskManager::stopKeyScanner() {
