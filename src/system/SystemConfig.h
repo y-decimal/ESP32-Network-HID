@@ -6,8 +6,8 @@
 #include <task.h>
 
 // Global constants
-static const uint8_t BITMAPSIZE =
-    6; // 6 Bytes for 127 bits, should be enough for every possible key
+inline constexpr uint8_t BITMAPSIZE =
+    16; // 16 Bytes for 127 bits, should be enough for every possible key
 
 // Priority Event Task Config
 static const uint32_t STACK_PRIORITYEVENT = 4096;
