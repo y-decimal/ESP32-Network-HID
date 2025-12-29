@@ -12,3 +12,24 @@ void TaskManager::eventHandlerTask(void *arg) {
     }
   }
 }
+
+// EventHandler helper functions
+
+void TaskManager::startEventHandler() {
+  xTaskCreatePinnedToCore(eventHandlerTask, "PriorityEventHandler",
+                          STACK_PRIORITYEVENT, highPrioEventQueue,
+                          PRIORITY_PRIORITYEVENT, &eventManagerHandle,
+                          CORE_PRIORITYEVENT);
+}
+
+void TaskManager::stopEventHandler() {
+  if (eventManagerHandle != nullptr)
+    vTaskDelete(eventManagerHandle);
+  eventManagerHandle = nullptr;
+}
+
+void TaskManager::restartEventHandler() {
+  if (eventManagerHandle != nullptr)
+    stopEventHandler();
+  startEventHandler();
+}
