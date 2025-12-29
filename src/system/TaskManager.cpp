@@ -10,9 +10,10 @@ void TaskManager::start() {
   lowPrioEventQueue = xQueueCreate(32, sizeof(Event));
   configASSERT(lowPrioEventQueue != NULL);
 
-  xTaskCreatePinnedToCore(taskManagerTask, "taskManager", STACK_TASKMANAGER,
-                          this, PRIORITY_TASKMANAGER, nullptr,
-                          CORE_TASKMANAGER);
+  BaseType_t taskCreated = xTaskCreatePinnedToCore(
+      taskManagerTask, "taskManager", STACK_TASKMANAGER,
+      this, PRIORITY_TASKMANAGER, nullptr, CORE_TASKMANAGER);
+  configASSERT(taskCreated == pdPASS);
 }
 
 void TaskManager::initializeTasks() {
