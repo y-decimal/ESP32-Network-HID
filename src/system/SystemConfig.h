@@ -29,9 +29,5 @@ static constexpr uint32_t STACK_KEYSCAN = 4096;
 static constexpr UBaseType_t PRIORITY_KEYSCAN = 5;
 static constexpr BaseType_t CORE_KEYSCAN = 1;
 
-// BitMapSender Task Config
-static constexpr uint32_t STACK_BITMAP = 4096;
-static constexpr UBaseType_t PRIORITY_BITMAP = 3;
-static constexpr BaseType_t CORE_BITMAP = 0;
 
 #endif
