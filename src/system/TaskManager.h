@@ -77,9 +77,11 @@ private:
   void restartPriorityEventHandler();
 
   // === Internal helpers ===
-  void initializeTasks(); // initializes tasks depending on the role
-  void applyConfigChanges();
-  void checkTaskHealth();
+  void initializeTasks();    // initializes tasks depending on the role
+  void applyConfigChanges(); // TODO: Implement config-dependent task adjustment
+                             // logic.
+  void checkTaskHealth(); // TODO: Implement task health monitoring and recovery
+                          // logic.
 
   // === State ===
   QueueHandle_t highPrioEventQueue = nullptr;
