@@ -1,15 +1,9 @@
 #include <Arduino.h>
-#include <system/SystemTask.h>
+#include <system/TaskManager.h>
 
 // temp local definitions for testing
 
 ConfigManager mainCfg;
-
-// Define global variables from SystemTask.h
-QueueHandle_t priorityEventQueue;
-QueueHandle_t eventQueue;
-KeyScannerConfig keyCfg;
-BitMapSenderConfig bitMapCfg;
 
 void keyPrintCallback(const Event &event) {
   if (event.type != EventType::Key) {
@@ -74,7 +68,8 @@ void setup() {
   printf("initializing...\n");
   simulateConfig();
   EventRegistry::registerHandler(EventType::Key, keyPrintCallback);
-  initSystemTasks(&mainCfg);
+  TaskManager taskManager(mainCfg);
+  taskManager.start();
   printf("setup done\n");
 }
 
