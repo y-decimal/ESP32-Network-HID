@@ -10,20 +10,9 @@ void TaskManager::start() {
   lowPrioEventQueue = xQueueCreate(32, sizeof(Event));
   configASSERT(lowPrioEventQueue != NULL);
 
-  static KeyScannerState scannerState;
-  // Free previously allocated bitmap (if any) before allocating a new one
-  if (scannerState.bitMap != nullptr) {
-    delete[] scannerState.bitMap;
-    scannerState.bitMap = nullptr;
-  }
   // Initialize scannerState with parameters from config
   uint8_t rows = configManager.getConfig<KeyScannerConfig>().rows;
   uint8_t cols = configManager.getConfig<KeyScannerConfig>().cols;
-
-  scannerState.bitMapSize = (rows * cols + 7) / 8;
-
-  scannerState.bitMap = new uint8_t[scannerState.bitMapSize];
-  memset(scannerState.bitMap, 0, scannerState.bitMapSize);
 
   DeviceRole roles[(size_t)DeviceRole::Count];
   memcpy(roles, configManager.getConfig<GlobalConfig>().roles, sizeof(roles));
