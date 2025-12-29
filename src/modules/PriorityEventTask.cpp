@@ -20,9 +20,6 @@ void TaskManager::startPriorityEventHandler() {
   if (priorityEventHandle != nullptr)
     return;
 
-  registerEventCallbacks(); // sets the correct callbacks based on whether the
-                            // device has the master role
-
   xTaskCreatePinnedToCore(priorityEventTask, "PriorityEventHandler",
                           STACK_PRIORITYEVENT, highPrioEventQueue,
                           PRIORITY_PRIORITYEVENT, &priorityEventHandle,
