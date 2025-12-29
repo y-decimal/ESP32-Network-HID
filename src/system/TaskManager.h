@@ -38,6 +38,7 @@ private:
   // === Internal helpers ===
   void applyConfigChanges();
   void checkTaskHealth();
+  IBitMapRoutingStrategy *createRoutingStrategy();
 
   // === State ===
   QueueHandle_t highPrioEventQueue = nullptr;
