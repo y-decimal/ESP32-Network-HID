@@ -40,3 +40,27 @@ void TaskManager::bitMapSenderTask(void *arg) {
     xTaskDelayUntil(&previousWakeTime, refreshRateTicks);
   }
 }
+
+// BitMapHandler Helper functions
+
+void TaskManager::startBitmapSender() {
+  BitMapSenderParameters bitMapParams;
+  bitMapParams.configManager = &configManager;
+  bitMapParams.state = keyScannerState;
+  bitMapParams.routing = createRoutingStrategy();
+
+  xTaskCreatePinnedToCore(bitMapSenderTask, "BitmapSender", STACK_BITMAP,
+                          &bitMapParams, PRIORITY_BITMAP, nullptr, CORE_BITMAP);
+}
+
+void TaskManager::stopBitmapSender() {
+  if (bitmapSenderHandle != nullptr)
+    vTaskDelete(bitmapSenderHandle);
+  bitmapSenderHandle == nullptr;
+}
+void TaskManager::restartBitmapSender() {
+  if (bitmapSenderHandle != nullptr) {
+    stopBitmapSender();
+    startBitmapSender();
+  }
+}
