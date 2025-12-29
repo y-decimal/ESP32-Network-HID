@@ -25,6 +25,11 @@ inline void initSystemTasks(ConfigManager *cfgManager) {
   bitMapCfg = cfgManager->getConfig<BitMapSenderConfig>();
 
   static KeyScannerState scannerState;
+  // Free previously allocated bitmap (if any) before allocating a new one
+  if (scannerState.bitMap != nullptr) {
+    delete[] scannerState.bitMap;
+    scannerState.bitMap = nullptr;
+  }
   scannerState.bitMapSize = (keyCfg.rows * keyCfg.cols + 7) / 8;
   scannerState.bitMap = new uint8_t[scannerState.bitMapSize];
   memset(scannerState.bitMap, 0, scannerState.bitMapSize);
