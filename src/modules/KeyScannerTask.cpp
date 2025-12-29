@@ -14,6 +14,7 @@ void keyEventCallback(uint16_t keyIndex, bool state) {
 
 void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap) {
   BitMapEvent bitMapEvent{};
+  bitMapEvent.bitMapSize = bitMapSize;
   memcpy(bitMapEvent.bitMap, bitMap, bitMapSize);
   Event event{};
   event.type = EventType::BitMap;
@@ -47,7 +48,7 @@ void TaskManager::keyScannerTask(void *arg) {
   countType rows = localConfig.rows;
   countType cols = localConfig.cols;
   uint16_t refreshRate = localConfig.getRefreshRate();
-  uint16_t bitMapRatio = localConfig.getBitMapSendRatio();
+  uint16_t bitMapRatio = localConfig.getBitMapSendInterval();
 
   // Create appropriately-sized local arrays and copy pin data
   pinType rowPins[rows];
