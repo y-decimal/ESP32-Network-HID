@@ -8,6 +8,7 @@
 #include <modules/KeyScannerTask.h>
 #include <modules/TaskParameters.h>
 #include <submodules/ConfigManager.h>
+#include <system/SystemConfig.h>
 
 extern QueueHandle_t priorityEventQueue;
 extern QueueHandle_t eventQueue;
