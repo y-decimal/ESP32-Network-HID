@@ -73,6 +73,11 @@ void TaskManager::keyScannerTask(void *arg) {
 
   while (true) {
     keyScanner.updateKeyState();
+    if (loopsSinceLastBitMap > bitMapRatio) {
+      uint8_t bitMapSize = (uint8_t)keyScanner.getBitMapSize();
+      keyScanner.copyPublishedBitmap(bitMapCopy);
+      sendBitMapEvent(bitMapSize, bitMapCopy);
+    }
     xTaskDelayUntil(&previousWakeTime, refreshRateToTicks);
   }
 }
