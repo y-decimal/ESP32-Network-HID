@@ -36,20 +36,27 @@ struct KeyScannerConfig {
       return;
     memcpy(rowPins, rowPinArray, arrSize);
   }
+
   void setColPins(pinType *colPinArray, size_t arrSize) {
     if (arrSize > MAX_PIN_COUNT)
       return;
     memcpy(colPins, colPinArray, arrSize);
   }
+
   void setRefreshRate(uint16_t rate) {
     if (rate < MIN_REFRESH_RATE || rate > MAX_REFRESH_RATE)
       return;
     refreshRate = rate;
   }
-  uint16_t getRefreshRate() const { return refreshRate; }
 
-private:
-  uint16_t refreshRate = 1;
+  void setBitMapSendRatio(uint16_t rateDivisor) {
+    if (rateDivisor < 2 || rateDivisor > 5000)
+      return;
+    bitMapSendRatio = rateDivisor;
+  }
+
+  uint16_t getRefreshRate() const { return refreshRate; }
+  uint16_t getBitMapSendRatio() const { return bitMapSendRatio; }
 };
 
 struct BitMapSenderConfig {
