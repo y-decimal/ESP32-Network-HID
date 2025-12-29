@@ -9,7 +9,8 @@ void keyEventCallback(uint16_t keyIndex, bool state) {
   Event event{};
   event.type = EventType::Key;
   event.key = keyEvent;
-  xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10));
+  if (xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
+    printf("[KeyScanner]: Could not push key event to queue\n");
 }
 
 void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap) {
