@@ -2,7 +2,9 @@
 #define TASKMANAGER_H
 
 #include <modules/TaskParameters.h>
+#include <shared/DataTypes.h>
 #include <submodules/ConfigManager.h>
+#include <submodules/EventRegistry.h>
 
 class TaskManager {
 public:
