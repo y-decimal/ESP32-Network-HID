@@ -13,7 +13,7 @@ public:
 
   void start(); // starts the TaskManager task itself
 
-  void notifyConfigChanged(); // called by event handler
+  void notifyConfigChanged() { applyConfigChanges(); } // called by event handler
 
 private:
   // === Internal task entry points ===
