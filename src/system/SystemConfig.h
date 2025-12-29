@@ -1,6 +1,7 @@
 #ifndef SYSTEMCONFIG_H
 #define SYSTEMCONFIG_H
 
+#include <FreeRTOS.h>
 #include <stdint.h>
 #include <task.h>
 
