@@ -1,9 +1,6 @@
 #ifndef TASKMANAGER_H
 #define TASKMANAGER_H
 
-#include <modules/BitMapSenderTask.h>
-#include <modules/EventHandlerTask.h>
-#include <modules/KeyScannerTask.h>
 #include <modules/TaskParameters.h>
 #include <submodules/ConfigManager.h>
 
