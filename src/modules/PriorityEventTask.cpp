@@ -9,6 +9,8 @@ void TaskManager::priorityEventTask(void *arg) {
       auto handler = EventRegistry::getHandler(event.type);
       if (handler)
         handler(event);
+      if (event.cleanup)
+        event.cleanup(&event);
     }
   }
 }
