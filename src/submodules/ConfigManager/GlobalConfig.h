@@ -15,7 +15,7 @@ private:
 public:
   struct SerializedConfig {
     uint8_t data[SERIALIZED_SIZE];
-    size_t size;
+    size_t size = SERIALIZED_SIZE;
   };
 
   void setRoles(DeviceRole *roleArray, size_t arrSize);

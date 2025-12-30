@@ -39,7 +39,7 @@ public:
 
   struct SerializedConfig {
     uint8_t data[MAX_KEYSCANNER_CONFIG_SIZE];
-    size_t size;
+    size_t size = MAX_KEYSCANNER_CONFIG_SIZE;
   };
 
   void setPins(uint8_t *rowPinData, uint8_t rowSize, uint8_t *colPinData,
