@@ -7,8 +7,10 @@
 
 class ConfigManager {
 private:
-  ThreadSafeGenericStorage<GlobalConfig> globalCfg{"globalCfg"};
-  ThreadSafeGenericStorage<KeyScannerConfig> keyScannerCfg{"keyScannerCfg"};
+  ThreadSafeGenericStorage<GlobalConfig::SerializedConfig> globalCfg{
+      "globalCfg"};
+  ThreadSafeGenericStorage<KeyScannerConfig::SerializedConfig> keyScannerCfg{
+      "keyScannerCfg"};
 
 public:
   template <typename T> T getConfig() const;
@@ -21,23 +23,33 @@ public:
 
 // Template specializations
 template <> inline GlobalConfig ConfigManager::getConfig<GlobalConfig>() const {
-  return globalCfg.get();
+  GlobalConfig::SerializedConfig serialized = globalCfg.get();
+  GlobalConfig globalCfg;
+  globalCfg.unpackSerialized(serialized.data, serialized.size);
+  return globalCfg;
 }
 
 template <>
 inline KeyScannerConfig ConfigManager::getConfig<KeyScannerConfig>() const {
-  return keyScannerCfg.get();
+  KeyScannerConfig::SerializedConfig serialized = keyScannerCfg.get();
+  KeyScannerConfig keyScannerCfg;
+  keyScannerCfg.unpackSerialized(serialized.data, serialized.size);
+  return keyScannerCfg;
 }
 
 template <>
 inline void ConfigManager::setConfig<GlobalConfig>(const GlobalConfig &cfg) {
-  globalCfg.set(cfg);
+  GlobalConfig::SerializedConfig serialized;
+  serialized.size = cfg.packSerialized(serialized.data, sizeof(serialized.data));
+  globalCfg.set(serialized);
 }
 
 template <>
 inline void
 ConfigManager::setConfig<KeyScannerConfig>(const KeyScannerConfig &cfg) {
-  keyScannerCfg.set(cfg);
+  KeyScannerConfig::SerializedConfig serialized;
+  serialized.size = cfg.packSerialized(serialized.data, sizeof(serialized.data));
+  keyScannerCfg.set(serialized);
 }
 
 #endif
