@@ -4,8 +4,9 @@
 #include <cstring>
 #include <shared/CommTypes.h>
 #include <stdint.h>
+#include <vector>
 
-using pinType = uint8_t;
+using pinType = std::vector<uint8_t>;
 using countType = uint8_t;
 
 struct GlobalConfig {
@@ -21,24 +22,37 @@ struct GlobalConfig {
 };
 
 struct KeyScannerConfig {
-  static constexpr uint16_t MIN_REFRESH_RATE = 1;
-  static constexpr uint16_t MAX_REFRESH_RATE = 4000;
-
+private:
   countType rows = 0;
   countType cols = 0;
-  pinType rowPins[MAX_PIN_COUNT]{};
-  pinType colPins[MAX_PIN_COUNT]{};
+  uint8_t bitMapSize = 0;
+  pinType rowPins;
+  pinType colPins;
+  uint16_t refreshRate = 1;
+  uint16_t bitMapSendInterval = 5;
 
-  void setRowPins(pinType *rowPinArray, size_t arrSize) {
-    if (arrSize > MAX_PIN_COUNT)
-      return;
-    memcpy(rowPins, rowPinArray, arrSize);
-  }
+  static constexpr uint16_t MIN_REFRESH_RATE = 1;
+  static constexpr uint16_t MAX_REFRESH_RATE = 4000;
+  static constexpr uint16_t MIN_BITMAP_INTERVAL = 2;
+  static constexpr uint16_t MAX_BITMAP_INTERVAL = 5000;
 
-  void setColPins(pinType *colPinArray, size_t arrSize) {
-    if (arrSize > MAX_PIN_COUNT)
-      return;
-    memcpy(colPins, colPinArray, arrSize);
+public:
+  struct KeyCfgParams {
+    countType rows;
+    countType cols;
+    pinType rowPins;
+    pinType colPins;
+    uint16_t refreshRate;
+    uint16_t bitMapSendInterval;
+  };
+
+  void setPins(uint8_t *rowPinData, uint8_t rowSize, uint8_t *colPinData,
+               uint8_t colSize) {
+    rowPins.assign(rowPinData, rowPinData + rowSize);
+    rows = rowSize;
+    colPins.assign(colPinData, colPinData + colSize);
+    cols = colSize;
+    bitMapSize = (rows * cols + 7) / 8;
   }
 
   void setRefreshRate(uint16_t rate) {
@@ -48,7 +62,7 @@ struct KeyScannerConfig {
   }
 
   void setBitMapSendInterval(uint16_t rateDivisor) {
-    if (rateDivisor < 2 || rateDivisor > 5000)
+    if (MIN_BITMAP_INTERVAL < 2 || rateDivisor > MAX_BITMAP_INTERVAL)
       // Limited to a range of 2-5000, to ensure bitmaps aren't sent every
       // single loop (as this would most likely block the ESP communication),
       // and 5000 to ensure we don't exceed the uint16_t limit and also stay
@@ -57,12 +71,20 @@ struct KeyScannerConfig {
     bitMapSendInterval = rateDivisor;
   }
 
+  void setConfig(KeyCfgParams config) {
+    setPins(config.rowPins.data(), config.rows, config.colPins.data(),
+            config.cols);
+    setRefreshRate(config.refreshRate);
+    setBitMapSendInterval(config.bitMapSendInterval);
+  }
+
+  pinType getRowPins() const { return rowPins; }
+  pinType getColPins() const { return colPins; }
+  countType getRowsCount() const { return rows; }
+  countType getColCount() const { return cols; }
+  uint8_t getBitmapSize() const { return bitMapSize; }
   uint16_t getRefreshRate() const { return refreshRate; }
   uint16_t getBitMapSendInterval() const { return bitMapSendInterval; }
-
-private:
-  uint16_t refreshRate = 1;
-  uint16_t bitMapSendInterval = 5;
 };
 
 #endif
