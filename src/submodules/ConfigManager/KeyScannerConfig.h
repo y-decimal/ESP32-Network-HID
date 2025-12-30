@@ -19,7 +19,7 @@ private:
   uint16_t bitMapSendFrequency = 5;
 
   static constexpr uint16_t MIN_REFRESH_RATE = 1;
-  static constexpr uint16_t MAX_REFRESH_RATE = 4000;
+  static constexpr uint16_t MAX_REFRESH_RATE = 1000;
   static constexpr uint16_t MIN_BITMAP_REFRESH_RATE = 1;
   static constexpr uint16_t MAX_BITMAP_REFRESH_RATE = 500;
   static constexpr size_t MAX_PIN_COUNT = 20;
