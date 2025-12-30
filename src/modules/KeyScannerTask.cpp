@@ -74,7 +74,7 @@ void TaskManager::keyScannerTask(void *arg) {
 
   uint16_t loopsSinceLastBitMap = 0;
   std::vector<uint8_t> localBitmap;
-  localBitmap.assign(0, localConfig.getBitmapSize());
+  localBitmap.assign(localConfig.getBitmapSize(), 0);
 
   while (true) {
     loopsSinceLastBitMap++;
