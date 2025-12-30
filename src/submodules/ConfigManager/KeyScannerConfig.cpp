@@ -30,3 +30,86 @@ void KeyScannerConfig::setConfig(KeyCfgParams config) {
   setRefreshRate(config.refreshRate);
   setBitMapSendInterval(config.bitMapSendInterval);
 }
+
+size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const {
+  size_t ownSize = getSerializedSize();
+  if (size < ownSize)
+    return 0;
+  uint8_t buffer[ownSize] = {};
+
+  size_t index = 0;
+  memcpy(buffer, &rows, sizeof(rows));
+  index += sizeof(rows);
+
+  memcpy(buffer + index, &cols, sizeof(cols));
+  index += sizeof(cols);
+
+  memcpy(buffer + index, &bitMapSize, sizeof(bitMapSize));
+  index += sizeof(bitMapSize);
+
+  memcpy(buffer + index, rowPins.data(), rows);
+  index += rows;
+
+  memcpy(buffer + index, colPins.data(), cols);
+  index += cols;
+
+  memcpy(buffer + index, &refreshRate, sizeof(refreshRate));
+  index += sizeof(refreshRate);
+
+  memccpy(buffer + index, &bitMapSendInterval, sizeof(bitMapSendInterval));
+
+  memcpy(output, buffer, size);
+
+  return size;
+}
+
+size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size) {
+  size_t ownSize = getSerializedSize();
+  if (size > ownSize)
+    return 0;
+
+  size_t index = 0;
+  size_t totalWrite = 0;
+  size_t objSize = 0;
+
+  objSize = sizeof(rows);
+  memcpy(&rows, input, objSize);
+  index += objSize;
+  totalWrite += objSize;
+
+  objSize = sizeof(cols);
+  memcpy(&cols, input + index, objSize);
+  index += objSize;
+  totalWrite += objSize;
+
+  objSize = sizeof(bitMapSize);
+  memcpy(&bitMapSize, input + index, objSize);
+  index += objSize;
+  totalWrite += objSize;
+
+  objSize = rows;
+  memcpy(rowPins.data(), input + index, objSize);
+  index += rows;
+  totalWrite += objSize;
+
+  objSize = cols;
+  memcpy(colPins.data(), input + index, objSize);
+  index += cols;
+  totalWrite += objSize;
+
+  objSize = sizeof(refreshRate);
+  memcpy(&refreshRate, input + index, objSize);
+  index += objSize;
+  totalWrite += objSize;
+
+  objSize = sizeof(bitMapSendInterval);
+  memcpy(&bitMapSendInterval, input + index, objSize);
+  totalWrite += objSize;
+
+  return totalWrite;
+}
+
+size_t KeyScannerConfig::getSerializedSize() const {
+  return sizeof(rows) + sizeof(cols) + sizeof(bitMapSize) + rows + cols +
+         sizeof(refreshRate) + sizeof(bitMapSendInterval);
+}
