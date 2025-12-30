@@ -2,14 +2,12 @@
 #define CONFIGMANAGER_H
 
 #include <shared/ConfigTypes.h>
-#include <submodules/GenericStorage.h>
+#include <submodules/TGenericStorage.h>
 
 class ConfigManager {
 private:
-  GenericStorage<GlobalConfig> globalCfg =
-      GenericStorage<GlobalConfig>("globalCfg");
-  GenericStorage<KeyScannerConfig> keyScannerCfg =
-      GenericStorage<KeyScannerConfig>("keyScannerCfg");
+  ThreadSafeGenericStorage<GlobalConfig> globalCfg{"globalCfg"};
+  ThreadSafeGenericStorage<KeyScannerConfig> keyScannerCfg{"keyScannerCfg"};
 
 public:
   template <typename T> T getConfig() const;
@@ -29,7 +27,6 @@ template <>
 inline KeyScannerConfig ConfigManager::getConfig<KeyScannerConfig>() const {
   return keyScannerCfg.get();
 }
-
 
 template <>
 inline void ConfigManager::setConfig<GlobalConfig>(const GlobalConfig &cfg) {
