@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <submodules/ConfigManager.h>
 #include <system/TaskManager.h>
 
 // temp local definitions for testing
@@ -43,12 +44,10 @@ void simulateConfig() {
   uint16_t refreshRate = 1000;
   uint16_t bitMapSendInterval = 250;
 
-  kCfg.rows = rowCount;
-  kCfg.cols = colCount;
-  kCfg.setRowPins(ROWPINS, 2);
-  kCfg.setColPins(COLPINS, 2);
-  kCfg.setRefreshRate(refreshRate);
-  kCfg.setBitMapSendInterval(bitMapSendInterval);
+  KeyScannerConfig::KeyCfgParams cfgParams = {
+      rowCount, colCount, ROWPINS, COLPINS, refreshRate, bitMapSendInterval};
+
+  kCfg.setConfig(cfgParams);
 
   mainCfg.setConfig(kCfg);
 
