@@ -32,6 +32,25 @@ public:
     uint16_t refreshRate;
     uint16_t bitMapSendInterval;
   };
+
+  void setPins(uint8_t *rowPinData, uint8_t rowSize, uint8_t *colPinData,
+               uint8_t colSize);
+
+  void setRefreshRate(uint16_t rate);
+
+  void setBitMapSendInterval(uint16_t rateDivisor);
+
+  void setConfig(KeyCfgParams config);
+
+  pinType KeyScannerConfig::getRowPins() const { return rowPins; }
+  pinType KeyScannerConfig::getColPins() const { return colPins; }
+  countType KeyScannerConfig::getRowsCount() const { return rows; }
+  countType KeyScannerConfig::getColCount() const { return cols; }
+  uint8_t KeyScannerConfig::getBitmapSize() const { return bitMapSize; }
+  uint16_t KeyScannerConfig::getRefreshRate() const { return refreshRate; }
+  uint16_t KeyScannerConfig::getBitMapSendInterval() const {
+    return bitMapSendInterval;
+  }
 };
 
 #endif

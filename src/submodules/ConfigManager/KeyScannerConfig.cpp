@@ -1,4 +1,4 @@
-#include <submodules/KeyScannerConfig.h>
+#include <submodules/ConfigManager/KeyScannerConfig.h>
 
 void KeyScannerConfig::setPins(uint8_t *rowPinData, uint8_t rowSize,
                                uint8_t *colPinData, uint8_t colSize) {
@@ -29,14 +29,4 @@ void KeyScannerConfig::setConfig(KeyCfgParams config) {
   setPins(config.rowPins, config.rows, config.colPins, config.cols);
   setRefreshRate(config.refreshRate);
   setBitMapSendInterval(config.bitMapSendInterval);
-}
-
-pinType KeyScannerConfig::getRowPins() const { return rowPins; }
-pinType KeyScannerConfig::getColPins() const { return colPins; }
-countType KeyScannerConfig::getRowsCount() const { return rows; }
-countType KeyScannerConfig::getColCount() const { return cols; }
-uint8_t KeyScannerConfig::getBitmapSize() const { return bitMapSize; }
-uint16_t KeyScannerConfig::getRefreshRate() const { return refreshRate; }
-uint16_t KeyScannerConfig::getBitMapSendInterval() const {
-  return bitMapSendInterval;
 }
