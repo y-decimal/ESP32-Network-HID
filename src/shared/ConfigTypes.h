@@ -53,8 +53,8 @@ public:
   struct KeyCfgParams {
     countType rows;
     countType cols;
-    pinType rowPins;
-    pinType colPins;
+    uint8_t *rowPins;
+    uint8_t *colPins;
     uint16_t refreshRate;
     uint16_t bitMapSendInterval;
   };
@@ -85,8 +85,7 @@ public:
   }
 
   void setConfig(KeyCfgParams config) {
-    setPins(config.rowPins.data(), config.rows, config.colPins.data(),
-            config.cols);
+    setPins(config.rowPins, config.rows, config.colPins, config.cols);
     setRefreshRate(config.refreshRate);
     setBitMapSendInterval(config.bitMapSendInterval);
   }
