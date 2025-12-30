@@ -6,10 +6,8 @@
 
 class ConfigManager {
 private:
-  ThreadSafeGenericStorage<GlobalConfig> globalCfg =
-      ThreadSafeGenericStorage<GlobalConfig>("globalCfg");
-  ThreadSafeGenericStorage<KeyScannerConfig> keyScannerCfg =
-      ThreadSafeGenericStorage<KeyScannerConfig>("keyScannerCfg");
+  ThreadSafeGenericStorage<GlobalConfig> globalCfg{"globalCfg"};
+  ThreadSafeGenericStorage<KeyScannerConfig> keyScannerCfg{"keyScannerCfg"};
 
 public:
   template <typename T> T getConfig() const;
