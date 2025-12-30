@@ -12,15 +12,21 @@ struct KeyEvent {
 
 struct BitMapEvent {
   uint8_t bitMapSize;
-  uint8_t bitMap[BITMAPSIZE];
+  uint8_t *bitMapData;
 };
 
 struct Event {
   EventType type;
+
+  void (*cleanup)(Event *);
+
   union {
     KeyEvent key;
     BitMapEvent bitMap;
   };
 };
+
+inline void cleanupKeyEvent(Event *event) { return; }
+inline void cleanupBitmapEvent(Event *event) { free(event->bitMap.bitMapData); }
 
 #endif

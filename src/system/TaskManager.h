@@ -2,7 +2,7 @@
 #define TASKMANAGER_H
 
 #include <FreeRTOS.h>
-#include <submodules/ConfigManager.h>
+#include <submodules/ConfigManager/ConfigManager.h>
 #include <submodules/EventRegistry.h>
 #include <system/SystemConfig.h>
 #include <system/TaskParameters.h>

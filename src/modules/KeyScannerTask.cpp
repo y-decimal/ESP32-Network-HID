@@ -9,6 +9,7 @@ void keyEventCallback(uint16_t keyIndex, bool state) {
   Event event{};
   event.type = EventType::Key;
   event.key = keyEvent;
+  event.cleanup = cleanupKeyEvent;
   if (xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
     printf("[KeyScanner]: Could not push key event to queue\n");
 }
@@ -16,17 +17,13 @@ void keyEventCallback(uint16_t keyIndex, bool state) {
 void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap) {
   BitMapEvent bitMapEvent{};
   bitMapEvent.bitMapSize = bitMapSize;
-  uint8_t copySize = bitMapSize;
-  if (copySize > sizeof(bitMapEvent.bitMap)) {
-    printf("[KeyScannerTask]: Truncating BitMapEvent from %u to %u bytes\n",
-           static_cast<unsigned int>(bitMapSize),
-           static_cast<unsigned int>(sizeof(bitMapEvent.bitMap)));
-    copySize = static_cast<uint8_t>(sizeof(bitMapEvent.bitMap));
-  }
-  memcpy(bitMapEvent.bitMap, bitMap, copySize);
+  bitMapEvent.bitMapData = static_cast<uint8_t *>(malloc(bitMapSize));
+  memcpy(bitMapEvent.bitMapData, bitMap, bitMapSize);
+
   Event event{};
   event.type = EventType::BitMap;
   event.bitMap = bitMapEvent;
+  event.cleanup = cleanupBitmapEvent;
 
   if (xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
     printf("[KeyScanner]: Could not push bitmap event to queue\n");
@@ -54,41 +51,38 @@ void TaskManager::keyScannerTask(void *arg) {
 
   delete params;
 
-  // Copy only the values we need to local stack variables
-  countType rows = localConfig.rows;
-  countType cols = localConfig.cols;
-  uint16_t refreshRate = localConfig.getRefreshRate();
-  uint16_t bitMapInterval = localConfig.getBitMapSendInterval();
+  // Store pin vectors locally so their data() pointers remain valid
+  pinType rowPins = localConfig.getRowPins();
+  pinType colPins = localConfig.getColPins();
 
-  // Create appropriately-sized local arrays and copy pin data
-  pinType rowPins[rows];
-  pinType colPins[cols];
-
-  for (countType i = 0; i < rows; i++) {
-    rowPins[i] = localConfig.rowPins[i];
-  }
-
-  for (countType i = 0; i < cols; i++) {
-    colPins[i] = localConfig.colPins[i];
-  }
-
-  KeyScanner keyScanner = KeyScanner(rowPins, colPins, rows, cols);
+  KeyScanner keyScanner = KeyScanner(
+      rowPins.data(), colPins.data(),
+      localConfig.getRowsCount(), localConfig.getColCount());
 
   keyScanner.registerOnKeyChangeCallback(keyEventCallback);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
-  TickType_t refreshRateToTicks = pdMS_TO_TICKS((1000 / refreshRate));
+  TickType_t refreshRateToTicks =
+      pdMS_TO_TICKS((1000 / localConfig.getRefreshRate()));
+
+  // Calculate bitmap send interval in loops based on frequency
+  // bitMapSendInterval is now in Hz (frequency), so convert to loop count
+  uint16_t bitMapLoopInterval =
+      localConfig.getRefreshRate() / localConfig.getBitMapSendInterval();
+  if (bitMapLoopInterval == 0)
+    bitMapLoopInterval = 1;  // Minimum 1 loop if freq > refresh rate
 
   uint16_t loopsSinceLastBitMap = 0;
-  uint8_t bitMapCopy[BITMAPSIZE]{};
+  std::vector<uint8_t> localBitmap;
+  localBitmap.assign(localConfig.getBitmapSize(), 0);
 
   while (true) {
     loopsSinceLastBitMap++;
     keyScanner.updateKeyState();
-    if (loopsSinceLastBitMap >= bitMapInterval) {
-      keyScanner.copyPublishedBitmap(bitMapCopy, sizeof(bitMapCopy));
+    if (loopsSinceLastBitMap >= bitMapLoopInterval) {
+      keyScanner.copyPublishedBitmap(localBitmap.data(), localBitmap.size());
       uint8_t bitMapSize = static_cast<uint8_t>(keyScanner.getBitMapSize());
-      sendBitMapEvent(bitMapSize, bitMapCopy);
+      sendBitMapEvent(bitMapSize, localBitmap.data());
       loopsSinceLastBitMap = 0;
     }
     xTaskDelayUntil(&previousWakeTime, refreshRateToTicks);

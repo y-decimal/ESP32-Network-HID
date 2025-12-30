@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <submodules/ConfigManager/ConfigManager.h>
 #include <system/TaskManager.h>
 
 // temp local definitions for testing
@@ -19,10 +20,12 @@ void keyPrintCallback(const Event &event) {
 
 void simulateConfig() {
 
-  if (mainCfg.loadConfig()) {
-    printf("Config loaded from flash\n");
-    return;
-  }
+  // if (mainCfg.loadConfig()) {
+  //   printf("Config loaded from flash\n");
+  //   return;
+  // }
+
+  printf("No config in flash, creating new config...\n");
 
   GlobalConfig gCfg;
 
@@ -41,14 +44,12 @@ void simulateConfig() {
   uint8_t ROWPINS[2] = {9, 10};
   uint8_t COLPINS[2] = {17, 18};
   uint16_t refreshRate = 1000;
-  uint16_t bitMapSendInterval = 250;
+  uint16_t bitMapSendFrequency = 1;
 
-  kCfg.rows = rowCount;
-  kCfg.cols = colCount;
-  kCfg.setRowPins(ROWPINS, 2);
-  kCfg.setColPins(COLPINS, 2);
-  kCfg.setRefreshRate(refreshRate);
-  kCfg.setBitMapSendInterval(bitMapSendInterval);
+  KeyScannerConfig::KeyCfgParams cfgParams = {
+      rowCount, colCount, ROWPINS, COLPINS, refreshRate, bitMapSendFrequency};
+
+  kCfg.setConfig(cfgParams);
 
   mainCfg.setConfig(kCfg);
 
@@ -64,6 +65,10 @@ void setup() {
   printf("initializing...\n");
   simulateConfig();
   EventRegistry::registerHandler(EventType::Key, keyPrintCallback);
+  KeyScannerConfig kCfg = mainCfg.getConfig<KeyScannerConfig>();
+  printf("KeyScanner Config: %d rows, %d cols, refresh %d ms, bitmap interval %d ms\n",
+         kCfg.getRowsCount(), kCfg.getColCount(), kCfg.getRefreshRate(),
+         kCfg.getBitMapSendInterval());
   taskManager.start();
   printf("setup done\n");
 }

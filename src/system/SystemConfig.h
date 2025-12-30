@@ -5,10 +5,6 @@
 #include <stdint.h>
 #include <task.h>
 
-// Global constants
-static constexpr uint8_t BITMAPSIZE = 16;
-// 16 Bytes for 127 bits, should be enough for every possible key
-
 // Task Manager Task Config
 static constexpr uint32_t STACK_TASKMANAGER = 4096;
 static constexpr UBaseType_t PRIORITY_TASKMANAGER = 5;
