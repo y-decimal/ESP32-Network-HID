@@ -24,23 +24,34 @@ public:
 // Template specializations
 template <> inline GlobalConfig ConfigManager::getConfig<GlobalConfig>() const {
   GlobalConfig::SerializedConfig serialized = globalCfg.get();
-  GlobalConfig globalCfg;
-  globalCfg.unpackSerialized(serialized.data, serialized.size);
-  return globalCfg;
+  GlobalConfig config; // Create with defaults
+  // Only unpack if we have valid data (size > 0)
+  if (serialized.size > 0) {
+    config.unpackSerialized(serialized.data, serialized.size);
+  }
+  return config;
 }
 
 template <>
 inline KeyScannerConfig ConfigManager::getConfig<KeyScannerConfig>() const {
   KeyScannerConfig::SerializedConfig serialized = keyScannerCfg.get();
-  KeyScannerConfig keyScannerCfg;
-  keyScannerCfg.unpackSerialized(serialized.data, serialized.size);
-  return keyScannerCfg;
+  KeyScannerConfig config; // Create with defaults
+  // Only unpack if we have valid data (size > 0)
+  if (serialized.size > 0) {
+    config.unpackSerialized(serialized.data, serialized.size);
+  }
+  return config;
 }
 
 template <>
 inline void ConfigManager::setConfig<GlobalConfig>(const GlobalConfig &cfg) {
   GlobalConfig::SerializedConfig serialized;
-  serialized.size = cfg.packSerialized(serialized.data, sizeof(serialized.data));
+  serialized.size =
+      cfg.packSerialized(serialized.data, sizeof(serialized.data));
+  if (serialized.size == 0) {
+    printf("ERROR: Failed to serialize GlobalConfig\n");
+    return;
+  }
   globalCfg.set(serialized);
 }
 
@@ -48,7 +59,12 @@ template <>
 inline void
 ConfigManager::setConfig<KeyScannerConfig>(const KeyScannerConfig &cfg) {
   KeyScannerConfig::SerializedConfig serialized;
-  serialized.size = cfg.packSerialized(serialized.data, sizeof(serialized.data));
+  serialized.size =
+      cfg.packSerialized(serialized.data, sizeof(serialized.data));
+  if (serialized.size == 0) {
+    printf("ERROR: Failed to serialize KeyScannerConfig\n");
+    return;
+  }
   keyScannerCfg.set(serialized);
 }
 
