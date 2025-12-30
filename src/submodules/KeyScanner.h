@@ -43,9 +43,7 @@ public:
 
   void clearOnKeyChangeCallback() { onKeyChange = nullptr; }
 
-  void copyPublishedBitmap(uint8_t *dest) const {
-    memcpy(dest, publishedBuffer, bitMapSize);
-  }
+  void copyPublishedBitmap(uint8_t *dest, size_t destSize) const;
 
   const size_t getBitMapSize() const { return bitMapSize; }
 

@@ -1,17 +1,5 @@
 #include <submodules/ConfigManager.h>
 
-GlobalConfig ConfigManager::getGlobalConfig() const { return globalCfg.get(); }
-
-KeyScannerConfig ConfigManager::getKeyConfig() const {
-  return keyScannerCfg.get();
-}
-
-void ConfigManager::setGlobalConfig(GlobalConfig cfg) { globalCfg.set(cfg); }
-
-void ConfigManager::setKeyConfig(KeyScannerConfig cfg) {
-  keyScannerCfg.set(cfg);
-}
-
 bool ConfigManager::saveConfig() {
 
   bool globalSaved = false;
@@ -21,10 +9,12 @@ bool ConfigManager::saveConfig() {
     globalSaved = globalCfg.save();
   else
     globalSaved = true;
+
   if (keyScannerCfg.isDirty())
     keySaved = keyScannerCfg.save();
   else
     keySaved = true;
+
   return globalSaved && keySaved;
 }
 
@@ -37,6 +27,7 @@ bool ConfigManager::loadConfig() {
     globalLoaded = globalCfg.load();
   else
     globalLoaded = true;
+
   if (!keyScannerCfg.isDirty())
     keyLoaded = keyScannerCfg.load();
   else
