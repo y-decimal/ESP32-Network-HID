@@ -51,8 +51,12 @@ void TaskManager::keyScannerTask(void *arg) {
 
   delete params;
 
+  // Store pin vectors locally so their data() pointers remain valid
+  pinType rowPins = localConfig.getRowPins();
+  pinType colPins = localConfig.getColPins();
+
   KeyScanner keyScanner = KeyScanner(
-      localConfig.getRowPins().data(), localConfig.getColPins().data(),
+      rowPins.data(), colPins.data(),
       localConfig.getRowsCount(), localConfig.getColCount());
 
   keyScanner.registerOnKeyChangeCallback(keyEventCallback);
