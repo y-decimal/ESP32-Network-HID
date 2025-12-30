@@ -42,13 +42,13 @@ public:
 
   void setConfig(KeyCfgParams config);
 
-  pinType KeyScannerConfig::getRowPins() const { return rowPins; }
-  pinType KeyScannerConfig::getColPins() const { return colPins; }
-  countType KeyScannerConfig::getRowsCount() const { return rows; }
-  countType KeyScannerConfig::getColCount() const { return cols; }
-  uint8_t KeyScannerConfig::getBitmapSize() const { return bitMapSize; }
-  uint16_t KeyScannerConfig::getRefreshRate() const { return refreshRate; }
-  uint16_t KeyScannerConfig::getBitMapSendInterval() const {
+  pinType getRowPins() const { return rowPins; }
+  pinType getColPins() const { return colPins; }
+  countType getRowsCount() const { return rows; }
+  countType getColCount() const { return cols; }
+  uint8_t getBitmapSize() const { return bitMapSize; }
+  uint16_t getRefreshRate() const { return refreshRate; }
+  uint16_t getBitMapSendInterval() const {
     return bitMapSendInterval;
   }
 };
