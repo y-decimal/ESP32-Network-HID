@@ -1,7 +1,8 @@
 #ifndef CONFIGMANAGER_H
 #define CONFIGMANAGER_H
 
-#include <shared/ConfigTypes.h>
+#include <submodules/ConfigManager/GlobalConfig.h>
+#include <submodules/ConfigManager/KeyScannerConfig.h>
 #include <submodules/TGenericStorage.h>
 
 class ConfigManager {
