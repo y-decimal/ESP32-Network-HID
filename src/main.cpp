@@ -20,10 +20,12 @@ void keyPrintCallback(const Event &event) {
 
 void simulateConfig() {
 
-  if (mainCfg.loadConfig()) {
-    printf("Config loaded from flash\n");
-    return;
-  }
+  // if (mainCfg.loadConfig()) {
+  //   printf("Config loaded from flash\n");
+  //   return;
+  // }
+
+  printf("No config in flash, creating new config...\n");
 
   GlobalConfig gCfg;
 
@@ -63,6 +65,10 @@ void setup() {
   printf("initializing...\n");
   simulateConfig();
   EventRegistry::registerHandler(EventType::Key, keyPrintCallback);
+  KeyScannerConfig kCfg = mainCfg.getConfig<KeyScannerConfig>();
+  printf("KeyScanner Config: %d rows, %d cols, refresh %d ms, bitmap interval %d ms\n",
+         kCfg.getRowsCount(), kCfg.getColCount(), kCfg.getRefreshRate(),
+         kCfg.getBitMapSendInterval());
   taskManager.start();
   printf("setup done\n");
 }
