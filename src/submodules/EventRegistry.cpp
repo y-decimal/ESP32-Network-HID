@@ -1,12 +1,13 @@
 #include <submodules/EventRegistry.h>
 
-EventRegistry::EventCallback EventRegistry::handlers[(size_t)EventType::COUNT] =
-    {nullptr};
-
 void EventRegistry::registerHandler(EventType type, EventCallback callback) {
-  handlers[(size_t)type] = callback;
+  handlers[(size_t)type].push_back(callback);
 }
 
-EventRegistry::EventCallback EventRegistry::getHandler(EventType type) {
+std::vector<EventRegistry::EventCallback>
+EventRegistry::getHandler(EventType type) {
   return handlers[(size_t)type];
 }
+
+std::vector<EventRegistry::EventCallback>
+    EventRegistry::handlers[(size_t)EventType::COUNT]{};

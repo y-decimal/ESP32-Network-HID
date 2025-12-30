@@ -6,11 +6,9 @@ void TaskManager::priorityEventTask(void *arg) {
 
   while (true) {
     if (xQueueReceive(queue, &event, portMAX_DELAY)) {
-      auto handler = EventRegistry::getHandler(event.type);
-      if (handler)
-        handler(event);
-      if (event.cleanup)
-        event.cleanup(&event);
+      const auto handlers = EventRegistry::getHandler(event.type);
+      for (auto callback : handlers)
+        callback(event);
     }
   }
 }
