@@ -44,10 +44,10 @@ void simulateConfig() {
   uint8_t ROWPINS[2] = {9, 10};
   uint8_t COLPINS[2] = {17, 18};
   uint16_t refreshRate = 1000;
-  uint16_t bitMapSendInterval = 250;
+  uint16_t bitMapSendFrequency = 1;
 
   KeyScannerConfig::KeyCfgParams cfgParams = {
-      rowCount, colCount, ROWPINS, COLPINS, refreshRate, bitMapSendInterval};
+      rowCount, colCount, ROWPINS, COLPINS, refreshRate, bitMapSendFrequency};
 
   kCfg.setConfig(cfgParams);
 
