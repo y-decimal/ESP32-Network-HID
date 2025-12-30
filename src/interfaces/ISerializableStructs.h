@@ -4,9 +4,12 @@
 #include <cstring>
 #include <stdint.h>
 
-struct Serializable {
-  virtual size_t pack(uint8_t *output) const = 0;
-  virtual size_t unpack(const uint8_t *input) = 0;
+class Serializable {
+public:
+  virtual ~Serializable() = default;
+  virtual size_t packSerialized(uint8_t *output, size_t size) const = 0;
+  virtual size_t unpackSerialized(const uint8_t *input, size_t size) = 0;
+  virtual size_t getSerializedSize();
 };
 
 #endif
