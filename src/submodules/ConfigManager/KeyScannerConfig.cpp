@@ -15,20 +15,19 @@ void KeyScannerConfig::setRefreshRate(uint16_t rate) {
   refreshRate = rate;
 }
 
-void KeyScannerConfig::setBitMapSendInterval(uint16_t rateDivisor) {
-  if (MIN_BITMAP_INTERVAL < 2 || rateDivisor > MAX_BITMAP_INTERVAL)
-    // Limited to a range of 2-5000, to ensure bitmaps aren't sent every
-    // single loop (as this would most likely block the ESP communication),
-    // and 5000 to ensure we don't exceed the uint16_t limit and also stay
-    // within reasonable bounds for regular bitMap refreshes
+void KeyScannerConfig::setBitmapSendFrequency(uint16_t frequency) {
+  if (frequency < MIN_BITMAP_REFRESH_RATE ||
+      frequency > MAX_BITMAP_REFRESH_RATE)
+    // frequency is now the bitmap frequency in Hz
+    // Limited to a range of 1-500 Hz to ensure reasonable bitmap rates
     return;
-  bitMapSendInterval = rateDivisor;
+  bitMapSendFrequency = frequency;
 }
 
 void KeyScannerConfig::setConfig(KeyCfgParams config) {
   setPins(config.rowPins, config.rows, config.colPins, config.cols);
   setRefreshRate(config.refreshRate);
-  setBitMapSendInterval(config.bitMapSendInterval);
+  setBitmapSendFrequency(config.bitMapSendInterval);
 }
 
 size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const {
@@ -71,8 +70,8 @@ size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const {
   index += objSize;
   totalWrite += objSize;
 
-  objSize = sizeof(bitMapSendInterval);
-  memcpy(buffer + index, &bitMapSendInterval, objSize);
+  objSize = sizeof(bitMapSendFrequency);
+  memcpy(buffer + index, &bitMapSendFrequency, objSize);
   totalWrite += objSize;
 
   memcpy(output, buffer, totalWrite);
@@ -107,7 +106,8 @@ size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size) {
 
   // Now validate the full size including pin data
   size_t expectedSize = sizeof(rows) + sizeof(cols) + sizeof(bitMapSize) +
-                        rows + cols + sizeof(refreshRate) + sizeof(bitMapSendInterval);
+                        rows + cols + sizeof(refreshRate) +
+                        sizeof(bitMapSendFrequency);
   if (size < expectedSize)
     return 0;
 
@@ -130,8 +130,8 @@ size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size) {
   index += objSize;
   totalWrite += objSize;
 
-  objSize = sizeof(bitMapSendInterval);
-  memcpy(&bitMapSendInterval, input + index, objSize);
+  objSize = sizeof(bitMapSendFrequency);
+  memcpy(&bitMapSendFrequency, input + index, objSize);
   totalWrite += objSize;
 
   return totalWrite;
@@ -139,5 +139,5 @@ size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size) {
 
 size_t KeyScannerConfig::getSerializedSize() const {
   return sizeof(rows) + sizeof(cols) + sizeof(bitMapSize) + rows + cols +
-         sizeof(refreshRate) + sizeof(bitMapSendInterval);
+         sizeof(refreshRate) + sizeof(bitMapSendFrequency);
 }

@@ -60,6 +60,13 @@ void TaskManager::keyScannerTask(void *arg) {
   TickType_t refreshRateToTicks =
       pdMS_TO_TICKS((1000 / localConfig.getRefreshRate()));
 
+  // Calculate bitmap send interval in loops based on frequency
+  // bitMapSendInterval is now in Hz (frequency), so convert to loop count
+  uint16_t bitMapLoopInterval =
+      localConfig.getRefreshRate() / localConfig.getBitMapSendInterval();
+  if (bitMapLoopInterval == 0)
+    bitMapLoopInterval = 1;  // Minimum 1 loop if freq > refresh rate
+
   uint16_t loopsSinceLastBitMap = 0;
   std::vector<uint8_t> localBitmap;
   localBitmap.assign(0, localConfig.getBitmapSize());
@@ -67,7 +74,7 @@ void TaskManager::keyScannerTask(void *arg) {
   while (true) {
     loopsSinceLastBitMap++;
     keyScanner.updateKeyState();
-    if (loopsSinceLastBitMap >= localConfig.getBitMapSendInterval()) {
+    if (loopsSinceLastBitMap >= bitMapLoopInterval) {
       keyScanner.copyPublishedBitmap(localBitmap.data(), localBitmap.size());
       uint8_t bitMapSize = static_cast<uint8_t>(keyScanner.getBitMapSize());
       sendBitMapEvent(bitMapSize, localBitmap.data());

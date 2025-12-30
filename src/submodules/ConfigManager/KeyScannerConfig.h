@@ -16,16 +16,16 @@ private:
   pinType rowPins;
   pinType colPins;
   uint16_t refreshRate = 1;
-  uint16_t bitMapSendInterval = 5;
+  uint16_t bitMapSendFrequency = 5;
 
   static constexpr uint16_t MIN_REFRESH_RATE = 1;
   static constexpr uint16_t MAX_REFRESH_RATE = 4000;
-  static constexpr uint16_t MIN_BITMAP_INTERVAL = 2;
-  static constexpr uint16_t MAX_BITMAP_INTERVAL = 5000;
+  static constexpr uint16_t MIN_BITMAP_REFRESH_RATE = 1;
+  static constexpr uint16_t MAX_BITMAP_REFRESH_RATE = 500;
   static constexpr size_t MAX_PIN_COUNT = 20;
   static constexpr size_t MAX_KEYSCANNER_CONFIG_SIZE =
       sizeof(rows) + sizeof(cols) + sizeof(bitMapSize) + MAX_PIN_COUNT * 2 +
-      sizeof(refreshRate) + sizeof(bitMapSendInterval);
+      sizeof(refreshRate) + sizeof(bitMapSendFrequency);
 
 public:
   struct KeyCfgParams {
@@ -47,7 +47,13 @@ public:
 
   void setRefreshRate(uint16_t rate);
 
-  void setBitMapSendInterval(uint16_t rateDivisor);
+  /**
+   * Set bitmap send frequency in Hz.
+   * The actual loop interval is calculated as: loopsPerBitmap = refreshRate /
+   * bitMapSendInterval
+   * @param frequency Bitmap frequency in Hz (1-500)
+   */
+  void setBitmapSendFrequency(uint16_t frequency);
 
   void setConfig(KeyCfgParams config);
 
@@ -57,7 +63,7 @@ public:
   countType getColCount() const { return cols; }
   uint8_t getBitmapSize() const { return bitMapSize; }
   uint16_t getRefreshRate() const { return refreshRate; }
-  uint16_t getBitMapSendInterval() const { return bitMapSendInterval; }
+  uint16_t getBitMapSendInterval() const { return bitMapSendFrequency; }
 
   size_t packSerialized(uint8_t *output, size_t size) const override;
   size_t unpackSerialized(const uint8_t *input, size_t size) override;
