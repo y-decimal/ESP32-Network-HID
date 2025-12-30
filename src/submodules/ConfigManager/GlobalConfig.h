@@ -5,10 +5,18 @@
 #include <interfaces/ISerializableStructs.h>
 #include <shared/CommTypes.h>
 
-struct GlobalConfig : public Serializable {
-
+class GlobalConfig : public Serializable {
+private:
   DeviceRole roles[(size_t)DeviceRole::Count]{};
   MacAddress deviceMac{};
+
+  static constexpr size_t SERIALIZED_SIZE = sizeof(roles) + sizeof(deviceMac);
+
+public:
+  struct SerializedConfig {
+    uint8_t data[SERIALIZED_SIZE];
+    size_t size;
+  };
 
   void setRoles(DeviceRole *roleArray, size_t arrSize);
 

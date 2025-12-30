@@ -22,6 +22,10 @@ private:
   static constexpr uint16_t MAX_REFRESH_RATE = 4000;
   static constexpr uint16_t MIN_BITMAP_INTERVAL = 2;
   static constexpr uint16_t MAX_BITMAP_INTERVAL = 5000;
+  static constexpr size_t MAX_PIN_COUNT = 20;
+  static constexpr size_t MAX_KEYSCANNER_CONFIG_SIZE =
+      sizeof(rows) + sizeof(cols) + sizeof(bitMapSize) + MAX_PIN_COUNT * 2 +
+      sizeof(refreshRate) + sizeof(bitMapSendInterval);
 
 public:
   struct KeyCfgParams {
@@ -31,6 +35,11 @@ public:
     uint8_t *colPins;
     uint16_t refreshRate;
     uint16_t bitMapSendInterval;
+  };
+
+  struct SerializedConfig {
+    uint8_t data[MAX_KEYSCANNER_CONFIG_SIZE];
+    size_t size;
   };
 
   void setPins(uint8_t *rowPinData, uint8_t rowSize, uint8_t *colPinData,
@@ -48,9 +57,7 @@ public:
   countType getColCount() const { return cols; }
   uint8_t getBitmapSize() const { return bitMapSize; }
   uint16_t getRefreshRate() const { return refreshRate; }
-  uint16_t getBitMapSendInterval() const {
-    return bitMapSendInterval;
-  }
+  uint16_t getBitMapSendInterval() const { return bitMapSendInterval; }
 
   size_t packSerialized(uint8_t *output, size_t size) const override;
   size_t unpackSerialized(const uint8_t *input, size_t size) override;
