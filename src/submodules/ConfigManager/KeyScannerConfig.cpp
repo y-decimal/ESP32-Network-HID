@@ -72,7 +72,7 @@ size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const {
   totalWrite += objSize;
 
   objSize = sizeof(bitMapSendInterval);
-  memccpy(buffer + index, &bitMapSendInterval, objSize);
+  memcpy(buffer + index, &bitMapSendInterval, objSize);
   totalWrite += objSize;
 
   memcpy(output, buffer, totalWrite);
