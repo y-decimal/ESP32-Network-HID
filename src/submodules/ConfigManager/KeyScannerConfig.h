@@ -8,7 +8,7 @@
 using pinType = std::vector<uint8_t>;
 using countType = uint8_t;
 
-class KeyScannerConfig {
+class KeyScannerConfig : public Serializable {
 private:
   countType rows = 0;
   countType cols = 0;
@@ -51,6 +51,10 @@ public:
   uint16_t getBitMapSendInterval() const {
     return bitMapSendInterval;
   }
+
+  size_t packSerialized(uint8_t *output, size_t size) const override;
+  size_t unpackSerialized(const uint8_t *input, size_t size) override;
+  size_t getSerializedSize() const override;
 };
 
 #endif
