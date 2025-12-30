@@ -38,29 +38,46 @@ size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const {
   uint8_t buffer[ownSize] = {};
 
   size_t index = 0;
-  memcpy(buffer, &rows, sizeof(rows));
-  index += sizeof(rows);
+  size_t totalWrite = 0;
+  size_t objSize = 0;
 
-  memcpy(buffer + index, &cols, sizeof(cols));
-  index += sizeof(cols);
+  objSize = sizeof(rows);
+  memcpy(buffer, &rows, objSize);
+  index += objSize;
+  totalWrite += objSize;
 
-  memcpy(buffer + index, &bitMapSize, sizeof(bitMapSize));
-  index += sizeof(bitMapSize);
+  objSize = sizeof(cols);
+  memcpy(buffer + index, &cols, objSize);
+  index += objSize;
+  totalWrite += objSize;
 
-  memcpy(buffer + index, rowPins.data(), rows);
-  index += rows;
+  objSize = sizeof(bitMapSize);
+  memcpy(buffer + index, &bitMapSize, objSize);
+  index += objSize;
+  totalWrite += objSize;
 
-  memcpy(buffer + index, colPins.data(), cols);
-  index += cols;
+  objSize = rows;
+  memcpy(buffer + index, rowPins.data(), objSize);
+  index += objSize;
+  totalWrite += objSize;
 
-  memcpy(buffer + index, &refreshRate, sizeof(refreshRate));
-  index += sizeof(refreshRate);
+  objSize = cols;
+  memcpy(buffer + index, colPins.data(), objSize);
+  index += objSize;
+  totalWrite += objSize;
 
-  memccpy(buffer + index, &bitMapSendInterval, sizeof(bitMapSendInterval));
+  objSize = sizeof(refreshRate);
+  memcpy(buffer + index, &refreshRate, objSize);
+  index += objSize;
+  totalWrite += objSize;
 
-  memcpy(output, buffer, size);
+  objSize = sizeof(bitMapSendInterval);
+  memccpy(buffer + index, &bitMapSendInterval, objSize);
+  totalWrite += objSize;
 
-  return size;
+  memcpy(output, buffer, totalWrite);
+
+  return totalWrite;
 }
 
 size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size) {
