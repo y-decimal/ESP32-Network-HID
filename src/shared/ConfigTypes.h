@@ -8,8 +8,6 @@
 using pinType = uint8_t;
 using countType = uint8_t;
 
-static constexpr uint8_t MAX_PIN_COUNT = 20;
-
 struct GlobalConfig {
   DeviceRole roles[(size_t)DeviceRole::Count]{};
   MacAddress deviceMac{};
