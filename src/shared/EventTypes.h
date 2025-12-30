@@ -26,7 +26,7 @@ struct Event {
   };
 };
 
-void cleanupKeyEvent(Event *event) { return; }
-void cleanupBitmapEvent(Event *event) { free(event->bitMap.bitMapData); }
+inline void cleanupKeyEvent(Event *event) { return; }
+inline void cleanupBitmapEvent(Event *event) { free(event->bitMap.bitMapData); }
 
 #endif
