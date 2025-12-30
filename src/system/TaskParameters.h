@@ -2,7 +2,7 @@
 #define TASKPARAMETERS_H
 
 #include <queue.h>
-#include <shared/ConfigTypes.h>
+#include <submodules/ConfigManager/ConfigManager.h>
 
 class ConfigManager; // Forward declaration
 
