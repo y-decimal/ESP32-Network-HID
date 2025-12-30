@@ -9,20 +9,21 @@ void keyEventCallback(uint16_t keyIndex, bool state) {
   Event event{};
   event.type = EventType::Key;
   event.key = keyEvent;
+  event.cleanup = cleanupKeyEvent;
   if (xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
     printf("[KeyScanner]: Could not push key event to queue\n");
 }
 
 void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap) {
-
   BitMapEvent bitMapEvent{};
   bitMapEvent.bitMapSize = bitMapSize;
-
   bitMapEvent.bitMapData = static_cast<uint8_t *>(malloc(bitMapSize));
   memcpy(bitMapEvent.bitMapData, bitMap, bitMapSize);
+
   Event event{};
   event.type = EventType::BitMap;
   event.bitMap = bitMapEvent;
+  event.cleanup = cleanupBitmapEvent;
 
   if (xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
     printf("[KeyScanner]: Could not push bitmap event to queue\n");
