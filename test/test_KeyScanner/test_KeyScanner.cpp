@@ -1,5 +1,5 @@
-#include <modules/KeyScanner.cpp>
-#include <modules/KeyScanner.h>
+#include <submodules/KeyScanner.cpp>
+#include <submodules/KeyScanner.h>
 #include <unity.h>
 
 // Test wrapper class to access private members
@@ -33,7 +33,7 @@ void loop() {}
 void TestKeyScanner::test_getBitMask() {
   uint8_t rowPins[2] = {9, 10};
   uint8_t colPins[2] = {17, 17};
-  KeyScanner scanner = KeyScanner(rowPins, colPins);
+  KeyScanner scanner = KeyScanner(rowPins, colPins, 2, 2);
   TEST_ASSERT_EQUAL(0b00000001, scanner.getBitMask(0, 0));
   TEST_ASSERT_EQUAL(0b00000010, scanner.getBitMask(0, 1));
   TEST_ASSERT_EQUAL(0b00000100, scanner.getBitMask(1, 0));
@@ -43,7 +43,7 @@ void TestKeyScanner::test_getBitMask() {
 void TestKeyScanner::test_setKey() {
   uint8_t rowPins[7] = {0};
   uint8_t colPins[7] = {0};
-  KeyScanner scanner = KeyScanner(rowPins, colPins);
+  KeyScanner scanner = KeyScanner(rowPins, colPins, 7, 7);
 
   uint8_t byteIndex0_0 = scanner.getByteIndex(0, 0);
   TEST_ASSERT_EQUAL_UINT8(0, byteIndex0_0);
@@ -96,37 +96,37 @@ void TestKeyScanner::test_setKey() {
 void TestKeyScanner::test_updateKeyState_noKeysPressed() {
   uint8_t rowPins[2] = {9, 10};
   uint8_t colPins[2] = {17, 18};
-  KeyScanner scanner = KeyScanner(rowPins, colPins);
+  KeyScanner scanner = KeyScanner(rowPins, colPins, 2, 2);
   size_t bitMapSize = scanner.getBitMapSize();
 
   scanner.updateKeyState();
   uint8_t state[bitMapSize];
-  scanner.copyPublishedBitmap(state);
+  scanner.copyPublishedBitmap(state, bitMapSize);
   TEST_ASSERT_EQUAL(0, state[0]);
 }
 
 void TestKeyScanner::test_updateKeyState_singleKeyPressed() {
   uint8_t rowPins[2] = {9, 10};
   uint8_t colPins[2] = {17, 18};
-  KeyScanner scanner = KeyScanner(rowPins, colPins);
+  KeyScanner scanner = KeyScanner(rowPins, colPins, 2, 2);
   size_t bitMapSize = scanner.getBitMapSize();
 
   scanner.setKey(0, 0);
   std::swap(scanner.workingBuffer, scanner.publishedBuffer);
 
   uint8_t state[bitMapSize];
-  scanner.copyPublishedBitmap(state);
+  scanner.copyPublishedBitmap(state, bitMapSize);
   TEST_ASSERT_EQUAL(1, state[0]);
 
   scanner.updateKeyState();
-  scanner.copyPublishedBitmap(state);
+  scanner.copyPublishedBitmap(state, bitMapSize);
   TEST_ASSERT_EQUAL(0, state[0]);
 }
 
 void TestKeyScanner::test_updateKeyState_multipleKeysPressed() {
   uint8_t rowPins[2] = {9, 10};
   uint8_t colPins[2] = {17, 18};
-  KeyScanner scanner = KeyScanner(rowPins, colPins);
+  KeyScanner scanner = KeyScanner(rowPins, colPins, 2, 2);
   size_t bitMapSize = scanner.getBitMapSize();
 
   scanner.setKey(0, 0);
@@ -134,7 +134,7 @@ void TestKeyScanner::test_updateKeyState_multipleKeysPressed() {
 
   scanner.swapBuffers();
   uint8_t state[bitMapSize];
-  scanner.copyPublishedBitmap(state);
+  scanner.copyPublishedBitmap(state, bitMapSize);
 
   uint8_t expected0_0 = scanner.getBitMask(0, 0);
   uint8_t expected1_1 = scanner.getBitMask(1, 1);
