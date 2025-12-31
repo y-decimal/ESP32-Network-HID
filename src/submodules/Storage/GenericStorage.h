@@ -56,9 +56,13 @@ public:
 
   bool save() {
     dataBlock.checksum = calcCheckSum_8Bit(dataBlock.data);
-    size_t written = storage.save(key, &dataBlock, sizeof(DataBlock));
+    bool written = storage.save(key, reinterpret_cast<uint8_t *>(&dataBlock),
+                                sizeof(DataBlock));
+    if (!written)
+      return false;
+
     dirty = false;
-    return written == sizeof(DataBlock);
+    return written;
   }
 };
 
