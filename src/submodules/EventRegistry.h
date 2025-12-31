@@ -10,6 +10,7 @@ public:
   using EventCallback = void (*)(const Event &);
   static void registerHandler(EventType type, EventCallback cb);
   static std::vector<EventCallback> getHandler(EventType type);
+  static void clearHandlers(EventType type);
 
 private:
   static std::vector<EventCallback> handlers[(size_t)EventType::COUNT];

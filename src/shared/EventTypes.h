@@ -1,7 +1,7 @@
 #ifndef EVENTTYPES_H
 #define EVENTTYPES_H
+#include <cstdlib>
 #include <stdint.h>
-#include <system/SystemConfig.h>
 
 enum class EventType : uint8_t { Key, BitMap, ConfigUpdate, COUNT };
 

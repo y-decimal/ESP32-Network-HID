@@ -4,7 +4,8 @@
 
 // temp local definitions for testing
 
-ConfigManager mainCfg;
+PreferencesStorage prefStorage("ConfigManager");
+ConfigManager mainCfg(prefStorage);
 TaskManager taskManager(mainCfg); // Move outside setup()
 
 void keyPrintCallback(const Event &event) {
@@ -66,7 +67,8 @@ void setup() {
   simulateConfig();
   EventRegistry::registerHandler(EventType::Key, keyPrintCallback);
   KeyScannerConfig kCfg = mainCfg.getConfig<KeyScannerConfig>();
-  printf("KeyScanner Config: %d rows, %d cols, refresh %d ms, bitmap interval %d ms\n",
+  printf("KeyScanner Config: %d rows, %d cols, refresh %d ms, bitmap interval "
+         "%d ms\n",
          kCfg.getRowsCount(), kCfg.getColCount(), kCfg.getRefreshRate(),
          kCfg.getBitMapSendInterval());
   taskManager.start();

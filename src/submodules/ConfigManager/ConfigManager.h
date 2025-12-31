@@ -1,14 +1,16 @@
 #ifndef CONFIGMANAGER_H
 #define CONFIGMANAGER_H
 
+#include <interfaces/IStorage.h>
 #include <submodules/ConfigManager/GlobalConfig.h>
 #include <submodules/ConfigManager/KeyScannerConfig.h>
-#include <submodules/Storage/PreferencesStorage.h>
 #include <submodules/Storage/TGenericStorage.h>
+
+#define CONFIG_MANAGER_NAMESPACE "ConfigManager"
 
 class ConfigManager {
 private:
-  PreferencesStorage storage{"ConfigManager"};
+  IStorage &storage;
 
   ThreadSafeGenericStorage<GlobalConfig::SerializedConfig> globalCfg{
       storage, "globalCfg"};
@@ -16,6 +18,7 @@ private:
       storage, "keyScannerCfg"};
 
 public:
+  ConfigManager(IStorage &storage) : storage(storage) {}
   template <typename T> T getConfig() const;
 
   template <typename T> void setConfig(const T &cfg);
