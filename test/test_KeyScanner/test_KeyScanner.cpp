@@ -1,14 +1,19 @@
 #include "FakeGpio.h"
 #include <submodules/KeyScanner.cpp>
 #include <submodules/KeyScanner.h>
+#ifndef UNITY_NATIVE
+#include <submodules/Esp32Gpio.h>
+#endif
 #include <unity.h>
-
-
 
 // Test wrapper class to access private members
 class TestKeyScanner {
 public:
   friend class KeyScanner;
+  FakeGpio fakeGpio;
+#ifndef UNITY_NATIVE
+  Esp32Gpio espGpio;
+#endif
   static void setUp() {}
   static void tearDown() {}
   static void test_getBitMask();
@@ -40,8 +45,12 @@ void loop() {}
 void TestKeyScanner::test_getBitMask() {
   uint8_t rowPins[2] = {9, 10};
   uint8_t colPins[2] = {17, 17};
-  FakeGpio fakeGpio;
-  KeyScanner scanner = KeyScanner(fakeGpio, rowPins, colPins, 2, 2);
+#ifndef UNITY_NATIVE
+  Esp32Gpio gpio;
+#else
+  FakeGpio gpio;
+#endif
+  KeyScanner scanner = KeyScanner(gpio, rowPins, colPins, 2, 2);
   TEST_ASSERT_EQUAL(0b00000001, scanner.getBitMask(0, 0));
   TEST_ASSERT_EQUAL(0b00000010, scanner.getBitMask(0, 1));
   TEST_ASSERT_EQUAL(0b00000100, scanner.getBitMask(1, 0));
@@ -51,8 +60,12 @@ void TestKeyScanner::test_getBitMask() {
 void TestKeyScanner::test_setKey() {
   uint8_t rowPins[7] = {0};
   uint8_t colPins[7] = {0};
-  FakeGpio fakeGpio;
-  KeyScanner scanner = KeyScanner(fakeGpio, rowPins, colPins, 7, 7);
+  #ifndef UNITY_NATIVE
+  Esp32Gpio gpio;
+  #else
+  FakeGpio gpio;
+  #endif
+  KeyScanner scanner = KeyScanner(gpio, rowPins, colPins, 7, 7);
 
   uint8_t byteIndex0_0 = scanner.getByteIndex(0, 0);
   TEST_ASSERT_EQUAL_UINT8(0, byteIndex0_0);
@@ -105,8 +118,12 @@ void TestKeyScanner::test_setKey() {
 void TestKeyScanner::test_updateKeyState_noKeysPressed() {
   uint8_t rowPins[2] = {9, 10};
   uint8_t colPins[2] = {17, 18};
-  FakeGpio fakeGpio;
-  KeyScanner scanner = KeyScanner(fakeGpio, rowPins, colPins, 2, 2);
+  #ifndef UNITY_NATIVE
+  Esp32Gpio gpio;
+  #else
+  FakeGpio gpio;
+  #endif
+  KeyScanner scanner = KeyScanner(gpio, rowPins, colPins, 2, 2);
   size_t bitMapSize = scanner.getBitMapSize();
 
   scanner.updateKeyState();
@@ -118,8 +135,12 @@ void TestKeyScanner::test_updateKeyState_noKeysPressed() {
 void TestKeyScanner::test_updateKeyState_singleKeyPressed() {
   uint8_t rowPins[2] = {9, 10};
   uint8_t colPins[2] = {17, 18};
-  FakeGpio fakeGpio;
-  KeyScanner scanner = KeyScanner(fakeGpio, rowPins, colPins, 2, 2);
+  #ifndef UNITY_NATIVE
+  Esp32Gpio gpio;
+  #else
+  FakeGpio gpio;
+  #endif
+  KeyScanner scanner = KeyScanner(gpio, rowPins, colPins, 2, 2);
   size_t bitMapSize = scanner.getBitMapSize();
 
   scanner.setKey(0, 0);
@@ -137,8 +158,12 @@ void TestKeyScanner::test_updateKeyState_singleKeyPressed() {
 void TestKeyScanner::test_updateKeyState_multipleKeysPressed() {
   uint8_t rowPins[2] = {9, 10};
   uint8_t colPins[2] = {17, 18};
-  FakeGpio fakeGpio;
-  KeyScanner scanner = KeyScanner(fakeGpio, rowPins, colPins, 2, 2);
+  #ifndef UNITY_NATIVE
+  Esp32Gpio gpio;
+  #else
+  FakeGpio gpio;
+  #endif
+  KeyScanner scanner = KeyScanner(gpio, rowPins, colPins, 2, 2);
   size_t bitMapSize = scanner.getBitMapSize();
 
   scanner.setKey(0, 0);
