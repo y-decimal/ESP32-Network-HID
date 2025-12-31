@@ -10,7 +10,7 @@ private:
   mutable std::mutex mtx;
 
 public:
-  ThreadSafeGenericStorage(const char *key) : storage(key) {}
+  ThreadSafeGenericStorage(IStorage &storage, const char *key) : storage(storage, key) {}
 
   // Prevent copying
   ThreadSafeGenericStorage(const ThreadSafeGenericStorage &) = delete;
