@@ -20,10 +20,10 @@ void keyPrintCallback(const Event &event) {
 
 void simulateConfig() {
 
-  // if (mainCfg.loadConfig()) {
-  //   printf("Config loaded from flash\n");
-  //   return;
-  // }
+  if (mainCfg.loadConfig()) {
+    printf("Config loaded from flash\n");
+    return;
+  }
 
   printf("No config in flash, creating new config...\n");
 

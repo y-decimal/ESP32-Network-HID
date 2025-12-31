@@ -3,14 +3,17 @@
 
 #include <submodules/ConfigManager/GlobalConfig.h>
 #include <submodules/ConfigManager/KeyScannerConfig.h>
-#include <submodules/TGenericStorage.h>
+#include <submodules/Storage/PreferencesStorage.h>
+#include <submodules/Storage/TGenericStorage.h>
 
 class ConfigManager {
 private:
+  PreferencesStorage storage{"ConfigManager"};
+
   ThreadSafeGenericStorage<GlobalConfig::SerializedConfig> globalCfg{
-      "globalCfg"};
+      storage, "globalCfg"};
   ThreadSafeGenericStorage<KeyScannerConfig::SerializedConfig> keyScannerCfg{
-      "keyScannerCfg"};
+      storage, "keyScannerCfg"};
 
 public:
   template <typename T> T getConfig() const;
