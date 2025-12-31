@@ -37,9 +37,10 @@ public:
   bool load() {
 
     DataBlock dataBuffer;
-    size_t read = storage.load(key, &dataBuffer, sizeof(DataBlock));
+    bool read = storage.load(key, reinterpret_cast<uint8_t *>(&dataBuffer),
+                             sizeof(DataBlock));
 
-    if (read != sizeof(DataBlock))
+    if (!read)
       return false;
 
     uint8_t chkSumBuffer = calcCheckSum_8Bit(dataBuffer.data);
