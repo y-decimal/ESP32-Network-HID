@@ -5,8 +5,6 @@
 #include <interfaces/IStorage.h>
 #include <shared/GlobalHelpers.h>
 
-#define NAMESPACE "GenericStorage"
-
 template <typename DATA> class GenericStorage {
 private:
   struct DataBlock {
