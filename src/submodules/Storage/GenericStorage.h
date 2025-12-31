@@ -1,6 +1,7 @@
 #ifndef GENERICSTORAGE_H
 #define GENERICSTORAGE_H
 
+#include <cstring>
 #include <interfaces/IStorage.h>
 #include <shared/GlobalHelpers.h>
 
