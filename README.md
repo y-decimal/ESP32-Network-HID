@@ -1,4 +1,6 @@
-# ESP32 Based Modular Wireless HID Input Framework
+# WIP - This project is still in early developement and is as of yet unfinished and not in a working state!
+
+## ESP32 Based Modular Wireless HID Input Framework
 
 This project aims to create a modular and expandable framework for creating small "networks" of human input devices.
 The entire network's state is relayed through an orchestrator device as HID inputs, either through USB or BLE. 
