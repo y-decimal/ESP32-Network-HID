@@ -1,9 +1,11 @@
 #ifndef KEYSCANNER_H
 #define KEYSCANNER_H
 
-#include <Arduino.h>
+#include <functional>
 #include <interfaces/IGpio.h>
 #include <vector>
+#include <cstdint>
+#include <cstring>
 
 class KeyScanner {
 private:
