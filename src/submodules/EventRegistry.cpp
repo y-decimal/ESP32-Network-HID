@@ -11,3 +11,7 @@ EventRegistry::getHandler(EventType type) {
 
 std::vector<EventRegistry::EventCallback>
     EventRegistry::handlers[(size_t)EventType::COUNT]{};
+
+void EventRegistry::clearHandlers(EventType type) {
+  handlers[(size_t)type].clear();
+}
