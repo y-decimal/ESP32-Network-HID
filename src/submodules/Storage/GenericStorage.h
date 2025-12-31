@@ -16,11 +16,11 @@ private:
   DataBlock dataBlock;
   bool dirty = false;
 
-  IStorage storage;
-  const char *key;
+  IStorage &storage;
+  const std::string key;
 
 public:
-  GenericStorage(IStorage storage, const char *key)
+  GenericStorage(IStorage &storage, const char *key)
       : storage(storage), key(key) {}
 
   DATA get() const { return dataBlock.data; }
