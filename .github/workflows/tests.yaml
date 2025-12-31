@@ -1,0 +1,17 @@
+name: PlatformIO CI
+
+on: pull_request
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Install PlatformIO
+              run: pip install platformio
+
+            - name: Run PlatformIO tests
+              run: pio test
