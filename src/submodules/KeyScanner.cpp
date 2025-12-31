@@ -1,6 +1,6 @@
 #include <submodules/KeyScanner.h>
 
-KeyScanner::KeyScanner(const uint8_t *rowPins, const uint8_t *colPins,
+KeyScanner::KeyScanner(IGpio &gpio, const uint8_t *rowPins, const uint8_t *colPins,
                        const uint8_t rowCount, const uint8_t colCount)
     : gpio(gpio), rowPins(rowPins), colPins(colPins), rowCount(rowCount),
       colCount(colCount) {

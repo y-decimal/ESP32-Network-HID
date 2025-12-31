@@ -5,7 +5,7 @@
 #include <interfaces/IGpio.h>
 #include <vector>
 
-class KeyScanner : public IGpio {
+class KeyScanner {
 private:
   IGpio &gpio;
 
@@ -36,7 +36,7 @@ private:
 #endif
 
 public:
-  KeyScanner(const uint8_t *rowPins, const uint8_t *colPins,
+  KeyScanner(IGpio &gpio, const uint8_t *rowPins, const uint8_t *colPins,
              const uint8_t rowCount, const uint8_t colCount);
 
   void registerOnKeyChangeCallback(
