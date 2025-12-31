@@ -1,11 +1,16 @@
 #ifndef KEYSCANNER_H
 #define KEYSCANNER_H
 
-#include <Arduino.h>
+#include <functional>
+#include <interfaces/IGpio.h>
 #include <vector>
+#include <cstdint>
+#include <cstring>
 
 class KeyScanner {
 private:
+  IGpio &gpio;
+
   const uint8_t *rowPins;
   const uint8_t *colPins;
   size_t rowCount;
@@ -33,7 +38,7 @@ private:
 #endif
 
 public:
-  KeyScanner(const uint8_t *rowPins, const uint8_t *colPins,
+  KeyScanner(IGpio &gpio, const uint8_t *rowPins, const uint8_t *colPins,
              const uint8_t rowCount, const uint8_t colCount);
 
   void registerOnKeyChangeCallback(

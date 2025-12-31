@@ -1,12 +1,9 @@
 #include <submodules/KeyScanner.h>
 
-KeyScanner::KeyScanner(const uint8_t *rowPins, const uint8_t *colPins,
-                       const uint8_t rowCount, const uint8_t colCount) {
-
-  this->rowPins = rowPins;
-  this->colPins = colPins;
-  this->rowCount = rowCount;
-  this->colCount = colCount;
+KeyScanner::KeyScanner(IGpio &gpio, const uint8_t *rowPins, const uint8_t *colPins,
+                       const uint8_t rowCount, const uint8_t colCount)
+    : gpio(gpio), rowPins(rowPins), colPins(colPins), rowCount(rowCount),
+      colCount(colCount) {
 
   bitMapSize = (rowCount * colCount + 7) / 8;
 
@@ -17,10 +14,10 @@ KeyScanner::KeyScanner(const uint8_t *rowPins, const uint8_t *colPins,
   publishedBuffer = keyMapSwapBufferB.data();
 
   for (size_t r = 0; r < rowCount; r++) {
-    pinMode(rowPins[r], INPUT_PULLUP);
+    gpio.pinMode(rowPins[r], PinMode::InputPullup);
   }
   for (size_t c = 0; c < colCount; c++) {
-    pinMode(colPins[c], INPUT_PULLUP);
+    gpio.pinMode(colPins[c], PinMode::InputPullup);
   }
 }
 
@@ -30,13 +27,13 @@ void KeyScanner::updateKeyState() {
   for (uint8_t row = 0; row < rowCount; row++) {
     // Set all rows to high-Z, then drive only the active row low.
     for (uint8_t pinIndex = 0; pinIndex < rowCount; pinIndex++) {
-      pinMode(rowPins[pinIndex], INPUT_PULLUP);
+      gpio.pinMode(rowPins[pinIndex], PinMode::InputPullup);
     }
-    pinMode(rowPins[row], OUTPUT);
-    digitalWrite(rowPins[row], LOW);
+    gpio.pinMode(rowPins[row], PinMode::Output);
+    gpio.digitalWrite(rowPins[row], PinState::Low);
 
     for (uint8_t col = 0; col < colCount; col++) {
-      bool isKeyPressed = (digitalRead(colPins[col]) == LOW);
+      bool isKeyPressed = (gpio.digitalRead(colPins[col]) == PinState::Low);
       bool wasPressed = wasKeyPressed(row, col);
       if (isKeyPressed)
         setKey(row, col);
@@ -74,7 +71,7 @@ inline uint8_t KeyScanner::getByteIndex(uint8_t row, uint8_t col) {
   return getBitIndex(row, col) / 8;
 }
 
-void KeyScanner::copyPublishedBitmap(uint8_t* dest, size_t destSize) const {
+void KeyScanner::copyPublishedBitmap(uint8_t *dest, size_t destSize) const {
   size_t n = std::min(bitMapSize, destSize);
   memcpy(dest, publishedBuffer, n);
   if (destSize > n) {

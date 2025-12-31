@@ -1,4 +1,5 @@
 #include <shared/EventTypes.h>
+#include <submodules/Esp32Gpio.h>
 #include <submodules/KeyScanner.h>
 #include <system/TaskManager.h>
 
@@ -55,9 +56,10 @@ void TaskManager::keyScannerTask(void *arg) {
   pinType rowPins = localConfig.getRowPins();
   pinType colPins = localConfig.getColPins();
 
-  KeyScanner keyScanner = KeyScanner(
-      rowPins.data(), colPins.data(),
-      localConfig.getRowsCount(), localConfig.getColCount());
+  Esp32Gpio esp32Gpio;
+  KeyScanner keyScanner =
+      KeyScanner(esp32Gpio, rowPins.data(), colPins.data(),
+                 localConfig.getRowsCount(), localConfig.getColCount());
 
   keyScanner.registerOnKeyChangeCallback(keyEventCallback);
 
@@ -70,7 +72,7 @@ void TaskManager::keyScannerTask(void *arg) {
   uint16_t bitMapLoopInterval =
       localConfig.getRefreshRate() / localConfig.getBitMapSendInterval();
   if (bitMapLoopInterval == 0)
-    bitMapLoopInterval = 1;  // Minimum 1 loop if freq > refresh rate
+    bitMapLoopInterval = 1; // Minimum 1 loop if freq > refresh rate
 
   uint16_t loopsSinceLastBitMap = 0;
   std::vector<uint8_t> localBitmap;
