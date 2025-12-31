@@ -1,7 +1,8 @@
 #ifndef GENERICSTORAGE_H
 #define GENERICSTORAGE_H
 
-#include <Preferences.h>
+#include <cstring>
+#include <interfaces/IStorage.h>
 #include <shared/GlobalHelpers.h>
 
 #define NAMESPACE "GenericStorage"
@@ -16,11 +17,12 @@ private:
   DataBlock dataBlock;
   bool dirty = false;
 
-  Preferences prefs;
-  const char *key;
+  IStorage &storage;
+  const std::string key;
 
 public:
-  GenericStorage(const char *key) : key(key) {}
+  GenericStorage(IStorage &storage, const char *key)
+      : storage(storage), key(key) {}
 
   DATA get() const { return dataBlock.data; }
 
@@ -34,18 +36,12 @@ public:
   void clearDirty() { dirty = false; }
 
   bool load() {
-    prefs.begin(NAMESPACE, true);
-
-    if (!prefs.isKey(key)) {
-      prefs.end();
-      return false;
-    }
 
     DataBlock dataBuffer;
-    size_t read = prefs.getBytes(key, &dataBuffer, sizeof(DataBlock));
-    prefs.end();
+    bool read = storage.load(key, reinterpret_cast<uint8_t *>(&dataBuffer),
+                             sizeof(DataBlock));
 
-    if (read != sizeof(DataBlock))
+    if (!read)
       return false;
 
     uint8_t chkSumBuffer = calcCheckSum_8Bit(dataBuffer.data);
@@ -60,11 +56,13 @@ public:
 
   bool save() {
     dataBlock.checksum = calcCheckSum_8Bit(dataBlock.data);
-    prefs.begin(NAMESPACE, false);
-    size_t written = prefs.putBytes(key, &dataBlock, sizeof(DataBlock));
-    prefs.end();
+    bool written = storage.save(key, reinterpret_cast<uint8_t *>(&dataBlock),
+                                sizeof(DataBlock));
+    if (!written)
+      return false;
+
     dirty = false;
-    return written == sizeof(DataBlock);
+    return written;
   }
 };
 
