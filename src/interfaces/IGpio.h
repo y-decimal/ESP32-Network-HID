@@ -2,11 +2,14 @@
 #define IGPIO_H
 #include <cstdint>
 
+enum class PinMode : uint8_t { Input, InputPullup, Output };
+enum class PinState : uint8_t { Low = 0, High = 1 };
+
 class IGpio {
 public:
-  virtual void pinMode(uint8_t pin, uint8_t mode) = 0;
-  virtual void digitalWrite(uint8_t pin, uint8_t value) = 0;
-  virtual uint8_t digitalRead(uint8_t pin) = 0;
+  virtual void pinMode(uint8_t pin, PinMode mode) = 0;
+  virtual void digitalWrite(uint8_t pin, PinState value) = 0;
+  virtual PinState digitalRead(uint8_t pin) = 0;
 
   virtual ~IGpio() = default;
 };

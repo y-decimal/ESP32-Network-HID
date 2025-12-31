@@ -6,23 +6,33 @@
 
 class Esp32Gpio : public IGpio {
 public:
-  void pinMode(uint8_t pin, uint8_t mode) override;
+  void pinMode(uint8_t pin, PinMode mode) override;
 
-  uint8_t digitalRead(uint8_t pin) override;
+  PinState digitalRead(uint8_t pin) override;
 
-  void digitalWrite(uint8_t pin, uint8_t value) override;
+  void digitalWrite(uint8_t pin, PinState value) override;
 };
 
-inline void Esp32Gpio::pinMode(uint8_t pin, uint8_t mode) {
-  ::pinMode(pin, mode);
+inline void Esp32Gpio::pinMode(uint8_t pin, PinMode mode) {
+  switch (mode) {
+  case PinMode::Input:
+    ::pinMode(pin, INPUT);
+    break;
+  case PinMode::InputPullup:
+    ::pinMode(pin, INPUT_PULLUP);
+    break;
+  case PinMode::Output:
+    ::pinMode(pin, OUTPUT);
+    break;
+  }
 }
 
-inline uint8_t Esp32Gpio::digitalRead(uint8_t pin) {
-  return ::digitalRead(pin);
+inline PinState Esp32Gpio::digitalRead(uint8_t pin) {
+  return static_cast<PinState>(::digitalRead(pin));
 }
 
-inline void Esp32Gpio::digitalWrite(uint8_t pin, uint8_t value) {
-  ::digitalWrite(pin, value);
+inline void Esp32Gpio::digitalWrite(uint8_t pin, PinState value) {
+  ::digitalWrite(pin, static_cast<uint8_t>(value));
 }
 
 #endif // ESP32GPIO_H
