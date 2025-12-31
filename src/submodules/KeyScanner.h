@@ -2,10 +2,13 @@
 #define KEYSCANNER_H
 
 #include <Arduino.h>
+#include <interfaces/IGpio.h>
 #include <vector>
 
-class KeyScanner {
+class KeyScanner : public IGpio {
 private:
+  IGpio &gpio;
+
   const uint8_t *rowPins;
   const uint8_t *colPins;
   size_t rowCount;
