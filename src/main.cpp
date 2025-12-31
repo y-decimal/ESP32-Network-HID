@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <submodules/ConfigManager/ConfigManager.h>
+#include <submodules/Storage/PreferencesStorage.h>
 #include <system/TaskManager.h>
 
 // temp local definitions for testing
