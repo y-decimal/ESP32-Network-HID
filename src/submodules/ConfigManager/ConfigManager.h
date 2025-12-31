@@ -3,7 +3,7 @@
 
 #include <submodules/ConfigManager/GlobalConfig.h>
 #include <submodules/ConfigManager/KeyScannerConfig.h>
-#include <submodules/TGenericStorage.h>
+#include <submodules/Storage/TGenericStorage.h>
 
 class ConfigManager {
 private:

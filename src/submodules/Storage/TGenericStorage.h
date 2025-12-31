@@ -2,7 +2,7 @@
 #define TGENERICSTORAGE_H
 
 #include <mutex>
-#include <submodules/GenericStorage.h>
+#include <submodules/Storage/GenericStorage.h>
 
 template <typename DATA> class ThreadSafeGenericStorage {
 private:
@@ -13,12 +13,13 @@ public:
   ThreadSafeGenericStorage(const char *key) : storage(key) {}
 
   // Prevent copying
-  ThreadSafeGenericStorage(const ThreadSafeGenericStorage&) = delete;
-  ThreadSafeGenericStorage& operator=(const ThreadSafeGenericStorage&) = delete;
+  ThreadSafeGenericStorage(const ThreadSafeGenericStorage &) = delete;
+  ThreadSafeGenericStorage &
+  operator=(const ThreadSafeGenericStorage &) = delete;
 
   // Prevent moving (mutex is not movable)
-  ThreadSafeGenericStorage(ThreadSafeGenericStorage&&) = delete;
-  ThreadSafeGenericStorage& operator=(ThreadSafeGenericStorage&&) = delete;
+  ThreadSafeGenericStorage(ThreadSafeGenericStorage &&) = delete;
+  ThreadSafeGenericStorage &operator=(ThreadSafeGenericStorage &&) = delete;
 
   DATA get() const {
     std::lock_guard<std::mutex> lock(mtx);
