@@ -4,7 +4,6 @@
 #include <interfaces/IStorage.h>
 #include <submodules/ConfigManager/GlobalConfig.h>
 #include <submodules/ConfigManager/KeyScannerConfig.h>
-#include <submodules/Storage/PreferencesStorage.h>
 #include <submodules/Storage/TGenericStorage.h>
 
 #define CONFIG_MANAGER_NAMESPACE "ConfigManager"
