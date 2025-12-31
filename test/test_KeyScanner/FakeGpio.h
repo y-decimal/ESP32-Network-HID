@@ -12,13 +12,13 @@
 
 class FakeGpio : public IGpio {
 public:
-  void pinMode(uint8_t pin, uint8_t mode) override {
+  void pinMode(uint8_t pin, PinMode mode) override {
     // do nothing
   }
 
-  uint8_t digitalRead(uint8_t pin) override { return 1; }
+  PinState digitalRead(uint8_t pin) override { return PinState::High; }
 
-  void digitalWrite(uint8_t pin, uint8_t value) override {
+  void digitalWrite(uint8_t pin, PinState value) override {
     // do nothing
   }
 };
