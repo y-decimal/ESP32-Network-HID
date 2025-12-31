@@ -3,6 +3,8 @@
 #include <submodules/KeyScanner.h>
 #include <unity.h>
 
+
+
 // Test wrapper class to access private members
 class TestKeyScanner {
 public:
@@ -16,7 +18,11 @@ public:
   static void test_updateKeyState_multipleKeysPressed();
 };
 
+#ifndef UNITY_NATIVE
 void setup() {
+#else
+int main(int argc, char **argv) {
+#endif
   TestKeyScanner keyScannerTest;
 
   UNITY_BEGIN();
