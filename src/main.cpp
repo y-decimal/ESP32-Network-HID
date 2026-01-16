@@ -4,13 +4,12 @@
 #include <SharedTypes.h>
 #include <WiFi.h>
 
-#define RGB_LED_PIN 48
 #define NUM_LEDS 1
 
 CRGB leds[NUM_LEDS];
 static EspNowHandler<DeviceID, PacketType> *espHandler;
-static constexpr DeviceID selfID = DeviceID::KeyboardRight;
-static constexpr DeviceID targetID = DeviceID::KeyboardLeft;
+static constexpr DeviceID selfID = DeviceID::KeyboardLeft;
+static constexpr DeviceID targetID = DeviceID::KeyboardRight;
 
 #define ROW_1_PIN 9
 #define ROW_2_PIN 10
@@ -31,7 +30,13 @@ uint8_t *keyDataBuffer = nullptr;
 
 void setup() {
   Serial.begin(115200);
+#ifdef RGB_LED_PIN
   FastLED.addLeds<WS2812, RGB_LED_PIN, GRB>(leds, NUM_LEDS);
+#elif defined(RGB_LED_PIN_C) && defined(RGB_LED_PIN_D)
+  FastLED.addLeds<APA102, RGB_LED_PIN_D, RGB_LED_PIN_C, BGR>(leds, NUM_LEDS);
+#else
+#error "No RGB LED Pin defined"
+#endif
   FastLED.setBrightness(25);
 
   pinMode(COL_1_PIN, INPUT_PULLUP);
