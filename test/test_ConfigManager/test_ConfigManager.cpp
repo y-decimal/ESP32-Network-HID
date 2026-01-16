@@ -31,8 +31,8 @@ void setUp() {
 }
 
 void tearDown() {
-  testStorage.remove("globalCfg");
-  testStorage.remove("keyScannerCfg");
+  testStorage.remove(CONFIG_MANAGER_NAMESPACE "/" GLOBAL_CONFIG_KEY);
+  testStorage.remove(CONFIG_MANAGER_NAMESPACE "/" KEYSCANNER_CONFIG_KEY);
 }
 
 void test_ConfigManager_initialization() {
