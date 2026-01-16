@@ -75,7 +75,7 @@ size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const {
   index += objSize;
   totalWrite += objSize;
 
-  // Serialize refreshRate and bitMapSendFrequency
+  // Serialize refreshRate
   objSize = sizeof(refreshRate);
   memcpy(buffer + index, &refreshRate, objSize);
   index += objSize;
