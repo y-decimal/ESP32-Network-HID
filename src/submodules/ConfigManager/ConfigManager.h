@@ -6,10 +6,10 @@
 #include <submodules/ConfigManager/KeyScannerConfig.h>
 #include <submodules/Storage/TGenericStorage.h>
 
-// Namespaces for configuration manager storage keys
-#define CONFIG_MANAGER_NAMESPACE "ConfigManager"
-#define GLOBAL_CONFIG_KEY "globalCfg"
-#define KEYSCANNER_CONFIG_KEY "keyScannerCfg"
+// Storage keys for configuration manager (max 15 chars for ESP32 Preferences)
+#define CONFIG_MANAGER_NAMESPACE "CfgMgr"
+#define GLOBAL_CONFIG_KEY "global"
+#define KEYSCANNER_CONFIG_KEY "keyScan"
 
 /**
  * @brief Configuration Manager for handling different configuration types.
