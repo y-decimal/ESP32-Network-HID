@@ -31,49 +31,62 @@ void KeyScannerConfig::setConfig(KeyCfgParams config) {
 }
 
 size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const {
+
+  // Check if provided buffer is large enough
   size_t ownSize = getSerializedSize();
   if (size < ownSize)
     return 0;
+
+  // Temporary buffer to hold serialized data
   uint8_t buffer[ownSize] = {};
 
+  // Helper variables for serialization
   size_t index = 0;
   size_t totalWrite = 0;
   size_t objSize = 0;
 
+  // Serialize rows
   objSize = sizeof(rows);
   memcpy(buffer, &rows, objSize);
   index += objSize;
   totalWrite += objSize;
 
+  // Serialize cols
   objSize = sizeof(cols);
   memcpy(buffer + index, &cols, objSize);
   index += objSize;
   totalWrite += objSize;
 
+  // Serialize bitMapSize
   objSize = sizeof(bitMapSize);
   memcpy(buffer + index, &bitMapSize, objSize);
   index += objSize;
   totalWrite += objSize;
 
+  // Serialize rowPins
   objSize = rows;
   memcpy(buffer + index, rowPins.data(), objSize);
   index += objSize;
   totalWrite += objSize;
 
+  // Serialize colPins
   objSize = cols;
   memcpy(buffer + index, colPins.data(), objSize);
   index += objSize;
   totalWrite += objSize;
 
+  // Serialize refreshRate
   objSize = sizeof(refreshRate);
   memcpy(buffer + index, &refreshRate, objSize);
   index += objSize;
   totalWrite += objSize;
 
+  // Serialize bitMapSendFrequency
   objSize = sizeof(bitMapSendFrequency);
   memcpy(buffer + index, &bitMapSendFrequency, objSize);
   totalWrite += objSize;
 
+  // Copy serialized data to output buffer
   memcpy(output, buffer, totalWrite);
 
   return totalWrite;
@@ -85,20 +98,24 @@ size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size) {
   if (size < sizeof(rows) + sizeof(cols) + sizeof(bitMapSize))
     return 0;
 
+  // Helper variables for deserialization
   size_t index = 0;
   size_t totalWrite = 0;
   size_t objSize = 0;
 
+  // Deserialize rows
   objSize = sizeof(rows);
   memcpy(&rows, input, objSize);
   index += objSize;
   totalWrite += objSize;
 
+  // Deserialize cols
   objSize = sizeof(cols);
   memcpy(&cols, input + index, objSize);
   index += objSize;
   totalWrite += objSize;
 
+  // Deserialize bitMapSize
   objSize = sizeof(bitMapSize);
   memcpy(&bitMapSize, input + index, objSize);
   index += objSize;
@@ -125,11 +142,13 @@ size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size) {
   index += cols;
   totalWrite += objSize;
 
+  // Deserialize refreshRate
   objSize = sizeof(refreshRate);
   memcpy(&refreshRate, input + index, objSize);
   index += objSize;
   totalWrite += objSize;
 
+  // Deserialize bitMapSendFrequency
   objSize = sizeof(bitMapSendFrequency);
   memcpy(&bitMapSendFrequency, input + index, objSize);
   totalWrite += objSize;
@@ -138,6 +157,7 @@ size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size) {
 }
 
 size_t KeyScannerConfig::getSerializedSize() const {
+  // Return the total size needed for serialization
   return sizeof(rows) + sizeof(cols) + sizeof(bitMapSize) + rows + cols +
          sizeof(refreshRate) + sizeof(bitMapSendFrequency);
 }
