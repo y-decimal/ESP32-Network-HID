@@ -19,10 +19,10 @@ KeyScanner::KeyScanner(IGpio &gpio, const uint8_t *rowPins,
 
   // Initialize GPIO pins as input pull-ups
   for (size_t r = 0; r < rowCount; r++) {
-    gpio.pinMode(rowPins[r], PinMode::InputPullup);
+    gpio.pinMode(rowPins[r], IGpio::PinMode::InputPullup);
   }
   for (size_t c = 0; c < colCount; c++) {
-    gpio.pinMode(colPins[c], PinMode::InputPullup);
+    gpio.pinMode(colPins[c], IGpio::PinMode::InputPullup);
   }
 }
 
@@ -34,14 +34,14 @@ void KeyScanner::updateKeyState() {
   for (uint8_t row = 0; row < rowCount; row++) {
     // Set all rows to high-Z, then drive only the active row low.
     for (uint8_t pinIndex = 0; pinIndex < rowCount; pinIndex++) {
-      gpio.pinMode(rowPins[pinIndex], PinMode::InputPullup);
+      gpio.pinMode(rowPins[pinIndex], IGpio::PinMode::InputPullup);
     }
-    gpio.pinMode(rowPins[row], PinMode::Output);
-    gpio.digitalWrite(rowPins[row], PinState::Low);
+    gpio.pinMode(rowPins[row], IGpio::PinMode::Output);
+    gpio.digitalWrite(rowPins[row], IGpio::PinState::Low);
 
     // Scan each column for key presses
     for (uint8_t col = 0; col < colCount; col++) {
-      bool isKeyPressed = (gpio.digitalRead(colPins[col]) == PinState::Low);
+      bool isKeyPressed = (gpio.digitalRead(colPins[col]) == IGpio::PinState::Low);
       bool wasPressed = wasKeyPressed(row, col);
 
       // Update working buffer and trigger callbacks on state change
