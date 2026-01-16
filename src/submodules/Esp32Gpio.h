@@ -4,6 +4,14 @@
 #include <Arduino.h>
 #include <interfaces/IGpio.h>
 
+/*
+ * @brief ESP32 GPIO implementation of the IGpio interface.
+ *
+ * This class provides an implementation of the IGpio interface
+ * for ESP32 microcontrollers using the Arduino framework.
+ * It maps the generic GPIO operations defined in IGpio
+ * to the specific functions provided by the ESP32 Arduino core.
+ */
 class Esp32Gpio : public IGpio {
 public:
   void pinMode(uint8_t pin, PinMode mode) override;
