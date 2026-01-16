@@ -15,7 +15,7 @@
 template <typename DATA> class ThreadSafeGenericStorage {
 private:
   // Underlying GenericStorage instance
-  GenericStorage<DATA> storage;
+  GenericStorage<DATA> genericStorage;
 
   // Mutex for synchronizing access
   mutable std::mutex mtx;
@@ -27,7 +27,7 @@ public:
    * @param key The key under which the data will be stored.
    */
   ThreadSafeGenericStorage(IStorage &storage, const char *key)
-      : storage(storage, key) {}
+      : genericStorage(storage, key) {}
 
   // Prevent copying
   ThreadSafeGenericStorage(const ThreadSafeGenericStorage &) = delete;
@@ -44,7 +44,7 @@ public:
    */
   DATA get() const {
     std::lock_guard<std::mutex> lock(mtx);
-    return storage.get();
+    return genericStorage.get();
   }
 
   /**
@@ -53,7 +53,7 @@ public:
    */
   void set(const DATA &in) {
     std::lock_guard<std::mutex> lock(mtx);
-    storage.set(in);
+    genericStorage.set(in);
   }
 
   /**
@@ -62,7 +62,7 @@ public:
    */
   bool isDirty() const {
     std::lock_guard<std::mutex> lock(mtx);
-    return storage.isDirty();
+    return genericStorage.isDirty();
   }
 
   /**
@@ -70,7 +70,7 @@ public:
    */
   void clearDirty() {
     std::lock_guard<std::mutex> lock(mtx);
-    storage.clearDirty();
+    genericStorage.clearDirty();
   }
 
   /**
@@ -79,7 +79,7 @@ public:
    */
   bool load() {
     std::lock_guard<std::mutex> lock(mtx);
-    return storage.load();
+    return genericStorage.load();
   }
 
   /**
@@ -88,7 +88,7 @@ public:
    */
   bool save() {
     std::lock_guard<std::mutex> lock(mtx);
-    return storage.save();
+    return genericStorage.save();
   }
 };
 
