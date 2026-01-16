@@ -3,6 +3,16 @@
 #include <cstdint>
 
 /**
+ * @brief Enumeration for GPIO pin modes.
+ */
+enum class PinMode : uint8_t { Input, InputPullup, Output };
+
+/**
+ * @brief Enumeration for GPIO pin states.
+ */
+enum class PinState : uint8_t { Low = 0, High = 1 };
+
+/**
  * @brief Interface for GPIO operations.
  *
  * The IGpio interface provides methods for configuring pin modes and
@@ -10,16 +20,6 @@
  */
 class IGpio {
 public:
-  /**
-   * @brief Enumeration for GPIO pin modes.
-   */
-  enum class PinMode : uint8_t { Input, InputPullup, Output };
-
-  /**
-   * @brief Enumeration for GPIO pin states.
-   */
-  enum class PinState : uint8_t { Low = 0, High = 1 };
-
   /**
    * @brief Set the mode of a GPIO pin.
    * @param pin The GPIO pin number.
