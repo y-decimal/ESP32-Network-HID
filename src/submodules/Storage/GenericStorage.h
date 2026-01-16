@@ -5,7 +5,7 @@
 #include <interfaces/IStorage.h>
 #include <shared/GlobalHelpers.h>
 
-/*
+/**
  * @brief Generic storage class for managing data persistence.
  *
  * The GenericStorage class provides a templated interface for storing
@@ -31,7 +31,7 @@ private:
   const std::string key;
 
 public:
-  /*
+  /**
    * @brief Constructor for GenericStorage.
    * @param storage Reference to an IStorage implementation for data operations.
    * @param key The key under which the data will be stored.
@@ -39,13 +39,13 @@ public:
   GenericStorage(IStorage &storage, const char *key)
       : storage(storage), key(key) {}
 
-  /*
+  /**
    * @brief Retrieve the stored data.
    * @return The stored data of type DATA.
    */
   DATA get() const { return dataBlock.data; }
 
-  /*
+  /**
    * @brief Set new data to be stored.
    * @param in The data to be stored.
    */
@@ -54,18 +54,18 @@ public:
     dirty = true;
   }
 
-  /*
+  /**
    * @brief Check if the data has been modified since the last save.
    * @return True if the data is dirty, false otherwise.
    */
   bool isDirty() const { return dirty; }
 
-  /*
+  /**
    * @brief Clear the dirty flag after saving.
    */
   void clearDirty() { dirty = false; }
 
-  /*
+  /**
    * @brief Load data from storage.
    * @return True if loading was successful and data is valid, false otherwise.
    */
@@ -91,7 +91,7 @@ public:
     return true;
   }
 
-  /*
+  /**
    * @brief Save data to storage.
    * @return True if saving was successful, false otherwise.
    */

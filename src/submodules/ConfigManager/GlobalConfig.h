@@ -5,7 +5,7 @@
 #include <interfaces/ISerializableStructs.h>
 #include <shared/CommTypes.h>
 
-/*
+/**
  * @brief Global configuration class managing device roles and MAC address.
  *
  * The GlobalConfig class provides methods to set and get device roles and
@@ -30,27 +30,27 @@ public:
     size_t size = SERIALIZED_SIZE;
   };
 
-  /*
+  /**
    * @brief Set the device roles.
    * @param roleArray Array of DeviceRole to set.
    * @param arrSize Size of the roleArray.
    */
   void setRoles(DeviceRole *roleArray, size_t arrSize);
 
-  /*
+  /**
    * @brief Set the device MAC address.
    * @param mac MAC address to set.
    */
   void setMac(MacAddress mac);
 
-  /*
+  /**
    * @brief Get the device roles.
    * @param out Output array to store the roles.
    * @param size Size of the output array.
    */
   void getRoles(DeviceRole *out, size_t size);
 
-  /*
+  /**
    * @brief Get the device MAC address.
    * @param out Output array to store the MAC address.
    * @param size Size of the output array.

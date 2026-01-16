@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <interfaces/IGpio.h>
 
-/*
+/**
  * @brief ESP32 GPIO implementation of the IGpio interface.
  *
  * This class provides an implementation of the IGpio interface

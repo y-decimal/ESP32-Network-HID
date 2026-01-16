@@ -7,7 +7,7 @@
 #include <interfaces/IGpio.h>
 #include <vector>
 
-/*
+/**
  * @brief KeyScanner class for scanning a matrix of keys.
  *
  * The KeyScanner class manages the scanning of a key matrix
@@ -57,7 +57,7 @@ private:
 #endif
 
 public:
-  /*
+  /**
    * @brief Constructor for KeyScanner.
    * @param gpio Reference to the IGpio interface for GPIO operations.
    * @param rowPins Array of GPIO pin numbers for the rows.
@@ -68,7 +68,7 @@ public:
   KeyScanner(IGpio &gpio, const uint8_t *rowPins, const uint8_t *colPins,
              const uint8_t rowCount, const uint8_t colCount);
 
-  /*
+  /**
    * @brief Registers a callback function to be invoked on key state changes.
    * @param callback The callback function taking keyIndex and pressed state.
    */
@@ -77,12 +77,12 @@ public:
     onKeyChange = callback;
   }
 
-  /*
+  /**
    * @brief Clears the registered key change callback.
    */
   void clearOnKeyChangeCallback() { onKeyChange = nullptr; }
 
-  /*
+  /**
    * @brief Copies the published key state bitmap to the provided destination
    * buffer.
    * @param dest Pointer to the destination buffer.
@@ -90,13 +90,13 @@ public:
    */
   void copyPublishedBitmap(uint8_t *dest, size_t destSize) const;
 
-  /*
+  /**
    * @brief Gets the size of the key state bitmap in bytes.
    * @return Size of the bitmap in bytes.
    */
   const size_t getBitMapSize() const { return bitMapSize; }
 
-  /*
+  /**
    * @brief Scans the key matrix and updates key states.
    *
    * This method should be called periodically to detect key state changes.

@@ -4,7 +4,7 @@
 #include <Preferences.h>
 #include <interfaces/IStorage.h>
 
-/*
+/**
  * @brief Preferences-based storage implementation.
  *
  * The PreferencesStorage class provides an implementation of the IStorage
@@ -19,14 +19,14 @@ private:
   const char *namespaceName;
 
 public:
-  /*
+  /**
    * @brief Constructor for PreferencesStorage.
    * @param namespaceName The namespace to use for storing preferences.
    */
   PreferencesStorage(const char *namespaceName)
       : namespaceName(namespaceName) {}
 
-  /*
+  /**
    * @brief Save data to preferences.
    * @param key The key under which the data will be stored.
    * @param in Pointer to the data to be stored.
@@ -40,7 +40,7 @@ public:
     return written == size;
   }
 
-  /*
+  /**
    * @brief Load data from preferences.
    * @param key The key under which the data is stored.
    * @param out Pointer to the buffer where the data will be loaded.
@@ -59,7 +59,7 @@ public:
     return read == size;
   }
 
-  /*
+  /**
    * @brief Remove data from preferences.
    * @param key The key under which the data is stored.
    * @return True if removal was successful, false otherwise.
@@ -76,7 +76,7 @@ public:
     return true;
   }
 
-  /*
+  /**
    * @brief Check if a key exists in preferences.
    * @param key The key to check for existence.
    * @return True if the key exists, false otherwise.

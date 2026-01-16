@@ -4,7 +4,7 @@
 #include <mutex>
 #include <submodules/Storage/GenericStorage.h>
 
-/*
+/**
  * @brief Thread-safe wrapper for GenericStorage.
  *
  * The ThreadSafeGenericStorage class provides a thread-safe interface
@@ -21,7 +21,7 @@ private:
   mutable std::mutex mtx;
 
 public:
-  /*
+  /**
    * @brief Constructor for ThreadSafeGenericStorage.
    * @param storage Reference to an IStorage implementation for data operations.
    * @param key The key under which the data will be stored.
@@ -38,7 +38,7 @@ public:
   ThreadSafeGenericStorage(ThreadSafeGenericStorage &&) = delete;
   ThreadSafeGenericStorage &operator=(ThreadSafeGenericStorage &&) = delete;
 
-  /*
+  /**
    * @brief Retrieve the stored data.
    * @return The stored data of type DATA.
    */
@@ -47,7 +47,7 @@ public:
     return storage.get();
   }
 
-  /*
+  /**
    * @brief Set new data to be stored.
    * @param in The data to be stored.
    */
@@ -56,7 +56,7 @@ public:
     storage.set(in);
   }
 
-  /*
+  /**
    * @brief Check if the data has been modified since the last save.
    * @return True if the data is dirty, false otherwise.
    */
@@ -65,7 +65,7 @@ public:
     return storage.isDirty();
   }
 
-  /*
+  /**
    * @brief Clear the dirty flag after saving.
    */
   void clearDirty() {
@@ -73,7 +73,7 @@ public:
     storage.clearDirty();
   }
 
-  /*
+  /**
    * @brief Load data from storage.
    * @return True if loading was successful and data is valid, false otherwise.
    */
@@ -82,7 +82,7 @@ public:
     return storage.load();
   }
 
-  /*
+  /**
    * @brief Save data to storage.
    * @return True if saving was successful, false otherwise.
    */
