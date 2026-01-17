@@ -86,7 +86,7 @@ void TaskManager::slaveEspTask(void *arg)
           KeyEvent keyEvent = event.key;
           AirKeyEvent evt = {keyEvent.keyIndex, keyEvent.state};
 
-          uint8_t data[sizeof(AirKeyEvent)] = {};
+          uint8_t data[sizeof(AirKeyEvent)] = {0};
           memcpy(data, &evt, sizeof(AirKeyEvent));
 
           espNow.sendData((uint8_t)PacketType::KeyEvent, data, sizeof(data), masterMac);
