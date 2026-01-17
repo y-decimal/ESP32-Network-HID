@@ -25,7 +25,7 @@ bool EspNow::sendData(uint8_t packetType, const uint8_t *data, size_t length, co
     memcpy(buffer, &header, sizeof(header));
     memcpy(buffer + sizeof(header), data, length);
 
-    esp_err_t sendSuccess = esp_now_send(targetMac, buffer, length + sizeof(packetType));
+    esp_err_t sendSuccess = esp_now_send(targetMac, buffer, length + sizeof(header));
     if (sendSuccess != ESP_NOW_SEND_SUCCESS)
         return false;
     return true;
