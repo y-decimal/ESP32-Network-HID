@@ -43,3 +43,13 @@ bool EspNow::clearCallback(uint8_t packetType)
     callbacks[packetType] = nullptr;
     return true;
 }
+
+bool EspNow::initialize()
+{
+    if (esp_now_init() != ESP_OK)
+        return false;
+
+    esp_err_t registerReceiveSuccess = esp_now_register_recv_cb(routeCallback);
+
+    return registerReceiveSuccess == ESP_OK;
+}
