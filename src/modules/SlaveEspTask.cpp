@@ -11,11 +11,6 @@ void TaskManager::slaveEspTask(void *arg) {
 
   bool connected = false;
 
-  struct espKeyEvent {
-    uint16_t keyIndex;
-    bool state;
-  };
-
   auto pairReceiveCallback = [&connected](uint8_t *data, size_t length,
                                           uint8_t senderMac[6]) {
     connected = true;
@@ -57,10 +52,10 @@ void TaskManager::slaveEspTask(void *arg) {
 
         // Process KeyEvent
         if (event.type == EventType::Key) {
-          espKeyEvent evt = {event.key.keyIndex, event.key.state};
+          EspKeyEvent evt = {event.key.keyIndex, event.key.state};
 
-          uint8_t data[sizeof(espKeyEvent)] = {};
-          memcpy(data, &evt, sizeof(espKeyEvent));
+          uint8_t data[sizeof(EspKeyEvent)] = {};
+          memcpy(data, &evt, sizeof(EspKeyEvent));
 
           espNow.sendData((uint8_t)PacketType::KeyEvent, data, sizeof(data));
         }

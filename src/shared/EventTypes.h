@@ -5,10 +5,15 @@
 
 enum class EventType : uint8_t { Key, BitMap, ConfigUpdate, COUNT };
 
-struct KeyEvent{
+struct KeyEvent {
   uint16_t keyIndex;
   bool state;
   uint8_t sourceMac[6];
+};
+
+struct EspKeyEvent {
+  uint16_t keyIndex;
+  bool state;
 };
 
 struct BitMapEvent {
