@@ -9,6 +9,7 @@
 class EspNow : public IEspNow
 {
 public:
+    EspNow();
     bool sendData(uint8_t packetType, const uint8_t *data, size_t length, const uint8_t *targetMac) override;
     bool registerPacketTypeCallback(uint8_t packetType, receiveCallback callback) override;
     bool clearCallback(uint8_t packetType) override;

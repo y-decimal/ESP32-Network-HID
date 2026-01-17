@@ -2,6 +2,11 @@
 
 EspNow *EspNow::instance = nullptr;
 
+EspNow::EspNow()
+{
+    instance = this;
+}
+
 bool EspNow::sendData(uint8_t packetType, const uint8_t *data, size_t length, const uint8_t *targetMac)
 {
     if (!initialized)
