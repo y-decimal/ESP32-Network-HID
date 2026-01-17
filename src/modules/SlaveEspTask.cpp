@@ -1,5 +1,5 @@
-#include <system/TaskManager.h>
 #include <shared/CommTypes.h>
+#include <system/TaskManager.h>
 
 void TaskManager::slaveEspTask(void *arg) {
   EspParameters *params = static_cast<EspParameters *>(arg);
@@ -10,7 +10,6 @@ void TaskManager::slaveEspTask(void *arg) {
   delete params;
 
   bool connected = false;
-
 
   struct espKeyEvent {
     uint16_t keyIndex;
@@ -29,8 +28,8 @@ void TaskManager::slaveEspTask(void *arg) {
     // Todo: Handle config update packet
   };
 
-  espNow.registerPacketTypeCallback(
-      static_cast<uint8_t>(PacketType::Pairing), pairReceiveCallback);
+  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Pairing),
+                                    pairReceiveCallback);
 
   espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Config),
                                     configReceiveCallback);
