@@ -30,7 +30,7 @@ private:
 
     bool isMacRegistered(uint8_t *mac);
 
-    void routeCallback(uint8_t packetType);
+    static void routeCallback(const uint8_t *mac_addr, const uint8_t *data, int data_len);
 };
 
 #endif
