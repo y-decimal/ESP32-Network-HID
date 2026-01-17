@@ -6,7 +6,7 @@
 #include <vector>
 #include <cstring>
 
-class EspNow : IEspNow
+class EspNow : public IEspNow
 {
 public:
     bool sendData(uint8_t packetType, uint8_t *data, size_t length, uint8_t targetMac[6]) override;
