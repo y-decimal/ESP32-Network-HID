@@ -49,9 +49,9 @@ bool EspNow::initialize()
     if (esp_now_init() != ESP_OK)
         return false;
 
-    esp_err_t registerReceiveSuccess = esp_now_register_recv_cb(routeCallback);
+    initialized = esp_now_register_recv_cb(routeCallback) == ESP_OK;
 
-    return registerReceiveSuccess == ESP_OK;
+    return initialized;
 }
 
 bool EspNow::registerCommPartner(uint8_t *mac)
