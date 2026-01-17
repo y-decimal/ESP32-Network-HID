@@ -12,10 +12,7 @@ void TaskManager::masterEspTask(void *arg)
 
   auto pairReceiveCallback = [&espNow](const uint8_t *data, size_t length, const uint8_t senderMac[6])
   {
-    bool sendSuccess = espNow.sendData(static_cast<uint8_t>(PacketType::Pairing),
-                                       data,
-                                       length,
-                                       senderMac);
+    bool sendSuccess = espNow.sendData(static_cast<uint8_t>(PacketType::Pairing), data, length, senderMac);
     printf("Received Pairing request %d, sent reply: %s\n", sendSuccess ? "success" : "failure");
   };
 
