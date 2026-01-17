@@ -50,15 +50,16 @@ void TaskManager::keyScannerTask(void *arg) {
   KeyScannerConfig localConfig =
       params->configManager->getConfig<KeyScannerConfig>();
 
+  IGpio &gpio = *params->gpio;
+
   delete params;
 
   // Store pin vectors locally so their data() pointers remain valid
   pinType rowPins = localConfig.getRowPins();
   pinType colPins = localConfig.getColPins();
 
-  Esp32Gpio esp32Gpio;
   KeyScanner keyScanner =
-      KeyScanner(esp32Gpio, rowPins.data(), colPins.data(),
+      KeyScanner(gpio, rowPins.data(), colPins.data(),
                  localConfig.getRowsCount(), localConfig.getColCount());
 
   keyScanner.registerOnKeyChangeCallback(keyEventCallback);
@@ -93,11 +94,12 @@ void TaskManager::keyScannerTask(void *arg) {
 
 // KeyScanner helper functions
 
-void TaskManager::startKeyScanner() {
+void TaskManager::startKeyScanner(IGpio &gpio) {
 
   KeyScannerParameters *keyParams = new KeyScannerParameters();
   keyParams->configManager = &configManager;
   keyParams->eventBusHandle = eventBusQueue;
+  keyParams->gpio = &gpio;
   BaseType_t result = xTaskCreatePinnedToCore(
       keyScannerTask, "KeyScanner", STACK_KEYSCAN, keyParams, PRIORITY_KEYSCAN,
       &keyScannerHandle, CORE_KEYSCAN);
@@ -113,8 +115,8 @@ void TaskManager::stopKeyScanner() {
   vTaskDelete(keyScannerHandle);
   keyScannerHandle = nullptr;
 }
-void TaskManager::restartKeyScanner() {
+void TaskManager::restartKeyScanner(IGpio &gpio) {
   if (keyScannerHandle != nullptr)
     stopKeyScanner();
-  startKeyScanner();
+  startKeyScanner(gpio);
 }
