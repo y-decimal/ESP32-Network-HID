@@ -23,7 +23,7 @@ void TaskManager::slaveEspTask(void *arg)
   volatile bool connected = false;
   uint8_t masterMac[6] = {0};
 
-  auto pairReceiveCallback = [&connected, &masterMac](const uint8_t *data, size_t length, const uint8_t senderMac[6])
+  auto pairReceiveCallback = [&connected, &masterMac](const uint8_t *data, size_t length, const uint8_t *senderMac)
   {
     memcpy(masterMac, senderMac, 6);
     connected = true;
