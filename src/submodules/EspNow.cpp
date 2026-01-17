@@ -94,7 +94,7 @@ bool EspNow::isMacRegistered(const uint8_t *mac)
 
 void EspNow::routeCallback(const uint8_t *mac_addr, const uint8_t *data, int data_len)
 {
-    Header header;
+    Header header = {};
     memcpy(&header, data, sizeof(header));
 
     if (header.length != data_len - sizeof(header))
