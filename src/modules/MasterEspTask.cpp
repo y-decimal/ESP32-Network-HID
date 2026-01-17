@@ -12,7 +12,7 @@ void TaskManager::masterEspTask(void *arg)
 
   auto pairReceiveCallback = [&espNow](const uint8_t *data, size_t length, const uint8_t *senderMac)
   {
-    bool sendSuccess = espNow.sendData(static_cast<uint8_t>(PacketType::Pairing), data, length, senderMac);
+    bool sendSuccess = espNow.sendData(static_cast<uint8_t>(PacketType::PairingConfirmation), data, length, senderMac);
     uint8_t receivedSeqNum = 0;
     memcpy(&receivedSeqNum, data, length);
     printf("Received Pairing request %d from %02x:%02x:%02x:%02x:%02x:%02x, sent reply: %s\n",
@@ -49,7 +49,7 @@ void TaskManager::masterEspTask(void *arg)
 
   espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyEvent), keyReceiveCallback);
   espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyBitmap), bitmapReceiveCallback);
-  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Pairing), pairReceiveCallback);
+  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::PairingRequest), pairReceiveCallback);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
 
