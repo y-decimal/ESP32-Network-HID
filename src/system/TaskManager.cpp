@@ -32,12 +32,14 @@ void TaskManager::initializeTasks()
   {
     printf("Starting Master ESP Task\n");
     stopSlaveEspTask();
+    stopKeyScanner();
     startMasterEspTask(espNow);
   }
   else if (roles[0] == DeviceRole::Keyboard)
   {
     printf("Starting Slave ESP Task\n");
     stopMasterEspTask();
+    startKeyScanner(gpio);
     startSlaveEspTask(espNow);
   }
   else
@@ -45,5 +47,6 @@ void TaskManager::initializeTasks()
     printf("No ESP Task started\n");
     stopMasterEspTask();
     stopSlaveEspTask();
+    stopKeyScanner();
   }
 }
