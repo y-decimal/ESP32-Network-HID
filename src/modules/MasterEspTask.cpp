@@ -62,8 +62,8 @@ void TaskManager::masterEspTask(void *arg)
     memcpy(bitMapData, data + 1, bitMapSize);
 
     BitMapEvent bitmapEvent;
-    bitmapEvent.bitMapData = airBitmapEvent.bitMapData;
-    bitmapEvent.bitMapSize = airBitmapEvent.bitMapSize;
+    bitmapEvent.bitMapSize = bitMapSize;
+    bitmapEvent.bitMapData = bitMapData;
     bitmapEvent.sourceMac = senderMac;
     printf("Sending bitmap event to event bus\n");
     xQueueSend(EventBusQueueReference, &bitmapEvent, pdMS_TO_TICKS(20));
