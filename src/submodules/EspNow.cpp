@@ -1,6 +1,8 @@
 #include <submodules/EspNow.h>
 
-bool EspNow::sendData(uint8_t packetType, uint8_t *data, size_t length, uint8_t targetMac[6])
+EspNow *EspNow::instance = nullptr;
+
+bool EspNow::sendData(uint8_t packetType, const uint8_t *data, size_t length, const uint8_t *targetMac)
 {
     if (!initialized)
         if (!initialize())
@@ -54,7 +56,7 @@ bool EspNow::initialize()
     return initialized;
 }
 
-bool EspNow::registerCommPartner(uint8_t *mac)
+bool EspNow::registerCommPartner(const uint8_t *mac)
 {
     if (!initialized)
         return false;
@@ -72,7 +74,7 @@ bool EspNow::registerCommPartner(uint8_t *mac)
     return true;
 }
 
-bool EspNow::isMacRegistered(uint8_t *mac)
+bool EspNow::isMacRegistered(const uint8_t *mac)
 {
     esp_now_peer_info_t peerInfo;
     esp_err_t peerFound = esp_now_get_peer(mac, &peerInfo);

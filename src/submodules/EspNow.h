@@ -16,6 +16,7 @@ public:
 private:
     receiveCallback callbacks[UINT8_MAX];
     bool initialized = false;
+    static EspNow *instance;
 
     struct Header
     {
@@ -24,8 +25,8 @@ private:
     };
 
     bool initialize();
-    bool registerCommPartner(uint8_t *mac);
-    bool isMacRegistered(uint8_t *mac);
+    bool registerCommPartner(const uint8_t *mac);
+    bool isMacRegistered(const uint8_t *mac);
 
     static void routeCallback(const uint8_t *mac_addr, const uint8_t *data, int data_len);
 };
