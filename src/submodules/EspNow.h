@@ -32,6 +32,7 @@ private:
     bool isMacRegistered(const uint8_t *mac);
 
     static void routeCallback(const uint8_t *mac_addr, const uint8_t *data, int data_len);
+    static void espNowSendCallback(const uint8_t *mac_addr, esp_now_send_status_t status);
 };
 
 #endif

@@ -92,6 +92,9 @@ bool EspNow::initialize()
         if (loggingEnabled)
             printf("[EspNow] esp_now_init failed\n");
         return false;
+    }
+
+    esp_now_register_send_cb(espNowSendCallback);
 
     initialized = esp_now_register_recv_cb(routeCallback) == ESP_OK;
 
@@ -180,4 +183,21 @@ void EspNow::routeCallback(const uint8_t *mac_addr, const uint8_t *data, int dat
     }
     else if (instance->loggingEnabled)
         printf("[EspNow] No instance or callback found\n");
+}
+
+void EspNow::espNowSendCallback(const uint8_t *mac_addr, esp_now_send_status_t status)
+{
+    if (!instance)
+    {
+        printf("[EspNow] No instance in espNowSendCallback\n");
+        return;
+    }
+
+    if (instance->loggingEnabled)
+    {
+        printf("[EspNow] Send to %02x:%02x:%02x:%02x:%02x:%02x %s\n",
+               mac_addr[0], mac_addr[1], mac_addr[2],
+               mac_addr[3], mac_addr[4], mac_addr[5],
+               status == ESP_NOW_SEND_SUCCESS ? "succeeded" : "failed");
+    }
 }
