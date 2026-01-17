@@ -111,13 +111,10 @@ bool EspNow::registerCommPartner(const uint8_t *mac)
     }
 
     esp_now_peer_info_t peerInfo = {};
-    peerInfo.channel = 1; // Use channel 1 instead of 0
+    peerInfo.channel = 0; // Use channel 0 to follow the WiFi interface's channel
 
-    uint8_t broadcast[6] = {255, 255, 255, 255, 255, 255};
-    if (memcmp(mac, broadcast, 6) == 0)
-        peerInfo.encrypt = 0;
-    else
-        peerInfo.encrypt = 1;
+    peerInfo.encrypt = 0; // No encryption for now
+
     memcpy(peerInfo.peer_addr, mac, 6);
 
     esp_err_t addPeerSuccess = esp_now_add_peer(&peerInfo);
