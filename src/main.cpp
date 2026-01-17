@@ -5,9 +5,15 @@
 
 // temp local definitions for testing
 
+#include <interfaces/IEspNow.h>
+#include <submodules/Esp32Gpio.h>
+
+Esp32Gpio espGpio;
+EspNowManager espNow; // Todo: implements IEspNow
+
 PreferencesStorage prefStorage(CONFIG_MANAGER_NAMESPACE);
 ConfigManager mainCfg(prefStorage);
-TaskManager taskManager(mainCfg); // Move outside setup()
+TaskManager taskManager(mainCfg, espGpio, espNow); // Move outside setup()
 
 void keyPrintCallback(const Event &event) {
   if (event.type != EventType::Key) {
