@@ -89,6 +89,15 @@ void setup()
          "%d ms\n",
          kCfg.getRowsCount(), kCfg.getColCount(), kCfg.getRefreshRate(),
          kCfg.getBitMapSendInterval());
+  GlobalConfig gCfg = mainCfg.getConfig<GlobalConfig>();
+  DeviceRole roles[static_cast<size_t>(DeviceRole::Count)] = {DeviceRole::Count};
+  gCfg.getRoles(roles, static_cast<size_t>(DeviceRole::Count));
+  printf("Device Role: %d\n", (uint8_t)roles[0]);
+  uint8_t mac[6];
+  gCfg.getMac(mac, 6);
+  printf("Device MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
+         mac[0], mac[1], mac[2],
+         mac[3], mac[4], mac[5]);
   taskManager.start();
   printf("setup done\n");
 }
