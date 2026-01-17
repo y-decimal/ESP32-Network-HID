@@ -2,6 +2,8 @@
 #define TASKMANAGER_H
 
 #include <FreeRTOS.h>
+#include <interfaces/IEspNow.h>
+#include <interfaces/IGpio.h>
 #include <submodules/ConfigManager/ConfigManager.h>
 #include <submodules/EventRegistry.h>
 #include <system/SystemConfig.h>
@@ -32,7 +34,7 @@ public:
    *               referenced ConfigManager instance must outlive
    *               this TaskManager.
    */
-  TaskManager(ConfigManager &config);
+  TaskManager(ConfigManager &config, IGpio &gpio, IEspNow &espNow);
 
   /**
    * @brief Start the TaskManager supervisor task and any managed tasks.
@@ -69,17 +71,17 @@ private:
   static void taskManagerTask(void *arg); // the supervisor loop
 
   // === Lifecycle helpers ===
-  void startKeyScanner();
+  void startKeyScanner(IGpio &gpio);
   void stopKeyScanner();
-  void restartKeyScanner();
+  void restartKeyScanner(IGpio &gpio);
 
   void startEventBus();
   void stopEventBus();
   void restartEventBus();
 
-  void startSlaveEspTask();
+  void startSlaveEspTask(IEspNow &espNow);
   void stopSlaveEspTask();
-  void restartSlaveEspTask();
+  void restartSlaveEspTask(IEspNow &espNow);
 
   // === Internal helpers ===
   void initializeTasks();    // initializes tasks depending on the role
@@ -91,6 +93,9 @@ private:
   // === State ===
   QueueHandle_t eventBusQueue = nullptr;
   QueueHandle_t keyEventQueue = nullptr;
+
+  IGpio &gpio;
+  IEspNow &espNow;
 
   // NOTE: This reference may be accessed from multiple FreeRTOS tasks.
   // It is required that either:

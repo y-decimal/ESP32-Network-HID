@@ -1,6 +1,7 @@
 #include <system/TaskManager.h>
 
-TaskManager::TaskManager(ConfigManager &config) : configManager(config) {}
+TaskManager::TaskManager(ConfigManager &config, IGpio &gpio, IEspNow &espNow)
+    : configManager(config), gpio(gpio), espNow(espNow) {}
 
 void TaskManager::start() {
 
@@ -20,6 +21,6 @@ void TaskManager::initializeTasks() {
 
   // Implement role based logic here later
   startEventBus();
-  startKeyScanner();
-  startSlaveEspTask();
+  startKeyScanner(gpio);
+  startSlaveEspTask(espNow);
 }
