@@ -2,7 +2,7 @@
 #include <system/TaskManager.h>
 
 void TaskManager::masterEspTask(void *arg) {
-  EspParameters *params = static_cast<EspParameters *>(arg);
+  MasterEspParameters *params = static_cast<MasterEspParameters *>(arg);
 
   QueueHandle_t keyEventQueueReference = params->keyEventHandle;
   IEspNow &espNow = *params->espNow;
