@@ -24,10 +24,7 @@ private:
     };
 
     bool initialize();
-
-    void registerEspNowReceiveCallback();
     bool registerCommPartner(uint8_t *mac);
-
     bool isMacRegistered(uint8_t *mac);
 
     static void routeCallback(const uint8_t *mac_addr, const uint8_t *data, int data_len);

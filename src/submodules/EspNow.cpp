@@ -53,3 +53,29 @@ bool EspNow::initialize()
 
     return registerReceiveSuccess == ESP_OK;
 }
+
+bool EspNow::registerCommPartner(uint8_t *mac)
+{
+    if (!initialized)
+        return false;
+
+    esp_now_peer_info_t peerInfo;
+    peerInfo.channel = 0;
+    peerInfo.encrypt = 1;
+    memcpy(peerInfo.peer_addr, mac, 6);
+
+    esp_err_t addPeerSuccess = esp_now_add_peer(&peerInfo);
+
+    if (addPeerSuccess != ESP_OK)
+        return false;
+
+    return true;
+}
+
+bool EspNow::isMacRegistered(uint8_t *mac)
+{
+    esp_now_peer_info_t peerInfo;
+    esp_err_t peerFound = esp_now_get_peer(mac, &peerInfo);
+
+    return peerFound == ESP_OK;
+}
