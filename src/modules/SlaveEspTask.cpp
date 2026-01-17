@@ -79,6 +79,7 @@ void TaskManager::slaveEspTask(void *arg)
           event.cleanup(&event);
       }
     }
+    vPortYield();
   }
 }
 
