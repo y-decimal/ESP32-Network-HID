@@ -50,3 +50,43 @@ void TaskManager::masterEspTask(void *arg)
     vPortYield();
   }
 }
+
+void TaskManager::startMasterEspTask(IEspNow &espNow)
+{
+  if (masterEspHandle != nullptr)
+    return;
+
+  MasterEspParameters *params = new MasterEspParameters();
+  params->EventBusQueue = eventBusQueue;
+  params->espNow = &espNow;
+
+  BaseType_t result = xTaskCreatePinnedToCore(
+      masterEspTask,
+      "MasterEspTask",
+      STACK_MASTERESP,
+      params,
+      PRIORITY_MASTERESP,
+      &masterEspHandle,
+      CORE_MASTERESP);
+
+  if (result != pdPASS)
+  {
+    masterEspHandle = nullptr;
+    delete params;
+  }
+}
+
+void TaskManager::stopMasterEspTask()
+{
+  if (masterEspHandle == nullptr)
+    return;
+  vTaskDelete(masterEspHandle);
+  masterEspHandle = nullptr;
+}
+
+void TaskManager::restartMasterEspTask(IEspNow &espNow)
+{
+  if (masterEspHandle != nullptr)
+    stopMasterEspTask();
+  startMasterEspTask(espNow);
+}
