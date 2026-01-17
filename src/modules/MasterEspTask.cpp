@@ -47,7 +47,7 @@ void TaskManager::masterEspTask(void *arg)
   for (;;)
   {
     // Todo: Implement config updates here
-    vPortYield();
+    vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
 
