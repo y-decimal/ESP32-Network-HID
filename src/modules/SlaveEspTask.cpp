@@ -41,9 +41,12 @@ void TaskManager::slaveEspTask(void *arg)
     // Todo: Handle config update packet
   };
 
-  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Pairing), pairReceiveCallback);
+  bool successPairing = espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Pairing), pairReceiveCallback);
 
-  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Config), configReceiveCallback);
+  bool successConfig = espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Config), configReceiveCallback);
+
+  printf("SlaveEspTask: Registered pairing callback: %s\n", successPairing ? "success" : "failure");
+  printf("SlaveEspTask: Registered config callback: %s\n", successConfig ? "success" : "failure");
 
   TickType_t previousWakeTime = xTaskGetTickCount();
   uint8_t sequenceNumber = 0;
