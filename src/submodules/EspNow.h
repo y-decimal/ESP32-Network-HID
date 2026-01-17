@@ -19,6 +19,8 @@ private:
     bool initialized = false;
     static EspNow *instance;
 
+    bool loggingEnabled = true;
+
     struct Header
     {
         uint8_t packetType;
