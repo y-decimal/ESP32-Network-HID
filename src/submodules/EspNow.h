@@ -19,7 +19,7 @@ private:
     bool initialized = false;
     static EspNow *instance;
 
-    bool loggingEnabled = true;
+    bool loggingEnabled = false;
 
     struct Header
     {
