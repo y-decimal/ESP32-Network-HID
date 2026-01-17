@@ -29,13 +29,13 @@ void TaskManager::slaveEspTask(void *arg)
   espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Config), configReceiveCallback);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
+  uint8_t sequenceNumber = 0;
 
   for (;;)
   {
     // If not connected, attempt to pair every 1.5 seconds
     if (!connected)
     {
-      static uint8_t sequenceNumber = 0; // Currently unused but we need to send something anyways
       uint8_t broadcastMac[6] = {255, 255, 255, 255, 255};
       espNow.sendData(static_cast<uint8_t>(PacketType::Pairing), &sequenceNumber, sizeof(sequenceNumber), broadcastMac);
       sequenceNumber++;
