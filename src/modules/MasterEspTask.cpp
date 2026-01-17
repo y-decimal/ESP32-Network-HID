@@ -4,7 +4,7 @@
 void TaskManager::masterEspTask(void *arg) {
   MasterEspParameters *params = static_cast<MasterEspParameters *>(arg);
 
-  QueueHandle_t keyEventQueueReference = params->keyEventHandle;
+  QueueHandle_t EventBusQueueReference = params->EventBusQueue;
   IEspNow &espNow = *params->espNow;
 
   delete params;
@@ -14,7 +14,7 @@ void TaskManager::masterEspTask(void *arg) {
     espNow.sendData(static_cast<uint8_t>(PacketType::Pairing), data, length);
   };
 
-  auto keyReceiveCallback = [keyEventQueueReference](uint8_t *data,
+  auto keyReceiveCallback = [EventBusQueueReference](uint8_t *data,
                                                      size_t length,
                                                      uint8_t senderMac[6]) {
     AirKeyEvent espKeyEvent;
@@ -24,10 +24,10 @@ void TaskManager::masterEspTask(void *arg) {
     keyEvent.keyIndex = espKeyEvent.keyIndex;
     keyEvent.state = espKeyEvent.state;
     keyEvent.sourceMac = senderMac;
-    xQueueSend(keyEventQueueReference, &keyEvent, pdMS_TO_TICKS(20));
+    xQueueSend(EventBusQueueReference, &keyEvent, pdMS_TO_TICKS(20));
   };
 
-  auto bitmapReceiveCallback = [keyEventQueueReference](uint8_t *data,
+  auto bitmapReceiveCallback = [EventBusQueueReference](uint8_t *data,
                                                         size_t length,
                                                         uint8_t senderMac[6]) {
     AirBitmapEvent airBitmapEvent;
@@ -37,12 +37,16 @@ void TaskManager::masterEspTask(void *arg) {
     bitmapEvent.bitMapData = airBitmapEvent.bitMapData;
     bitmapEvent.bitMapSize = airBitmapEvent.bitMapSize;
     bitmapEvent.sourceMac = senderMac;
-    xQueueSend(keyEventQueueReference, &bitmapEvent, pdMS_TO_TICKS(20));
+    xQueueSend(EventBusQueueReference, &bitmapEvent, pdMS_TO_TICKS(20));
   };
 
   espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyEvent),
                                     keyReceiveCallback);
   espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyBitmap),
                                     bitmapReceiveCallback);
-                                    
+
+  TickType_t previousWakeTime = xTaskGetTickCount();
+
+  for (;;) {
+  }
 }
