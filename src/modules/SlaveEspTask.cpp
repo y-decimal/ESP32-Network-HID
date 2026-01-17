@@ -90,7 +90,7 @@ void TaskManager::slaveEspTask(void *arg)
           memcpy(data, &evt, sizeof(AirKeyEvent));
 
           espNow.sendData((uint8_t)PacketType::KeyEvent, data, sizeof(data), masterMac);
-          printf("Sent key event to Mac %d %d %d %d %d %d\n", masterMac[0], masterMac[1], masterMac[2],
+          printf("Sent key event to Mac %02x:%02x:%02x:%02x:%02x:%02x\n", masterMac[0], masterMac[1], masterMac[2],
                  masterMac[3], masterMac[4], masterMac[5]);
         }
 
