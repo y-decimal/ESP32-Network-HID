@@ -42,8 +42,24 @@ void TaskManager::masterEspTask(void *arg)
 
   auto bitmapReceiveCallback = [EventBusQueueReference](const uint8_t *data, size_t length, const uint8_t *senderMac)
   {
-    AirBitmapEvent airBitmapEvent;
-    memcpy(&airBitmapEvent, data, length);
+    if (length < 1)
+    {
+      printf("Invalid bitmap packet: too short\n");
+      return;
+    }
+
+    uint8_t bitMapSize = data[0];
+
+    // Allocate memory for the bitmap data
+    uint8_t *bitMapData = static_cast<uint8_t *>(malloc(bitMapSize));
+    if (!bitMapData)
+    {
+      printf("Failed to allocate memory for bitmap\n");
+      return;
+    }
+
+    // Copy the bitmap data (skip first byte which is the size)
+    memcpy(bitMapData, data + 1, bitMapSize);
 
     BitMapEvent bitmapEvent;
     bitmapEvent.bitMapData = airBitmapEvent.bitMapData;
