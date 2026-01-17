@@ -10,9 +10,11 @@ void TaskManager::slaveEspTask(void *arg) {
   delete params;
 
   bool connected = false;
+  uint8_t masterMac[6] = {0};
 
-  auto pairReceiveCallback = [&connected](uint8_t *data, size_t length,
-                                          uint8_t senderMac[6]) {
+  auto pairReceiveCallback = [&connected, &masterMac](uint8_t *data, size_t length, uint8_t senderMac[6])
+  {
+    memcpy(masterMac, senderMac, 6);
     connected = true;
     // Todo: Store senderMac for future communication, likely with config event
     // push to event bus
@@ -33,11 +35,11 @@ void TaskManager::slaveEspTask(void *arg) {
 
   for (;;) {
     // If not connected, attempt to pair every 1.5 seconds
-    if (!connected) {
-      static uint8_t sequenceNumber =
-          0; // Currently unused but we need to send something anyways
-      espNow.sendData(static_cast<uint8_t>(PacketType::Pairing),
-                      &sequenceNumber, sizeof(sequenceNumber));
+    if (!connected)
+    {
+      static uint8_t sequenceNumber = 0; // Currently unused but we need to send something anyways
+      uint8_t broadcastMac[6] = {255, 255, 255, 255, 255};
+      espNow.sendData(static_cast<uint8_t>(PacketType::Pairing), &sequenceNumber, sizeof(sequenceNumber), broadcastMac);
       sequenceNumber++;
       xTaskDelayUntil(&previousWakeTime, pdMS_TO_TICKS(1500));
 
@@ -57,7 +59,7 @@ void TaskManager::slaveEspTask(void *arg) {
           uint8_t data[sizeof(AirKeyEvent)] = {};
           memcpy(data, &evt, sizeof(AirKeyEvent));
 
-          espNow.sendData((uint8_t)PacketType::KeyEvent, data, sizeof(data));
+          espNow.sendData((uint8_t)PacketType::KeyEvent, data, sizeof(data), masterMac);
         }
 
         // Process BitMapEvent
@@ -66,7 +68,7 @@ void TaskManager::slaveEspTask(void *arg) {
           data[0] = event.bitMap.bitMapSize;
           memcpy(data + 1, event.bitMap.bitMapData, event.bitMap.bitMapSize);
 
-          espNow.sendData((uint8_t)PacketType::KeyBitmap, data, sizeof(data));
+          espNow.sendData((uint8_t)PacketType::KeyBitmap, data, sizeof(data), masterMac);
         }
 
         // Clean up event resources
