@@ -16,10 +16,12 @@ void TaskManager::slaveEspTask(void *arg) {
     bool state;
   };
 
-  void pairReceiveCallback(uint8_t *data, size_t length, uint8_t senderMac[6]) {
+  auto pairReceiveCallback = [&connected](uint8_t *data, size_t length,
+                                          uint8_t senderMac[6]) {
     connected = true;
-    // Todo: Store senderMac for future communication
-  }
+    // Todo: Store senderMac for future communication, likely with config event
+    // push to event bus
+  };
 
   espNow.registerPacketTypeCallback(
       static_cast<uint8_t>(PacketType::PairRequest), pairReceiveCallback);
