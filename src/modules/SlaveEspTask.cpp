@@ -1,7 +1,7 @@
 #include <system/TaskManager.h>
 
 void TaskManager::slaveEspTask(void *arg) {
-  slaveEspParameters *params = static_cast<slaveEspParameters *>(arg);
+  EspParameters *params = static_cast<EspParameters *>(arg);
 
   QueueHandle_t keyEventQueueReference = params->keyEventHandle;
   IEspNow &espNow = *params->espNow;
@@ -87,7 +87,7 @@ void TaskManager::startSlaveEspTask(IEspNow &espNow) {
   if (slaveEspHandle != nullptr)
     return;
 
-  slaveEspParameters *params = new slaveEspParameters();
+  EspParameters *params = new EspParameters();
   params->keyEventHandle = keyEventQueue;
   params->espNow = &espNow;
 

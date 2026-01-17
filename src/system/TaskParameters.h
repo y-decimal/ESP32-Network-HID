@@ -14,7 +14,7 @@ struct KeyScannerParameters {
   IGpio *gpio = nullptr;
 };
 
-struct slaveEspParameters {
+struct EspParameters {
   QueueHandle_t keyEventHandle = nullptr;
   IEspNow *espNow = nullptr;
 };
