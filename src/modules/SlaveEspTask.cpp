@@ -2,9 +2,9 @@
 #include <system/TaskManager.h>
 
 void TaskManager::slaveEspTask(void *arg) {
-  EspParameters *params = static_cast<EspParameters *>(arg);
+  SlaveEspParameters *params = static_cast<SlaveEspParameters *>(arg);
 
-  QueueHandle_t keyEventQueueReference = params->keyEventHandle;
+  QueueHandle_t keyEventQueueReference = params->keyEventQueue;
   IEspNow &espNow = *params->espNow;
 
   delete params;
@@ -82,8 +82,8 @@ void TaskManager::startSlaveEspTask(IEspNow &espNow) {
   if (slaveEspHandle != nullptr)
     return;
 
-  EspParameters *params = new EspParameters();
-  params->keyEventHandle = keyEventQueue;
+  SlaveEspParameters *params = new SlaveEspParameters();
+  params->keyEventQueue = keyEventQueue;
   params->espNow = &espNow;
 
   BaseType_t result = xTaskCreatePinnedToCore(
