@@ -26,4 +26,9 @@ static constexpr uint32_t STACK_SLAVEESP = 4096;
 static constexpr UBaseType_t PRIORITY_SLAVEESP = 5;
 static constexpr BaseType_t CORE_SLAVEESP = 0;
 
+// Master ESP Task Config
+static constexpr uint32_t STACK_MASTERESP = 4096;
+static constexpr UBaseType_t PRIORITY_MASTERESP = 5;
+static constexpr BaseType_t CORE_MASTERESP = 0;
+
 #endif
