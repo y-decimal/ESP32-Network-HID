@@ -1,12 +1,22 @@
 #include <shared/CommTypes.h>
 #include <system/TaskManager.h>
 
+static QueueHandle_t keyEventQueueReference = nullptr;
+
+void keyEventRouteCallback(const Event &event)
+{
+  xQueueSend(keyEventQueueReference, &event, pdMS_TO_TICKS(10));
+  printf("Routed key event to key event queue\n");
+}
+
 void TaskManager::slaveEspTask(void *arg)
 {
   SlaveEspParameters *params = static_cast<SlaveEspParameters *>(arg);
 
-  QueueHandle_t keyEventQueueReference = params->keyEventQueue;
+  keyEventQueueReference = params->keyEventQueue;
   IEspNow &espNow = *params->espNow;
+
+  EventRegistry::registerHandler(EventType::Key, keyEventRouteCallback);
 
   delete params;
 
