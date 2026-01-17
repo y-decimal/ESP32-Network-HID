@@ -13,7 +13,12 @@ void TaskManager::masterEspTask(void *arg)
   auto pairReceiveCallback = [&espNow](const uint8_t *data, size_t length, const uint8_t *senderMac)
   {
     bool sendSuccess = espNow.sendData(static_cast<uint8_t>(PacketType::Pairing), data, length, senderMac);
-    printf("Received Pairing request %d, sent reply: %s\n", sendSuccess ? "success" : "failure");
+    uint8_t receivedSeqNum = 0;
+    memcpy(&receivedSeqNum, data, length);
+    printf("Received Pairing request %d from %02x:%02x:%02x:%02x:%02x:%02x, sent reply: %s\n",
+           receivedSeqNum,
+           senderMac[0], senderMac[1], senderMac[2], senderMac[3], senderMac[4], senderMac[5],
+           sendSuccess ? "success" : "failure");
   };
 
   auto keyReceiveCallback = [EventBusQueueReference](const uint8_t *data, size_t length, const uint8_t *senderMac)
