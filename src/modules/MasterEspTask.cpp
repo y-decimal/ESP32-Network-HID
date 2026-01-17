@@ -39,4 +39,10 @@ void TaskManager::masterEspTask(void *arg) {
     bitmapEvent.sourceMac = senderMac;
     xQueueSend(keyEventQueueReference, &bitmapEvent, pdMS_TO_TICKS(20));
   };
+
+  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyEvent),
+                                    keyReceiveCallback);
+  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyBitmap),
+                                    bitmapReceiveCallback);
+                                    
 }
