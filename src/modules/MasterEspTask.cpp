@@ -10,12 +10,12 @@ void TaskManager::masterEspTask(void *arg)
 
   delete params;
 
-  auto pairReceiveCallback = [&espNow](uint8_t *data, size_t length, uint8_t senderMac[6])
+  auto pairReceiveCallback = [&espNow](const uint8_t *data, size_t length, const uint8_t senderMac[6])
   {
-    espNow.sendData(static_cast<uint8_t>(PacketType::Pairing), data, length, senderMac);
+    espNow.sendData(static_cast<uint8_t>(PacketType::Pairing), const_cast<uint8_t *>(data), length, const_cast<uint8_t *>(senderMac));
   };
 
-  auto keyReceiveCallback = [EventBusQueueReference](uint8_t *data, size_t length, uint8_t senderMac[6])
+  auto keyReceiveCallback = [EventBusQueueReference](const uint8_t *data, size_t length, const uint8_t senderMac[6])
   {
     AirKeyEvent espKeyEvent;
     memcpy(&espKeyEvent, data, length);
@@ -27,7 +27,7 @@ void TaskManager::masterEspTask(void *arg)
     xQueueSend(EventBusQueueReference, &keyEvent, pdMS_TO_TICKS(20));
   };
 
-  auto bitmapReceiveCallback = [EventBusQueueReference](uint8_t *data, size_t length, uint8_t senderMac[6])
+  auto bitmapReceiveCallback = [EventBusQueueReference](const uint8_t *data, size_t length, const uint8_t senderMac[6])
   {
     AirBitmapEvent airBitmapEvent;
     memcpy(&airBitmapEvent, data, length);
