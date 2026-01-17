@@ -5,7 +5,8 @@
 
 typedef uint8_t MacAddress[6];
 
-enum class NodeID : uint8_t {
+enum class NodeID : uint8_t
+{
   // Fixed NodeIDs, number of elements limits maximum concurrent connections
   // 10 should be enough, but can easily be increased if necessary
   NodeMaster,
@@ -21,8 +22,21 @@ enum class NodeID : uint8_t {
   Count
 };
 
-enum class DeviceRole : uint8_t { Master, Keyboard, Count };
+enum class DeviceRole : uint8_t
+{
+  Master,
+  Keyboard,
+  Count
+};
 
-enum class PacketType : uint8_t { KeyEvent, KeyBitmap, Config, Pairing, Count };
+enum class PacketType : uint8_t
+{
+  KeyEvent,
+  KeyBitmap,
+  Config,
+  PairingRequest,
+  PairingConfirmation,
+  Count
+};
 
 #endif
