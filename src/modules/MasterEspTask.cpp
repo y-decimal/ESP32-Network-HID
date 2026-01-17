@@ -1,7 +1,8 @@
 #include <shared/CommTypes.h>
 #include <system/TaskManager.h>
 
-void TaskManager::masterEspTask(void *arg) {
+void TaskManager::masterEspTask(void *arg)
+{
   MasterEspParameters *params = static_cast<MasterEspParameters *>(arg);
 
   QueueHandle_t EventBusQueueReference = params->EventBusQueue;
@@ -14,9 +15,8 @@ void TaskManager::masterEspTask(void *arg) {
     espNow.sendData(static_cast<uint8_t>(PacketType::Pairing), data, length, senderMac);
   };
 
-  auto keyReceiveCallback = [EventBusQueueReference](uint8_t *data,
-                                                     size_t length,
-                                                     uint8_t senderMac[6]) {
+  auto keyReceiveCallback = [EventBusQueueReference](uint8_t *data, size_t length, uint8_t senderMac[6])
+  {
     AirKeyEvent espKeyEvent;
     memcpy(&espKeyEvent, data, length);
 
@@ -27,9 +27,8 @@ void TaskManager::masterEspTask(void *arg) {
     xQueueSend(EventBusQueueReference, &keyEvent, pdMS_TO_TICKS(20));
   };
 
-  auto bitmapReceiveCallback = [EventBusQueueReference](uint8_t *data,
-                                                        size_t length,
-                                                        uint8_t senderMac[6]) {
+  auto bitmapReceiveCallback = [EventBusQueueReference](uint8_t *data, size_t length, uint8_t senderMac[6])
+  {
     AirBitmapEvent airBitmapEvent;
     memcpy(&airBitmapEvent, data, length);
 
@@ -40,14 +39,13 @@ void TaskManager::masterEspTask(void *arg) {
     xQueueSend(EventBusQueueReference, &bitmapEvent, pdMS_TO_TICKS(20));
   };
 
-  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyEvent),
-                                    keyReceiveCallback);
-  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyBitmap),
-                                    bitmapReceiveCallback);
+  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyEvent), keyReceiveCallback);
+  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyBitmap), bitmapReceiveCallback);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
 
-  for (;;) {
+  for (;;)
+  {
     // Todo: Implement config updates here
     vPortYield();
   }
