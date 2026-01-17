@@ -6,6 +6,8 @@ void TaskManager::slaveEspTask(void *arg) {
   QueueHandle_t keyEventQueueReference = params->keyEventHandle;
   IEspNow &espNow = *params->espNow;
 
+  delete params;
+
   bool connected = false;
   enum class PacketType : uint8_t { KeyEvent, BitMapEvent, PairRequest, COUNT };
 
@@ -13,6 +15,14 @@ void TaskManager::slaveEspTask(void *arg) {
     uint16_t keyIndex;
     bool state;
   };
+
+  void pairReceiveCallback(uint8_t *data, size_t length, uint8_t senderMac[6]) {
+    connected = true;
+    // Todo: Store senderMac for future communication
+  }
+
+  espNow.registerPacketTypeCallback(
+      static_cast<uint8_t>(PacketType::PairRequest), pairReceiveCallback);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
 
