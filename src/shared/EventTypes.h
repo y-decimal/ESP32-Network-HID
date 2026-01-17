@@ -8,7 +8,7 @@ enum class EventType : uint8_t { Key, BitMap, ConfigUpdate, COUNT };
 struct KeyEvent {
   uint16_t keyIndex;
   bool state;
-  uint8_t *sourceMac;
+  const uint8_t *sourceMac;
 };
 
 struct AirKeyEvent {
@@ -19,7 +19,7 @@ struct AirKeyEvent {
 struct BitMapEvent {
   uint8_t bitMapSize;
   uint8_t *bitMapData;
-  uint8_t *sourceMac;
+  const uint8_t *sourceMac;
 };
 
 struct AirBitmapEvent {
