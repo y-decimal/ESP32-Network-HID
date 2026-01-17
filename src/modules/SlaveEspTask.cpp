@@ -33,7 +33,9 @@ void TaskManager::slaveEspTask(void *arg)
     }
     memcpy(masterMac, senderMac, 6);
     connected = true;
-    printf("Received master MAC\n");
+    printf("Received master MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
+           masterMac[0], masterMac[1], masterMac[2],
+           masterMac[3], masterMac[4], masterMac[5]);
   };
 
   auto configReceiveCallback = [](const uint8_t *data, size_t length, const uint8_t *senderMac)
