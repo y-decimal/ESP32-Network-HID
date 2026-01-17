@@ -1,7 +1,8 @@
 #include <shared/CommTypes.h>
 #include <system/TaskManager.h>
 
-void TaskManager::slaveEspTask(void *arg) {
+void TaskManager::slaveEspTask(void *arg)
+{
   SlaveEspParameters *params = static_cast<SlaveEspParameters *>(arg);
 
   QueueHandle_t keyEventQueueReference = params->keyEventQueue;
@@ -16,24 +17,22 @@ void TaskManager::slaveEspTask(void *arg) {
   {
     memcpy(masterMac, senderMac, 6);
     connected = true;
-    // Todo: Store senderMac for future communication, likely with config event
-    // push to event bus
   };
 
   auto configReceiveCallback = [](uint8_t *data, size_t length,
-                                  uint8_t senderMac[6]) {
+                                  uint8_t senderMac[6])
+  {
     // Todo: Handle config update packet
   };
 
-  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Pairing),
-                                    pairReceiveCallback);
+  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Pairing), pairReceiveCallback);
 
-  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Config),
-                                    configReceiveCallback);
+  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Config), configReceiveCallback);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
 
-  for (;;) {
+  for (;;)
+  {
     // If not connected, attempt to pair every 1.5 seconds
     if (!connected)
     {
@@ -44,16 +43,20 @@ void TaskManager::slaveEspTask(void *arg) {
       xTaskDelayUntil(&previousWakeTime, pdMS_TO_TICKS(1500));
 
       // If connected, process key events from the queue
-    } else {
+    }
+    else
+    {
 
       Event event;
 
       // Wait for key events with a timeout of 1.5 seconds to allow periodic
       // connection checks and potential reconnections
-      if (xQueueReceive(keyEventQueueReference, &event, pdMS_TO_TICKS(1500))) {
+      if (xQueueReceive(keyEventQueueReference, &event, pdMS_TO_TICKS(1500)))
+      {
 
         // Process KeyEvent
-        if (event.type == EventType::Key) {
+        if (event.type == EventType::Key)
+        {
           AirKeyEvent evt = {event.key.keyIndex, event.key.state};
 
           uint8_t data[sizeof(AirKeyEvent)] = {};
@@ -63,7 +66,8 @@ void TaskManager::slaveEspTask(void *arg) {
         }
 
         // Process BitMapEvent
-        if (event.type == EventType::BitMap) {
+        if (event.type == EventType::BitMap)
+        {
           uint8_t data[event.bitMap.bitMapSize + 1];
           data[0] = event.bitMap.bitMapSize;
           memcpy(data + 1, event.bitMap.bitMapData, event.bitMap.bitMapSize);
@@ -79,7 +83,8 @@ void TaskManager::slaveEspTask(void *arg) {
   }
 }
 
-void TaskManager::startSlaveEspTask(IEspNow &espNow) {
+void TaskManager::startSlaveEspTask(IEspNow &espNow)
+{
 
   if (slaveEspHandle != nullptr)
     return;
@@ -89,23 +94,31 @@ void TaskManager::startSlaveEspTask(IEspNow &espNow) {
   params->espNow = &espNow;
 
   BaseType_t result = xTaskCreatePinnedToCore(
-      slaveEspTask, "SlaveEspTask", STACK_SLAVEESP, params, PRIORITY_SLAVEESP,
-      &slaveEspHandle, CORE_SLAVEESP);
+      slaveEspTask,
+      "SlaveEspTask",
+      STACK_SLAVEESP,
+      params,
+      PRIORITY_SLAVEESP,
+      &slaveEspHandle,
+      CORE_SLAVEESP);
 
-  if (result != pdPASS) {
+  if (result != pdPASS)
+  {
     slaveEspHandle = nullptr;
     delete params;
   }
 }
 
-void TaskManager::stopSlaveEspTask() {
+void TaskManager::stopSlaveEspTask()
+{
   if (slaveEspHandle == nullptr)
     return;
   vTaskDelete(slaveEspHandle);
   slaveEspHandle = nullptr;
 }
 
-void TaskManager::restartSlaveEspTask(IEspNow &espNow) {
+void TaskManager::restartSlaveEspTask(IEspNow &espNow)
+{
   if (slaveEspHandle != nullptr)
     stopSlaveEspTask();
   startSlaveEspTask(espNow);
