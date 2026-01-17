@@ -78,7 +78,8 @@ void TaskManager::slaveEspTask(void *arg)
           memcpy(data, &evt, sizeof(AirKeyEvent));
 
           espNow.sendData((uint8_t)PacketType::KeyEvent, data, sizeof(data), masterMac);
-          printf("Sent key event\n");
+          printf("Sent key event to Mac %d %d %d %d %d %d\n", masterMac[0], masterMac[1], masterMac[2],
+                 masterMac[3], masterMac[4], masterMac[5]);
         }
 
         // Process BitMapEvent
@@ -89,7 +90,8 @@ void TaskManager::slaveEspTask(void *arg)
           memcpy(data + 1, event.bitMap.bitMapData, event.bitMap.bitMapSize);
 
           espNow.sendData((uint8_t)PacketType::KeyBitmap, data, sizeof(data), masterMac);
-          printf("Sent bitmap event\n");
+          printf("Sent bitmap event to Mac %d %d %d %d %d %d\n", masterMac[0], masterMac[1], masterMac[2],
+                 masterMac[3], masterMac[4], masterMac[5]);
         }
 
         // Clean up event resources
