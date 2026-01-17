@@ -158,7 +158,7 @@ void EspNow::routeCallback(const uint8_t *mac_addr, const uint8_t *data, int dat
     size_t dataLength = header.length;
 
     if (instance->loggingEnabled)
-        printf("[EspNow] Received Packet: %d\n", header.packetType);
+        printf("[EspNow] Received Packet of type: %d\n", header.packetType);
 
     if (dataLength != totalPacketLength - headerLength)
     {
