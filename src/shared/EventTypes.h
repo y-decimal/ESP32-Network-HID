@@ -11,12 +11,18 @@ struct KeyEvent {
   uint8_t sourceMac[6];
 };
 
-struct EspKeyEvent {
+struct AirKeyEvent {
   uint16_t keyIndex;
   bool state;
 };
 
 struct BitMapEvent {
+  uint8_t bitMapSize;
+  uint8_t *bitMapData;
+  uint8_t sourceMac[6];
+};
+
+struct AirBitmapEvent {
   uint8_t bitMapSize;
   uint8_t *bitMapData;
 };

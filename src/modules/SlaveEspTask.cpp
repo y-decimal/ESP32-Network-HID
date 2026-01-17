@@ -52,10 +52,10 @@ void TaskManager::slaveEspTask(void *arg) {
 
         // Process KeyEvent
         if (event.type == EventType::Key) {
-          EspKeyEvent evt = {event.key.keyIndex, event.key.state};
+          AirKeyEvent evt = {event.key.keyIndex, event.key.state};
 
-          uint8_t data[sizeof(EspKeyEvent)] = {};
-          memcpy(data, &evt, sizeof(EspKeyEvent));
+          uint8_t data[sizeof(AirKeyEvent)] = {};
+          memcpy(data, &evt, sizeof(AirKeyEvent));
 
           espNow.sendData((uint8_t)PacketType::KeyEvent, data, sizeof(data));
         }
