@@ -9,9 +9,9 @@ void TaskManager::masterEspTask(void *arg) {
 
   delete params;
 
-  auto pairReceiveCallback = [&espNow](uint8_t *data, size_t length,
-                                       uint8_t senderMac[6]) {
-    espNow.sendData(static_cast<uint8_t>(PacketType::Pairing), data, length);
+  auto pairReceiveCallback = [&espNow](uint8_t *data, size_t length, uint8_t senderMac[6])
+  {
+    espNow.sendData(static_cast<uint8_t>(PacketType::Pairing), data, length, senderMac);
   };
 
   auto keyReceiveCallback = [EventBusQueueReference](uint8_t *data,
