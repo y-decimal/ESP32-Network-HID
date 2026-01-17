@@ -7,7 +7,7 @@ void TaskManager::slaveEspTask(void *arg) {
   IEspNow &espNow = *params->espNow;
 
   bool connected = false;
-  enum class PacketType : uint8_t { KeyEvent, BitMapEvent };
+  enum class PacketType : uint8_t { KeyEvent, BitMapEvent, PairRequest, COUNT };
 
   struct espKeyEvent {
     uint16_t keyIndex;
@@ -15,10 +15,15 @@ void TaskManager::slaveEspTask(void *arg) {
   };
 
   TickType_t previousWakeTime = xTaskGetTickCount();
+
   for (;;) {
     // If not connected, attempt to pair every 1.5 seconds
     if (!connected) {
-      espNow.sendPairRequest();
+      static uint8_t sequenceNumber =
+          0; // Currently unused but we need to send something anyways
+      espNow.sendData(static_cast<uint8_t>(PacketType::PairRequest),
+                      &sequenceNumber, sizeof(sequenceNumber));
+      sequenceNumber++;
       xTaskDelayUntil(&previousWakeTime, pdMS_TO_TICKS(1500));
 
       // If connected, process key events from the queue
