@@ -17,6 +17,7 @@ void TaskManager::slaveEspTask(void *arg)
   IEspNow &espNow = *params->espNow;
 
   EventRegistry::registerHandler(EventType::Key, keyEventRouteCallback);
+  EventRegistry::registerHandler(EventType::BitMap, keyEventRouteCallback);
 
   delete params;
 
