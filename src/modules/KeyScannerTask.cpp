@@ -42,7 +42,7 @@ void TaskManager::keyScannerTask(void *arg) {
     vTaskDelete(nullptr);
   }
 
-  localEventQueueReference = params->eventQueueHandle;
+  localEventQueueReference = params->eventBusHandle;
 
   // Get immutable local copy of config at task startup.
   // ConfigManager holds the live reference; this task operates only on its
@@ -97,7 +97,7 @@ void TaskManager::startKeyScanner() {
 
   KeyScannerParameters *keyParams = new KeyScannerParameters();
   keyParams->configManager = &configManager;
-  keyParams->eventQueueHandle = eventBusQueue;
+  keyParams->eventBusHandle = eventBusQueue;
   BaseType_t result = xTaskCreatePinnedToCore(
       keyScannerTask, "KeyScanner", STACK_KEYSCAN, keyParams, PRIORITY_KEYSCAN,
       &keyScannerHandle, CORE_KEYSCAN);
