@@ -29,7 +29,7 @@ void TaskManager::slaveEspTask(void *arg)
     connected = true;
   };
 
-  auto configReceiveCallback = [](const uint8_t *data, size_t length, const uint8_t senderMac[6])
+  auto configReceiveCallback = [](const uint8_t *data, size_t length, const uint8_t *senderMac)
   {
     // Todo: Handle config update packet
   };
