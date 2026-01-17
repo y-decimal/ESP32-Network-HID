@@ -81,3 +81,35 @@ void TaskManager::slaveEspTask(void *arg) {
     }
   }
 }
+
+void TaskManager::startSlaveEspTask(IEspNow &espNow) {
+
+  if (slaveEspHandle != nullptr)
+    return;
+
+  slaveEspParameters *params = new slaveEspParameters();
+  params->keyEventHandle = keyEventQueue;
+  params->espNow = &espNow;
+
+  BaseType_t result = xTaskCreatePinnedToCore(
+      slaveEspTask, "SlaveEspTask", STACK_SLAVEESP, params, PRIORITY_SLAVEESP,
+      &slaveEspHandle, CORE_SLAVEESP);
+
+  if (result != pdPASS) {
+    slaveEspHandle = nullptr;
+    delete params;
+  }
+}
+
+void TaskManager::stopSlaveEspTask() {
+  if (slaveEspHandle == nullptr)
+    return;
+  vTaskDelete(slaveEspHandle);
+  slaveEspHandle = nullptr;
+}
+
+void TaskManager::restartSlaveEspTask(IEspNow &espNow) {
+  if (slaveEspHandle != nullptr)
+    stopSlaveEspTask();
+  startSlaveEspTask(espNow);
+}

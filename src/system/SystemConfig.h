@@ -12,18 +12,18 @@ static constexpr BaseType_t CORE_TASKMANAGER = 0;
 static constexpr TickType_t PERIOD_TASKMANAGER = pdMS_TO_TICKS(500);
 
 // Priority Event Task Config
-static constexpr uint32_t STACK_PRIORITYEVENT = 4096;
-static constexpr UBaseType_t PRIORITY_PRIORITYEVENT = 5;
-static constexpr BaseType_t CORE_PRIORITYEVENT = 1;
-
-// Event Task Config
-static constexpr uint32_t STACK_EVENT = 4096;
-static constexpr UBaseType_t PRIORITY_EVENT = 1;
-static constexpr BaseType_t CORE_EVENT = 0;
+static constexpr uint32_t STACK_EVENTBUS = 4096;
+static constexpr UBaseType_t PRIORITY_EVENTBUS = 5;
+static constexpr BaseType_t CORE_EVENTBUS = 1;
 
 // KeyScanner Task Config
 static constexpr uint32_t STACK_KEYSCAN = 4096;
 static constexpr UBaseType_t PRIORITY_KEYSCAN = 5;
 static constexpr BaseType_t CORE_KEYSCAN = 1;
+
+// Slave ESP Task Config
+static constexpr uint32_t STACK_SLAVEESP = 4096;
+static constexpr UBaseType_t PRIORITY_SLAVEESP = 5;
+static constexpr BaseType_t CORE_SLAVEESP = 0;
 
 #endif
