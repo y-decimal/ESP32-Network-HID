@@ -23,6 +23,6 @@ enum class NodeID : uint8_t {
 
 enum class DeviceRole : uint8_t { Master, Keyboard, Count };
 
-enum class PacketType : uint8_t { KeyEvent, KeyBitmap, Config, Count };
+enum class PacketType : uint8_t { KeyEvent, KeyBitmap, Config, Pairing, Count };
 
 #endif

@@ -1,4 +1,5 @@
 #include <system/TaskManager.h>
+#include <shared/CommTypes.h>
 
 void TaskManager::slaveEspTask(void *arg) {
   EspParameters *params = static_cast<EspParameters *>(arg);
@@ -9,7 +10,7 @@ void TaskManager::slaveEspTask(void *arg) {
   delete params;
 
   bool connected = false;
-  enum class PacketType : uint8_t { KeyEvent, BitMapEvent, PairRequest, COUNT };
+
 
   struct espKeyEvent {
     uint16_t keyIndex;
@@ -29,9 +30,9 @@ void TaskManager::slaveEspTask(void *arg) {
   };
 
   espNow.registerPacketTypeCallback(
-      static_cast<uint8_t>(PacketType::PairRequest), pairReceiveCallback);
+      static_cast<uint8_t>(PacketType::Pairing), pairReceiveCallback);
 
-  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::COUNT),
+  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Config),
                                     configReceiveCallback);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
@@ -41,7 +42,7 @@ void TaskManager::slaveEspTask(void *arg) {
     if (!connected) {
       static uint8_t sequenceNumber =
           0; // Currently unused but we need to send something anyways
-      espNow.sendData(static_cast<uint8_t>(PacketType::PairRequest),
+      espNow.sendData(static_cast<uint8_t>(PacketType::Pairing),
                       &sequenceNumber, sizeof(sequenceNumber));
       sequenceNumber++;
       xTaskDelayUntil(&previousWakeTime, pdMS_TO_TICKS(1500));
@@ -71,7 +72,7 @@ void TaskManager::slaveEspTask(void *arg) {
           data[0] = event.bitMap.bitMapSize;
           memcpy(data + 1, event.bitMap.bitMapData, event.bitMap.bitMapSize);
 
-          espNow.sendData((uint8_t)PacketType::BitMapEvent, data, sizeof(data));
+          espNow.sendData((uint8_t)PacketType::KeyBitmap, data, sizeof(data));
         }
 
         // Clean up event resources
