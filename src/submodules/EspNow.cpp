@@ -97,9 +97,26 @@ void EspNow::routeCallback(const uint8_t *mac_addr, const uint8_t *data, int dat
     Header header = {};
     memcpy(&header, data, sizeof(header));
 
-    if (header.length != data_len - sizeof(header))
+    size_t totalPacketLength = data_len;
+    size_t headerLength = sizeof(header);
+    size_t dataLength = header.length;
+
+    printf("[EspNow] Received Packet: %d\n", header.packetType);
+
+    if (dataLength != totalPacketLength - headerLength)
+    {
+        printf("[EspNow] Invalid packet length: expected %d got %d \n", header.length, (data_len - sizeof(header)));
         return;
+    }
+
+    uint8_t buffer[dataLength] = {};
+    memcpy(buffer, data, dataLength);
 
     if (instance && instance->callbacks[header.packetType])
-        instance->callbacks[header.packetType](data, (size_t)data_len, mac_addr);
+    {
+        printf("[EspNow] Calling callback for type %d\n", header.packetType);
+        instance->callbacks[header.packetType](buffer, (size_t)dataLength, mac_addr);
+    }
+    else
+        printf("[EspNow] No instance or callback found\n");
 }
