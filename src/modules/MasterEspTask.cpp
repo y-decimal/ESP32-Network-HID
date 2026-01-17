@@ -28,6 +28,7 @@ void TaskManager::masterEspTask(void *arg)
     keyEvent.keyIndex = espKeyEvent.keyIndex;
     keyEvent.state = espKeyEvent.state;
     keyEvent.sourceMac = senderMac;
+    printf("Sending key event to event bus\n");
     xQueueSend(EventBusQueueReference, &keyEvent, pdMS_TO_TICKS(20));
   };
 
@@ -40,6 +41,7 @@ void TaskManager::masterEspTask(void *arg)
     bitmapEvent.bitMapData = airBitmapEvent.bitMapData;
     bitmapEvent.bitMapSize = airBitmapEvent.bitMapSize;
     bitmapEvent.sourceMac = senderMac;
+    printf("Sending bitmap event to event bus\n");
     xQueueSend(EventBusQueueReference, &bitmapEvent, pdMS_TO_TICKS(20));
   };
 
