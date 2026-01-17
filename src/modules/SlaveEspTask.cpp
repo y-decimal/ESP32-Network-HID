@@ -97,9 +97,10 @@ void TaskManager::slaveEspTask(void *arg)
         // Process BitMapEvent
         if (event.type == EventType::BitMap)
         {
-          uint8_t data[event.bitMap.bitMapSize + 1];
-          data[0] = event.bitMap.bitMapSize;
-          memcpy(data + 1, event.bitMap.bitMapData, event.bitMap.bitMapSize);
+          BitMapEvent bitMapEvent = event.bitMap;
+          uint8_t data[bitMapEvent.bitMapSize + 1] = {0};
+          data[0] = bitMapEvent.bitMapSize;
+          memcpy(data + 1, bitMapEvent.bitMapData, bitMapEvent.bitMapSize);
 
           espNow.sendData((uint8_t)PacketType::KeyBitmap, data, sizeof(data), masterMac);
           printf("Sent bitmap event to Mac %d %d %d %d %d %d\n", masterMac[0], masterMac[1], masterMac[2],
