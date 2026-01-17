@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <WiFi.h>
 #include <submodules/ConfigManager/ConfigManager.h>
 #include <submodules/Storage/PreferencesStorage.h>
 #include <system/TaskManager.h>
@@ -7,16 +8,19 @@
 
 #include <interfaces/IEspNow.h>
 #include <submodules/Esp32Gpio.h>
+#include <submodules/EspNow.h>
 
 Esp32Gpio espGpio;
-EspNowManager espNow; // Todo: implements IEspNow
+EspNow espNow; // Todo: implements IEspNow
 
 PreferencesStorage prefStorage(CONFIG_MANAGER_NAMESPACE);
 ConfigManager mainCfg(prefStorage);
 TaskManager taskManager(mainCfg, espGpio, espNow); // Move outside setup()
 
-void keyPrintCallback(const Event &event) {
-  if (event.type != EventType::Key) {
+void keyPrintCallback(const Event &event)
+{
+  if (event.type != EventType::Key)
+  {
     printf("Received wrong event type\n");
     return;
   }
@@ -26,9 +30,11 @@ void keyPrintCallback(const Event &event) {
   printf("Key event: Key %d %s\n", keyIndex, state ? "pressed" : "released");
 }
 
-void simulateConfig() {
+void simulateConfig()
+{
 
-  if (mainCfg.loadConfig()) {
+  if (mainCfg.loadConfig())
+  {
     printf("Config loaded from flash\n");
     return;
   }
@@ -67,11 +73,14 @@ void simulateConfig() {
     printf("Saving config failed\n");
 }
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   delay(3000);
   printf("initializing...\n");
   simulateConfig();
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
   EventRegistry::registerHandler(EventType::Key, keyPrintCallback);
   KeyScannerConfig kCfg = mainCfg.getConfig<KeyScannerConfig>();
   printf("KeyScanner Config: %d rows, %d cols, refresh %d ms, bitmap interval "
