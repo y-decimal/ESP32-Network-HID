@@ -48,5 +48,7 @@ void TaskManager::masterEspTask(void *arg) {
   TickType_t previousWakeTime = xTaskGetTickCount();
 
   for (;;) {
+    // Todo: Implement config updates here
+    vPortYield();
   }
 }
