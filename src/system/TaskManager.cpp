@@ -23,4 +23,5 @@ void TaskManager::initializeTasks() {
   startEventBus();
   startKeyScanner(gpio);
   startSlaveEspTask(espNow);
+  startMasterEspTask(espNow);
 }

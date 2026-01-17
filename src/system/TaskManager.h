@@ -68,6 +68,7 @@ private:
   static void keyScannerTask(void *arg);
   static void eventBusTask(void *arg);
   static void slaveEspTask(void *arg);
+  static void masterEspTask(void *arg);
   static void taskManagerTask(void *arg); // the supervisor loop
 
   // === Lifecycle helpers ===
@@ -82,6 +83,10 @@ private:
   void startSlaveEspTask(IEspNow &espNow);
   void stopSlaveEspTask();
   void restartSlaveEspTask(IEspNow &espNow);
+
+  void startMasterEspTask(IEspNow &espNow);
+  void stopMasterEspTask();
+  void restartMasterEspTask(IEspNow &espNow);
 
   // === Internal helpers ===
   void initializeTasks();    // initializes tasks depending on the role
@@ -108,6 +113,7 @@ private:
   TaskHandle_t keyScannerHandle = nullptr;
   TaskHandle_t eventBusHandle = nullptr;
   TaskHandle_t slaveEspHandle = nullptr;
+  TaskHandle_t masterEspHandle = nullptr;
 };
 
 #endif
