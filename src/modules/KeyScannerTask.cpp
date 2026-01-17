@@ -97,7 +97,7 @@ void TaskManager::startKeyScanner() {
 
   KeyScannerParameters *keyParams = new KeyScannerParameters();
   keyParams->configManager = &configManager;
-  keyParams->eventQueueHandle = highPrioEventQueue;
+  keyParams->eventQueueHandle = eventBusQueue;
   BaseType_t result = xTaskCreatePinnedToCore(
       keyScannerTask, "KeyScanner", STACK_KEYSCAN, keyParams, PRIORITY_KEYSCAN,
       &keyScannerHandle, CORE_KEYSCAN);

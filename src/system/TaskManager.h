@@ -64,7 +64,8 @@ public:
 private:
   // === Internal task entry points ===
   static void keyScannerTask(void *arg);
-  static void priorityEventTask(void *arg);
+  static void eventBusTask(void *arg);
+  static void slaveEspTask(void *arg);
   static void taskManagerTask(void *arg); // the supervisor loop
 
   // === Lifecycle helpers ===
@@ -72,9 +73,13 @@ private:
   void stopKeyScanner();
   void restartKeyScanner();
 
-  void startPriorityEventHandler();
-  void stopPriorityEventHandler();
-  void restartPriorityEventHandler();
+  void startEventBus();
+  void stopEventBus();
+  void restartEventBus();
+
+  void startSlaveEspTask();
+  void stopSlaveEspTask();
+  void restartSlaveEspTask();
 
   // === Internal helpers ===
   void initializeTasks();    // initializes tasks depending on the role
@@ -84,8 +89,8 @@ private:
                           // logic.
 
   // === State ===
-  QueueHandle_t highPrioEventQueue = nullptr;
-  QueueHandle_t lowPrioEventQueue = nullptr;
+  QueueHandle_t eventBusQueue = nullptr;
+  QueueHandle_t keyEventQueue = nullptr;
 
   // NOTE: This reference may be accessed from multiple FreeRTOS tasks.
   // It is required that either:
@@ -96,8 +101,8 @@ private:
   ConfigManager &configManager;
 
   TaskHandle_t keyScannerHandle = nullptr;
-  TaskHandle_t priorityEventHandle = nullptr;
-  TaskHandle_t eventHandle = nullptr;
+  TaskHandle_t eventBusHandle = nullptr;
+  TaskHandle_t slaveEspHandle = nullptr;
 };
 
 #endif
