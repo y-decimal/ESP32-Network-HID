@@ -41,7 +41,7 @@ void TaskManager::slaveEspTask(void *arg)
     // Todo: Handle config update packet
   };
 
-  bool successPairing = espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Pairing), pairReceiveCallback);
+  bool successPairing = espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::PairingConfirmation), pairReceiveCallback);
 
   bool successConfig = espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Config), configReceiveCallback);
 
@@ -56,7 +56,7 @@ void TaskManager::slaveEspTask(void *arg)
     // If not connected, attempt to pair every 1.5 seconds
     if (!connected)
     {
-      bool sendSuccess = espNow.sendData(static_cast<uint8_t>(PacketType::Pairing),
+      bool sendSuccess = espNow.sendData(static_cast<uint8_t>(PacketType::PairingRequest),
                                          &sequenceNumber,
                                          sizeof(sequenceNumber),
                                          broadcastMac);
