@@ -56,7 +56,6 @@ void TaskManager::slaveEspTask(void *arg)
     // If not connected, attempt to pair every 1.5 seconds
     if (!connected)
     {
-      uint8_t broadcastMac[6] = {255, 255, 255, 255, 255};
       bool sendSuccess = espNow.sendData(static_cast<uint8_t>(PacketType::Pairing),
                                          &sequenceNumber,
                                          sizeof(sequenceNumber),
