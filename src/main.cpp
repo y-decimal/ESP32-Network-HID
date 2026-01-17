@@ -46,8 +46,10 @@ void simulateConfig()
   DeviceRole roles[1] = {DeviceRole::Keyboard};
   gCfg.setRoles(roles, 1);
 
-  MacAddress mac = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
-  gCfg.setMac(mac);
+  uint8_t mac[6];
+  esp_efuse_mac_get_default(mac);
+  MacAddress deviceMac = {mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]};
+  gCfg.setMac(deviceMac);
 
   mainCfg.setConfig(gCfg);
 
@@ -78,9 +80,9 @@ void setup()
   Serial.begin(115200);
   delay(3000);
   printf("initializing...\n");
-  simulateConfig();
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
+  simulateConfig();
   EventRegistry::registerHandler(EventType::Key, keyPrintCallback);
   KeyScannerConfig kCfg = mainCfg.getConfig<KeyScannerConfig>();
   printf("KeyScanner Config: %d rows, %d cols, refresh %d ms, bitmap interval "
