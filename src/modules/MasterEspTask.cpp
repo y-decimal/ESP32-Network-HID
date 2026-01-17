@@ -23,7 +23,7 @@ void TaskManager::masterEspTask(void *arg)
 
   auto keyReceiveCallback = [EventBusQueueReference](const uint8_t *data, size_t length, const uint8_t *senderMac)
   {
-    AirKeyEvent espKeyEvent;
+    AirKeyEvent espKeyEvent = {};
     memcpy(&espKeyEvent, data, length);
 
     KeyEvent keyEvent;
