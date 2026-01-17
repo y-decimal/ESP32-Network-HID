@@ -21,8 +21,8 @@ void TaskManager::startEventBus() {
     return;
 
   BaseType_t result = xTaskCreatePinnedToCore(
-      eventBusTask, "PriorityEventHandler", STACK_PRIORITYEVENT, eventBusQueue,
-      PRIORITY_PRIORITYEVENT, &eventBusHandle, CORE_PRIORITYEVENT);
+      eventBusTask, "PriorityEventHandler", STACK_EVENTBUS, eventBusQueue,
+      PRIORITY_EVENTBUS, &eventBusHandle, CORE_EVENTBUS);
 
   if (result != pdPASS) {
     eventBusHandle = nullptr;
