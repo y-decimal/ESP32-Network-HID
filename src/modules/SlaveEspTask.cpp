@@ -37,12 +37,17 @@ void TaskManager::slaveEspTask(void *arg)
     if (!connected)
     {
       uint8_t broadcastMac[6] = {255, 255, 255, 255, 255};
-      espNow.sendData(static_cast<uint8_t>(PacketType::Pairing), &sequenceNumber, sizeof(sequenceNumber), broadcastMac);
+      bool sendSuccess = espNow.sendData(static_cast<uint8_t>(PacketType::Pairing),
+                                         &sequenceNumber,
+                                         sizeof(sequenceNumber),
+                                         broadcastMac);
+      printf("Sent pairing request %d: %s\n", sequenceNumber, sendSuccess ? "success" : "fail");
       sequenceNumber++;
-      xTaskDelayUntil(&previousWakeTime, pdMS_TO_TICKS(1500));
-
-      // If connected, process key events from the queue
+      if (sequenceNumber == 255)
+        sequenceNumber = 0;
+      xTaskDelayUntil(&previousWakeTime, pdMS_TO_TICKS(3500));
     }
+    // If connected, process key events from the queue
     else
     {
 
