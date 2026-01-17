@@ -122,11 +122,11 @@ bool EspNow::registerCommPartner(const uint8_t *mac)
     if (addPeerSuccess != ESP_OK)
     {
         if (loggingEnabled)
-            printf("[EspNow] Failed to add peer\n");
+            printf("[EspNow] Failed to add peer: %d\n", addPeerSuccess);
         return false;
     }
     if (loggingEnabled)
-        printf("[EspNow] Registered peer successfully\n");
+        printf("[EspNow] Registered peer successfully on channel %d\n", peerInfo.channel);
     return true;
 }
 
@@ -173,13 +173,11 @@ void EspNow::routeCallback(const uint8_t *mac_addr, const uint8_t *data, int dat
     if (instance->callbacks[header.packetType])
     {
         if (instance->loggingEnabled)
-        {
             printf("[EspNow] Routing to callback for packet type %d\n", header.packetType);
-            instance->callbacks[header.packetType](buffer, (size_t)dataLength, mac_addr);
-        }
+        instance->callbacks[header.packetType](buffer, (size_t)dataLength, mac_addr);
     }
     else if (instance->loggingEnabled)
-        printf("[EspNow] No instance or callback found\n");
+        printf("[EspNow] No callback found for packet type %d\n", header.packetType);
 }
 
 void EspNow::espNowSendCallback(const uint8_t *mac_addr, esp_now_send_status_t status)
