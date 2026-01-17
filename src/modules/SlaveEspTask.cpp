@@ -83,7 +83,8 @@ void TaskManager::slaveEspTask(void *arg)
         // Process KeyEvent
         if (event.type == EventType::Key)
         {
-          AirKeyEvent evt = {event.key.keyIndex, event.key.state};
+          KeyEvent keyEvent = event.key;
+          AirKeyEvent evt = {keyEvent.keyIndex, keyEvent.state};
 
           uint8_t data[sizeof(AirKeyEvent)] = {};
           memcpy(data, &evt, sizeof(AirKeyEvent));
