@@ -27,6 +27,7 @@ void TaskManager::slaveEspTask(void *arg)
   {
     memcpy(masterMac, senderMac, 6);
     connected = true;
+    printf("Received master MAC\n");
   };
 
   auto configReceiveCallback = [](const uint8_t *data, size_t length, const uint8_t *senderMac)
@@ -77,6 +78,7 @@ void TaskManager::slaveEspTask(void *arg)
           memcpy(data, &evt, sizeof(AirKeyEvent));
 
           espNow.sendData((uint8_t)PacketType::KeyEvent, data, sizeof(data), masterMac);
+          printf("Sent key event\n");
         }
 
         // Process BitMapEvent
@@ -87,6 +89,7 @@ void TaskManager::slaveEspTask(void *arg)
           memcpy(data + 1, event.bitMap.bitMapData, event.bitMap.bitMapSize);
 
           espNow.sendData((uint8_t)PacketType::KeyBitmap, data, sizeof(data), masterMac);
+          printf("Sent bitmap event\n");
         }
 
         // Clean up event resources
