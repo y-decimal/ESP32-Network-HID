@@ -30,6 +30,22 @@ void keyPrintCallback(const Event &event)
   printf("Key event: Key %d %s\n", keyIndex, state ? "pressed" : "released");
 }
 
+void bitMapPrintCallback(const Event &event)
+{
+  if (event.type != EventType::BitMap)
+  {
+    printf("Received wrong event type\n");
+    return;
+  }
+  BitMapEvent bitMapEvent = event.bitMap;
+  printf("Bitmap event: Size %d Data:", bitMapEvent.bitMapSize);
+  for (size_t i = 0; i < bitMapEvent.bitMapSize; i++)
+  {
+    printf(" %02x", bitMapEvent.bitMapData[i]);
+  }
+  printf("\n");
+}
+
 void simulateConfig()
 {
 
@@ -80,15 +96,21 @@ void setup()
   Serial.begin(115200);
   delay(3000);
   printf("initializing...\n");
+
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
+
   simulateConfig();
+
   EventRegistry::registerHandler(EventType::Key, keyPrintCallback);
+  EventRegistry::registerHandler(EventType::BitMap, bitMapPrintCallback);
+  
   KeyScannerConfig kCfg = mainCfg.getConfig<KeyScannerConfig>();
   printf("KeyScanner Config: %d rows, %d cols, refresh %d ms, bitmap interval "
          "%d ms\n",
          kCfg.getRowsCount(), kCfg.getColCount(), kCfg.getRefreshRate(),
          kCfg.getBitMapSendInterval());
+
   GlobalConfig gCfg = mainCfg.getConfig<GlobalConfig>();
   DeviceRole roles[static_cast<size_t>(DeviceRole::Count)] = {DeviceRole::Count};
   gCfg.getRoles(roles, static_cast<size_t>(DeviceRole::Count));
@@ -98,7 +120,9 @@ void setup()
   printf("Device MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
          mac[0], mac[1], mac[2],
          mac[3], mac[4], mac[5]);
+
   taskManager.start();
+  
   printf("setup done\n");
 }
 
