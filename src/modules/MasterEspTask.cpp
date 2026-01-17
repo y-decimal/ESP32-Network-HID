@@ -65,8 +65,14 @@ void TaskManager::masterEspTask(void *arg)
     bitmapEvent.bitMapSize = bitMapSize;
     bitmapEvent.bitMapData = bitMapData;
     bitmapEvent.sourceMac = senderMac;
-    printf("Sending bitmap event to event bus\n");
-    xQueueSend(EventBusQueueReference, &bitmapEvent, pdMS_TO_TICKS(20));
+
+    Event event = {};
+    event.type = EventType::BitMap;
+    event.bitMap = bitmapEvent;
+    event.cleanup = cleanupBitmapEvent;
+
+    printf("Sending bitmap event to event bus (size: %d)\n", bitMapSize);
+    xQueueSend(EventBusQueueReference, &event, pdMS_TO_TICKS(20));
   };
 
   espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyEvent), keyReceiveCallback);
