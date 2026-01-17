@@ -30,8 +30,14 @@ void TaskManager::masterEspTask(void *arg)
     keyEvent.keyIndex = espKeyEvent.keyIndex;
     keyEvent.state = espKeyEvent.state;
     keyEvent.sourceMac = senderMac;
-    printf("Sending key event to event bus\n");
-    xQueueSend(EventBusQueueReference, &keyEvent, pdMS_TO_TICKS(20));
+
+    Event event = {};
+    event.type = EventType::Key;
+    event.key = keyEvent;
+    event.cleanup = cleanupKeyEvent;
+
+    printf("Sending key event to event bus: key %d %s\n", keyEvent.keyIndex, keyEvent.state ? "pressed" : "released");
+    xQueueSend(EventBusQueueReference, &event, pdMS_TO_TICKS(20));
   };
 
   auto bitmapReceiveCallback = [EventBusQueueReference](const uint8_t *data, size_t length, const uint8_t *senderMac)
