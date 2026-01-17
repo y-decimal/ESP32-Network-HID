@@ -47,6 +47,7 @@ void TaskManager::masterEspTask(void *arg)
 
   espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyEvent), keyReceiveCallback);
   espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyBitmap), bitmapReceiveCallback);
+  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Pairing), pairReceiveCallback);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
 
