@@ -15,12 +15,15 @@ public:
 
 private:
     receiveCallback callbacks[UINT8_MAX];
+    bool initialized = false;
 
     struct Header
     {
         uint8_t packetType;
         size_t length;
     };
+
+    bool initialize();
 
     void registerEspNowReceiveCallback();
     bool registerCommPartner(uint8_t *mac);

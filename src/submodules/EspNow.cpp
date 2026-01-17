@@ -2,6 +2,10 @@
 
 bool EspNow::sendData(uint8_t packetType, uint8_t *data, size_t length, uint8_t targetMac[6])
 {
+    if (!initialized)
+        if (!initialize())
+            return false;
+
     if (!isMacRegistered(targetMac))
         if (!registerCommPartner(targetMac))
             return false;
@@ -22,6 +26,10 @@ bool EspNow::sendData(uint8_t packetType, uint8_t *data, size_t length, uint8_t 
 
 bool EspNow::registerPacketTypeCallback(uint8_t packetType, receiveCallback callback)
 {
+    if (!initialized)
+        if (!initialize())
+            return false;
+
     if (callbacks[packetType])
         return false;
     callbacks[packetType] = callback;
