@@ -23,8 +23,16 @@ void TaskManager::slaveEspTask(void *arg) {
     // push to event bus
   };
 
+  auto configReceiveCallback = [](uint8_t *data, size_t length,
+                                  uint8_t senderMac[6]) {
+    // Todo: Handle config update packet
+  };
+
   espNow.registerPacketTypeCallback(
       static_cast<uint8_t>(PacketType::PairRequest), pairReceiveCallback);
+
+  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::COUNT),
+                                    configReceiveCallback);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
 
