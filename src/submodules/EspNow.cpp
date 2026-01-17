@@ -168,7 +168,7 @@ void EspNow::routeCallback(const uint8_t *mac_addr, const uint8_t *data, int dat
     }
 
     uint8_t buffer[dataLength] = {};
-    memcpy(buffer, data, dataLength);
+    memcpy(buffer, data + sizeof(header), dataLength);
 
     if (instance->callbacks[header.packetType])
     {
