@@ -10,7 +10,7 @@ void bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_t senderId);
 
 void TaskManager::masterEspTask(void *arg)
 {
-  MasterEspParameters *params = static_cast<MasterEspParameters *>(arg);
+  MasterSlaveParameters *params = static_cast<MasterSlaveParameters *>(arg);
 
   eventBusQueueReference = params->eventBusQueue;
   protocol = new EspNowProtocol(*params->espNow);
@@ -35,7 +35,7 @@ void TaskManager::startMasterEspTask(IEspNow &espNow)
   if (masterEspHandle != nullptr)
     return;
 
-  MasterEspParameters *params = new MasterEspParameters();
+  MasterSlaveParameters *params = new MasterSlaveParameters();
   params->eventBusQueue = eventBusQueue;
   params->espNow = &espNow;
 
@@ -62,7 +62,7 @@ void TaskManager::stopMasterEspTask()
 
   delete protocol;
   delete eventBusQueueReference;
-  
+
   vTaskDelete(masterEspHandle);
   masterEspHandle = nullptr;
 }
