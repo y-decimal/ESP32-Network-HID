@@ -25,7 +25,7 @@ class TransportProtocol
 public:
     static const uint8_t MASTER_ID = 0;
 
-    TransportProtocol(ITransport &espNow) : transport(espNow) {peerDevices.push_back({});}
+    TransportProtocol(ITransport &espNow);
 
     void sendKeyEvent(const RawKeyEvent &keyEvent);
     void sendBitmapEvent(const RawBitmapEvent &bitmapEvent);
@@ -72,6 +72,9 @@ private:
     std::function<void(ConfigManager &config, uint8_t senderId)> configCallback;
     std::function<void(const uint8_t *, uint8_t)> pairingRequestCallback;
     std::function<void(const uint8_t *, uint8_t)> pairingConfirmationCallback;
+
+    void handlePairingRequest(const uint8_t *data, size_t dataLen, const uint8_t *mac);
+    void handlePairingConfirmation(const uint8_t *data, size_t dataLen, const uint8_t *mac);
 };
 
 #endif
