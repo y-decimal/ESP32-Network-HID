@@ -52,6 +52,8 @@ void TaskManager::startMasterEspTask(IEspNow &espNow)
   {
     masterEspHandle = nullptr;
     delete params;
+    delete protocol;
+    delete eventBusQueueReference;
   }
 }
 
