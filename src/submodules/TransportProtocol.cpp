@@ -64,7 +64,7 @@ void TransportProtocol::pushConfig(uint8_t id, const ConfigManager *config)
     free(buffer);
 }
 
-void TransportProtocol::sendPairingRequest(const uint8_t *data = nullptr, size_t dataLen = 0)
+void TransportProtocol::sendPairingRequest(const uint8_t *data, size_t dataLen)
 {
     uint8_t *pairingPacket;
     size_t len = dataLen;
