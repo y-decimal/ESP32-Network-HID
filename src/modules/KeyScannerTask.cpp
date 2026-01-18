@@ -7,27 +7,26 @@ static QueueHandle_t localEventQueueReference = nullptr;
 
 void keyEventCallback(uint16_t keyIndex, bool state)
 {
-  KeyEvent keyEvent{keyIndex, state, nullptr};
+  RawKeyEvent rKeyEvent{keyIndex, state};
   Event event{};
   event.type = EventType::Key;
-  event.key = keyEvent;
-  event.cleanup = cleanupKeyEvent;
+  event.rawKeyEvt = rKeyEvent;
+  event.cleanup = cleanupRawKeyEvent;
   if (xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
     printf("[KeyScanner]: Could not push key event to queue\n");
 }
 
 void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap)
 {
-  BitMapEvent bitMapEvent{};
-  bitMapEvent.sourceMac = nullptr;
-  bitMapEvent.bitMapSize = bitMapSize;
-  bitMapEvent.bitMapData = static_cast<uint8_t *>(malloc(bitMapSize));
-  memcpy(bitMapEvent.bitMapData, bitMap, bitMapSize);
+  RawBitmapEvent rBitmapEvent{};
+  rBitmapEvent.bitMapSize = bitMapSize;
+  rBitmapEvent.bitMapData = static_cast<uint8_t *>(malloc(bitMapSize));
+  memcpy(rBitmapEvent.bitMapData, bitMap, bitMapSize);
 
   Event event{};
   event.type = EventType::BitMap;
-  event.bitMap = bitMapEvent;
-  event.cleanup = cleanupBitmapEvent;
+  event.rawBitmapEvt = rBitmapEvent;
+  event.cleanup = cleanupRawBitmapEvent;
 
   if (xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
     printf("[KeyScanner]: Could not push bitmap event to queue\n");
