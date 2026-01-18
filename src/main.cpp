@@ -19,12 +19,18 @@ TaskManager taskManager(mainCfg, espGpio, espNow); // Move outside setup()
 
 void keyPrintCallback(const Event &event)
 {
-  if (event.type != EventType::RawKey)
+  if (event.type != EventType::RawKey || event.type != EventType::IdKey)
   {
     printf("Received wrong event type\n");
     return;
   }
-  RawKeyEvent keyEvent = event.rawKeyEvt;
+
+  RawKeyEvent keyEvent;
+  if (event.type == EventType::IdKey)
+    keyEvent = event.idKeyEvt.raw;
+  else
+    keyEvent = event.rawKeyEvt;
+
   uint8_t keyIndex = keyEvent.keyIndex;
   bool state = keyEvent.state;
   printf("Key event: Key %d %s\n", keyIndex, state ? "pressed" : "released");
@@ -32,7 +38,7 @@ void keyPrintCallback(const Event &event)
 
 void bitMapPrintCallback(const Event &event)
 {
-  if (event.type != EventType::RawBitmap)
+  if (event.type != EventType::RawBitmap || event.type != EventType::IdBitmap)
   {
     printf("Received wrong event type\n");
     return;
@@ -40,7 +46,11 @@ void bitMapPrintCallback(const Event &event)
 
   static std::vector<uint8_t> lastBitmap = {0};
 
-  RawBitmapEvent bitMapEvent = event.rawBitmapEvt;
+  RawBitmapEvent bitMapEvent;
+  if (event.type == EventType::IdBitmap)
+    bitMapEvent = event.idBitmapEvt.raw;
+  else
+    bitMapEvent = event.rawBitmapEvt;
 
   if (memcmp(lastBitmap.data(), bitMapEvent.bitMapData, bitMapEvent.bitMapSize) != 0)
   {
