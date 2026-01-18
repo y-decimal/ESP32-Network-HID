@@ -51,7 +51,7 @@ void TaskManager::slaveEspTask(void *arg)
 
   for (;;)
   {
-    // If not connected, attempt to pair every 1.5 seconds
+    // If not connected, attempt to pair every X seconds
     if (!connected)
     {
       bool sendSuccess = espNow.sendData(static_cast<uint8_t>(PacketType::PairingRequest),
