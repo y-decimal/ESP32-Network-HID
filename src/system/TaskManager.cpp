@@ -9,7 +9,7 @@ void TaskManager::start()
   // Create queues and ensure they exist
   eventBusQueue = xQueueCreate(32, sizeof(Event));
   configASSERT(eventBusQueue != NULL);
-  keyEventQueue = xQueueCreate(32, sizeof(KeyEvent) + sizeof(BitMapEvent));
+  keyEventQueue = xQueueCreate(32, sizeof(Event));
   configASSERT(keyEventQueue != NULL);
 
   BaseType_t taskCreated = xTaskCreatePinnedToCore(
