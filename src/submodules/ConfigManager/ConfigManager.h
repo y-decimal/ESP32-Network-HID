@@ -5,6 +5,7 @@
 #include <submodules/ConfigManager/GlobalConfig.h>
 #include <submodules/ConfigManager/KeyScannerConfig.h>
 #include <submodules/Storage/TGenericStorage.h>
+#include <submodules/Storage/NullStorage.h>
 
 // Storage keys for configuration manager (max 15 chars for ESP32 Preferences)
 #define CONFIG_MANAGER_NAMESPACE "CfgMgr"
@@ -19,10 +20,11 @@
  * KeyScannerConfig. It utilizes a thread-safe generic storage mechanism to
  * ensure safe access to configuration data.
  */
-class ConfigManager {
+class ConfigManager
+{
 private:
   // Reference to the storage interface
-  IStorage &storage;
+  IStorage *storage;
 
   // Thread-safe storage for different configuration types
   ThreadSafeGenericStorage<GlobalConfig::SerializedConfig> globalCfg{
@@ -35,19 +37,21 @@ public:
    * @brief Constructor for ConfigManager.
    * @param storage Reference to an IStorage implementation for data operations.
    */
-  ConfigManager(IStorage &storage) : storage(storage) {}
+  ConfigManager(IStorage *storageBackend = nullptr);
 
   /**
    * @brief Retrieve the configuration of type T.
    * @return The configuration object of type T.
    */
-  template <typename T> T getConfig() const;
+  template <typename T>
+  T getConfig() const;
 
   /**
    * @brief Set the configuration of type T.
    * @param cfg The configuration object to set.
    */
-  template <typename T> void setConfig(const T &cfg);
+  template <typename T>
+  void setConfig(const T &cfg);
 
   /**
    * @brief Save all configurations to storage.
@@ -68,11 +72,14 @@ public:
  * @brief Retrieve the GlobalConfig configuration.
  * @return The GlobalConfig object.
  */
-template <> inline GlobalConfig ConfigManager::getConfig<GlobalConfig>() const {
+template <>
+inline GlobalConfig ConfigManager::getConfig<GlobalConfig>() const
+{
   GlobalConfig::SerializedConfig serialized = globalCfg.get();
   GlobalConfig config; // Create with defaults
   // Only unpack if we have valid data (size > 0)
-  if (serialized.size > 0) {
+  if (serialized.size > 0)
+  {
     config.unpackSerialized(serialized.data, serialized.size);
   }
   return config;
@@ -83,11 +90,13 @@ template <> inline GlobalConfig ConfigManager::getConfig<GlobalConfig>() const {
  * @return The KeyScannerConfig object.
  */
 template <>
-inline KeyScannerConfig ConfigManager::getConfig<KeyScannerConfig>() const {
+inline KeyScannerConfig ConfigManager::getConfig<KeyScannerConfig>() const
+{
   KeyScannerConfig::SerializedConfig serialized = keyScannerCfg.get();
   KeyScannerConfig config; // Create with defaults
   // Only unpack if we have valid data (size > 0)
-  if (serialized.size > 0) {
+  if (serialized.size > 0)
+  {
     config.unpackSerialized(serialized.data, serialized.size);
   }
   return config;
@@ -98,11 +107,13 @@ inline KeyScannerConfig ConfigManager::getConfig<KeyScannerConfig>() const {
  * @param cfg The GlobalConfig object to set.
  */
 template <>
-inline void ConfigManager::setConfig<GlobalConfig>(const GlobalConfig &cfg) {
+inline void ConfigManager::setConfig<GlobalConfig>(const GlobalConfig &cfg)
+{
   GlobalConfig::SerializedConfig serialized;
   serialized.size =
       cfg.packSerialized(serialized.data, sizeof(serialized.data));
-  if (serialized.size == 0) {
+  if (serialized.size == 0)
+  {
     printf("ERROR: Failed to serialize GlobalConfig\n");
     return;
   }
@@ -115,11 +126,13 @@ inline void ConfigManager::setConfig<GlobalConfig>(const GlobalConfig &cfg) {
  */
 template <>
 inline void
-ConfigManager::setConfig<KeyScannerConfig>(const KeyScannerConfig &cfg) {
+ConfigManager::setConfig<KeyScannerConfig>(const KeyScannerConfig &cfg)
+{
   KeyScannerConfig::SerializedConfig serialized;
   serialized.size =
       cfg.packSerialized(serialized.data, sizeof(serialized.data));
-  if (serialized.size == 0) {
+  if (serialized.size == 0)
+  {
     printf("ERROR: Failed to serialize KeyScannerConfig\n");
     return;
   }

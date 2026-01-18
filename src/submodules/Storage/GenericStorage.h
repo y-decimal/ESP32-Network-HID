@@ -27,7 +27,7 @@ private:
   bool dirty = false;
 
   // Reference to the storage interface for hardware independent operations
-  IStorage &storage;
+  IStorage *storage;
   const std::string key;
 
 public:
@@ -36,7 +36,7 @@ public:
    * @param storage Reference to an IStorage implementation for data operations.
    * @param key The key under which the data will be stored.
    */
-  GenericStorage(IStorage &storage, const char *key)
+  GenericStorage(IStorage *storage, const char *key)
       : storage(storage), key(key) {}
 
   /**

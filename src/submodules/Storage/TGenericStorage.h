@@ -26,7 +26,7 @@ public:
    * @param storage Reference to an IStorage implementation for data operations.
    * @param key The key under which the data will be stored.
    */
-  ThreadSafeGenericStorage(IStorage &storage, const char *key)
+  ThreadSafeGenericStorage(IStorage *storage, const char *key)
       : genericStorage(storage, key) {}
 
   // Prevent copying
