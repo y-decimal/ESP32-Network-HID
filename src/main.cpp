@@ -37,13 +37,21 @@ void bitMapPrintCallback(const Event &event)
     printf("Received wrong event type\n");
     return;
   }
+
+  static std::vector<uint8_t> lastBitmap = {0};
+
   BitMapEvent bitMapEvent = event.bitMap;
-  printf("Bitmap event: Size %d Data:", bitMapEvent.bitMapSize);
-  for (size_t i = 0; i < bitMapEvent.bitMapSize; i++)
+
+  if (memcmp(lastBitmap.data(), bitMapEvent.bitMapData, bitMapEvent.bitMapSize) != 0)
   {
-    printf(" %02x", bitMapEvent.bitMapData[i]);
+    printf("Bitmap change: Size %d Data:", bitMapEvent.bitMapSize);
+    for (size_t i = 0; i < bitMapEvent.bitMapSize; i++)
+    {
+      printf(" %02x", bitMapEvent.bitMapData[i]);
+    }
+    printf("\n");
+    lastBitmap.assign(bitMapEvent.bitMapData, bitMapEvent.bitMapData + bitMapEvent.bitMapSize);
   }
-  printf("\n");
 }
 
 void simulateConfig()
@@ -104,7 +112,7 @@ void setup()
 
   EventRegistry::registerHandler(EventType::Key, keyPrintCallback);
   EventRegistry::registerHandler(EventType::BitMap, bitMapPrintCallback);
-  
+
   KeyScannerConfig kCfg = mainCfg.getConfig<KeyScannerConfig>();
   printf("KeyScanner Config: %d rows, %d cols, refresh %d ms, bitmap interval "
          "%d ms\n",
@@ -122,7 +130,7 @@ void setup()
          mac[3], mac[4], mac[5]);
 
   taskManager.start();
-  
+
   printf("setup done\n");
 }
 
