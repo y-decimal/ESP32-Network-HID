@@ -93,7 +93,7 @@ void TaskManager::slaveEspTask(void *arg)
         if (event.type == EventType::BitMap)
         {
           BitMapEvent bitMapEvent = event.bitMap;
-          uint8_t data[bitMapEvent.bitMapSize + 1] = {0};
+          uint8_t data[bitMapEvent.bitMapSize + 1] = {0}; // Consider using dynamic allocation instead of VLA
           data[0] = bitMapEvent.bitMapSize;
           memcpy(data + 1, bitMapEvent.bitMapData, bitMapEvent.bitMapSize);
 
