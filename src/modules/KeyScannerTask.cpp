@@ -3,7 +3,7 @@
 #include <submodules/KeyScanner.h>
 #include <system/TaskManager.h>
 
-static QueueHandle_t localEventQueueReference = nullptr;
+static QueueHandle_t eventBusReference = nullptr;
 
 void keyEventCallback(uint16_t keyIndex, bool state)
 {
@@ -12,7 +12,7 @@ void keyEventCallback(uint16_t keyIndex, bool state)
   event.type = EventType::RawKey;
   event.rawKeyEvt = rKeyEvent;
   event.cleanup = cleanupRawKeyEvent;
-  if (xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
+  if (xQueueSend(eventBusReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
     printf("[KeyScanner]: Could not push key event to queue\n");
 }
 
@@ -28,7 +28,7 @@ void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap)
   event.rawBitmapEvt = rBitmapEvent;
   event.cleanup = cleanupRawBitmapEvent;
 
-  if (xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
+  if (xQueueSend(eventBusReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
     printf("[KeyScanner]: Could not push bitmap event to queue\n");
 }
 
@@ -47,7 +47,7 @@ void TaskManager::keyScannerTask(void *arg)
     vTaskDelete(nullptr);
   }
 
-  localEventQueueReference = params->eventBusQueue;
+  eventBusReference = params->eventBusQueue;
 
   // Get immutable local copy of config at task startup.
   // ConfigManager holds the live reference; this task operates only on its
@@ -122,6 +122,7 @@ void TaskManager::stopKeyScanner()
 {
   if (keyScannerHandle == nullptr)
     return;
+  eventBusReference = nullptr;
   vTaskDelete(keyScannerHandle);
   keyScannerHandle = nullptr;
 }
