@@ -2,9 +2,9 @@
 #define TEST_FAKE_ESPNOW_H
 
 #include <functional>
-#include <interfaces/IEspNow.h>
+#include <interfaces/ITransport.h>
 
-class FakeEspNow : public IEspNow
+class FakeEspNow : public ITransport
 {
 public:
   bool sendData(uint8_t packetType, const uint8_t *data, size_t length, const uint8_t *targetMac) override

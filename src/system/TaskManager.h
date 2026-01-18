@@ -2,7 +2,7 @@
 #define TASKMANAGER_H
 
 #include <FreeRTOS.h>
-#include <interfaces/IEspNow.h>
+#include <interfaces/ITransport.h>
 #include <interfaces/IGpio.h>
 #include <submodules/ConfigManager/ConfigManager.h>
 #include <submodules/EventRegistry.h>
@@ -24,7 +24,8 @@
  * taskManagerTask) that reacts to configuration updates and task
  * health checks.
  */
-class TaskManager {
+class TaskManager
+{
 public:
   /**
    * @brief Construct a new TaskManager.
@@ -34,7 +35,7 @@ public:
    *               referenced ConfigManager instance must outlive
    *               this TaskManager.
    */
-  TaskManager(ConfigManager &config, IGpio &gpio, IEspNow &espNow);
+  TaskManager(ConfigManager &config, IGpio &gpio, ITransport &espNow);
 
   /**
    * @brief Start the TaskManager supervisor task and any managed tasks.
@@ -80,27 +81,27 @@ private:
   void stopEventBus();
   void restartEventBus();
 
-  void startSlaveEspTask(IEspNow &espNow);
+  void startSlaveEspTask(ITransport &espNow);
   void stopSlaveEspTask();
-  void restartSlaveEspTask(IEspNow &espNow);
+  void restartSlaveEspTask(ITransport &espNow);
 
-  void startMasterEspTask(IEspNow &espNow);
+  void startMasterEspTask(ITransport &espNow);
   void stopMasterEspTask();
-  void restartMasterEspTask(IEspNow &espNow);
+  void restartMasterEspTask(ITransport &espNow);
 
   // === Internal helpers ===
   void initializeTasks();    // initializes tasks depending on the role
   void applyConfigChanges(); // TODO: Implement config-dependent task adjustment
                              // logic.
-  void checkTaskHealth(); // TODO: Implement task health monitoring and recovery
-                          // logic.
+  void checkTaskHealth();    // TODO: Implement task health monitoring and recovery
+                             // logic.
 
   // === State ===
   QueueHandle_t eventBusQueue = nullptr;
   QueueHandle_t keyEventQueue = nullptr;
 
   IGpio &gpio;
-  IEspNow &espNow;
+  ITransport &espNow;
 
   // NOTE: This reference may be accessed from multiple FreeRTOS tasks.
   // It is required that either:

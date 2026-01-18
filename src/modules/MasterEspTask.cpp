@@ -30,7 +30,7 @@ void TaskManager::masterEspTask(void *arg)
   }
 }
 
-void TaskManager::startMasterEspTask(IEspNow &espNow)
+void TaskManager::startMasterEspTask(ITransport &espNow)
 {
   if (masterEspHandle != nullptr)
     return;
@@ -69,7 +69,7 @@ void TaskManager::stopMasterEspTask()
   masterEspHandle = nullptr;
 }
 
-void TaskManager::restartMasterEspTask(IEspNow &espNow)
+void TaskManager::restartMasterEspTask(ITransport &espNow)
 {
   if (masterEspHandle != nullptr)
     stopMasterEspTask();

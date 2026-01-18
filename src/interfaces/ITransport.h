@@ -4,7 +4,7 @@
 #include <functional>
 #include <stdint.h>
 
-class IEspNow
+class ITransport
 {
 public:
     using receiveCallback = std::function<void(const uint8_t *data, size_t length, const uint8_t *senderMac)>;
@@ -14,7 +14,7 @@ public:
     virtual bool clearCallback(uint8_t packetType) = 0;
 
     // Virtual destructor
-    virtual ~IEspNow() = default;
+    virtual ~ITransport() = default;
 };
 
 #endif

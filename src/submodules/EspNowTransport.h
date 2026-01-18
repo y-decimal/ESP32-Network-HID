@@ -1,12 +1,12 @@
 #ifndef ESPNOWTRANSPORT_H
 #define ESPNOWTRANSPORT_H
 
-#include <interfaces/IEspNow.h>
+#include <interfaces/ITransport.h>
 #include <esp_now.h>
 #include <vector>
 #include <cstring>
 
-class EspNow : public IEspNow
+class EspNow : public ITransport
 {
 public:
     EspNow();

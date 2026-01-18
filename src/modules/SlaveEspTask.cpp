@@ -58,7 +58,7 @@ void TaskManager::slaveEspTask(void *arg)
   }
 }
 
-void TaskManager::startSlaveEspTask(IEspNow &espNow)
+void TaskManager::startSlaveEspTask(ITransport &espNow)
 {
 
   if (slaveEspHandle != nullptr)
@@ -98,7 +98,7 @@ void TaskManager::stopSlaveEspTask()
   slaveEspHandle = nullptr;
 }
 
-void TaskManager::restartSlaveEspTask(IEspNow &espNow)
+void TaskManager::restartSlaveEspTask(ITransport &espNow)
 {
   if (slaveEspHandle != nullptr)
     stopSlaveEspTask();

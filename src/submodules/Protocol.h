@@ -3,7 +3,7 @@
 
 #include <shared/EventTypes.h>
 #include <submodules/ConfigManager/ConfigManager.h>
-#include <interfaces/IEspNow.h>
+#include <interfaces/ITransport.h>
 #include <functional>
 #include <vector>
 #include <unordered_map>
@@ -21,7 +21,7 @@ enum class PacketType : uint8_t
 class EspNowProtocol
 {
 public:
-    EspNowProtocol(IEspNow &espNow) : espNow(espNow) {};
+    EspNowProtocol(ITransport &espNow) : transport(espNow) {};
 
     void sendKeyEvent(const RawKeyEvent &keyEvent);
     void sendBitmapEvent(const RawBitmapEvent &bitmapEvent);
@@ -55,15 +55,12 @@ public:
     void onPairingConfirmation(std::function<void(const uint8_t *data, const uint8_t sourceId)> callback);
 
 private:
-    IEspNow &espNow;
+    ITransport &transport;
 
-    struct PeerInfo
-    {
-        uint8_t mac[6] = {0};
-        uint8_t id = 0;
-    };
+    std::vector<uint8_t[6]> communicationPartners = {}; // List of active communication partners at runtime
 
-    std::vector<PeerInfo> communicationPartners = {}; // List of active communication partners at runtime
+    const uint8_t getMasterId() const;
+    const uint8_t getMasterMac() const;
 };
 
 #endif

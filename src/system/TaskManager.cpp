@@ -1,6 +1,6 @@
 #include <system/TaskManager.h>
 
-TaskManager::TaskManager(ConfigManager &config, IGpio &gpio, IEspNow &espNow)
+TaskManager::TaskManager(ConfigManager &config, IGpio &gpio, ITransport &espNow)
     : configManager(config), gpio(gpio), espNow(espNow) {}
 
 void TaskManager::start()
