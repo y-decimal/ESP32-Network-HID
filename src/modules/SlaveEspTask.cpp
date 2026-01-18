@@ -2,7 +2,7 @@
 #include <system/TaskManager.h>
 
 static TransportProtocol *protocol = nullptr;
-QueueHandle_t localEventBusQueue;
+QueueHandle_t localKeyQueue = nullptr;
 static bool connected = false;
 
 void eventBusCallback(const Event &evt);
@@ -21,7 +21,7 @@ void TaskManager::slaveEspTask(void *arg)
   EventRegistry::registerHandler(EventType::RawBitmap, eventBusCallback);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
-  localEventBusQueue = xQueueCreate(32, sizeof(Event));
+  localKeyQueue = xQueueCreate(32, sizeof(Event));
 
   for (;;)
   {
@@ -37,7 +37,7 @@ void TaskManager::slaveEspTask(void *arg)
     // Wait for key events with a timeout of 1.5 seconds to allow periodic
     // connection checks and potential reconnections
     Event event;
-    if (xQueueReceive(localEventBusQueue, &event, pdMS_TO_TICKS(1500)))
+    if (xQueueReceive(localKeyQueue, &event, pdMS_TO_TICKS(1500)))
     {
       // Process KeyEvent
       if (event.type == EventType::RawKey)
