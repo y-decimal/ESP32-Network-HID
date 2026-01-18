@@ -34,6 +34,7 @@ public:
 
     uint8_t getSelfId() const;
     void getMacById(uint8_t id, uint8_t *out) const;
+    uint8_t getIdByMac(const uint8_t *mac) const;
 
     void onKeyEvent(std::function<void(const RawKeyEvent &keyEvent, uint8_t senderId)> callback);
     void onBitmapEvent(std::function<void(const RawBitmapEvent &bitmapEvent, uint8_t senderId)> callback);
