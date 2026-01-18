@@ -4,6 +4,7 @@
 #include <cstring>
 #include <interfaces/IStorage.h>
 #include <shared/GlobalHelpers.h>
+#include <submodules/Storage/NullStorage.h>
 
 /**
  * @brief Generic storage class for managing data persistence.
@@ -15,10 +16,13 @@
  * read/write operations.
  * @tparam DATA The type of data to be stored. Must support serialization.
  */
-template <typename DATA> class GenericStorage {
+template <typename DATA>
+class GenericStorage
+{
 private:
   // Internal structure to hold data and its checksum
-  struct DataBlock {
+  struct DataBlock
+  {
     DATA data;
     uint8_t checksum;
   };
@@ -33,11 +37,18 @@ private:
 public:
   /**
    * @brief Constructor for GenericStorage.
-   * @param storage Reference to an IStorage implementation for data operations.
    * @param key The key under which the data will be stored.
+   * @param storage Reference to an IStorage implementation for data operations.
    */
-  GenericStorage(IStorage *storage, const char *key)
-      : storage(storage), key(key) {}
+  GenericStorage(const char *key, IStorage *storage = nullptr)
+      : key(key), storage(storage)
+  {
+    if (!storage)
+    {
+      static NullStorage nullStorage;
+      storage = &nullStorage;
+    }
+  }
 
   /**
    * @brief Retrieve the stored data.
@@ -49,7 +60,8 @@ public:
    * @brief Set new data to be stored.
    * @param in The data to be stored.
    */
-  void set(const DATA &in) {
+  void set(const DATA &in)
+  {
     dataBlock.data = in;
     dirty = true;
   }
@@ -69,13 +81,13 @@ public:
    * @brief Load data from storage.
    * @return True if loading was successful and data is valid, false otherwise.
    */
-  bool load() {
-
+  bool load()
+  {
     DataBlock dataBuffer;
 
     // Read data from storage
-    bool read = storage.load(key, reinterpret_cast<uint8_t *>(&dataBuffer),
-                             sizeof(DataBlock));
+    bool read = storage->load(key, reinterpret_cast<uint8_t *>(&dataBuffer),
+                              sizeof(DataBlock));
 
     if (!read)
       return false;
@@ -95,13 +107,14 @@ public:
    * @brief Save data to storage.
    * @return True if saving was successful, false otherwise.
    */
-  bool save() {
+  bool save()
+  {
     // Calculate and set checksum
     dataBlock.checksum = calcCheckSum_8Bit(dataBlock.data);
 
     // Write data to storage
-    bool written = storage.save(key, reinterpret_cast<uint8_t *>(&dataBlock),
-                                sizeof(DataBlock));
+    bool written = storage->save(key, reinterpret_cast<uint8_t *>(&dataBlock),
+                                 sizeof(DataBlock));
     if (!written)
       return false;
 
