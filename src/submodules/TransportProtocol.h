@@ -28,8 +28,8 @@ public:
 
     void sendKeyEvent(const RawKeyEvent &keyEvent);
     void sendBitmapEvent(const RawBitmapEvent &bitmapEvent);
-    void requestConfig(const uint8_t id);
-    void pushConfig(const uint8_t id, ConfigManager *config);
+    void requestConfig(uint8_t id);
+    void pushConfig(uint8_t id, const ConfigManager *config);
     void sendPairingRequest(const uint8_t *data = nullptr, size_t dataLen = 0);
 
     uint8_t getSelfId() const;
@@ -37,7 +37,7 @@ public:
 
     void onKeyEvent(std::function<void(const RawKeyEvent &keyEvent, uint8_t senderId)> callback);
     void onBitmapEvent(std::function<void(const RawBitmapEvent &bitmapEvent, uint8_t senderId)> callback);
-    void onConfigReceived(std::function<void(const ConfigManager &config, uint8_t senderId)> callback);
+    void onConfigReceived(std::function<void(ConfigManager &config, uint8_t senderId)> callback);
 
     /**
      * @brief Allows registering custom hooks for received pairing requests.
@@ -46,7 +46,7 @@ public:
      * @param sourceId The runtime ID assigned to the source upon pairing, can be used to address packets or
      * with getMacById(uint8_t id) to retrieve the mac of the device
      */
-    void onPairingRequest(std::function<void(const uint8_t *data, const uint8_t sourceId)> callback);
+    void onPairingRequest(std::function<void(const uint8_t *data, uint8_t sourceId)> callback);
 
     /**
      * @brief Allows registering custom hooks for received pairing confirmations.
@@ -55,7 +55,7 @@ public:
      * @param sourceId The runtime ID assigned to the source upon pairing, can be used to address packets or
      * with getMacById(uint8_t id) to retrieve the mac of the device
      */
-    void onPairingConfirmation(std::function<void(const uint8_t *data, const uint8_t sourceId)> callback);
+    void onPairingConfirmation(std::function<void(const uint8_t *data, uint8_t sourceId)> callback);
 
 private:
     typedef uint8_t mac_t[6];
