@@ -80,7 +80,7 @@ void pairReceiveCallback(const uint8_t *data, uint8_t sourceId)
 {
   uint8_t senderMac[6] = {};
   protocol->getMacById(sourceId, senderMac);
-  printf("Received Pairing request from %02x:%02x:%02x:%02x:%02x:%02x",
+  printf("Received Pairing request from %02x:%02x:%02x:%02x:%02x:%02x\n",
          senderMac[0], senderMac[1], senderMac[2], senderMac[3], senderMac[4], senderMac[5]);
 };
 
