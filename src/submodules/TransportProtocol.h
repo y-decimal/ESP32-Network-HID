@@ -24,7 +24,7 @@ class TransportProtocol
 public:
     static const uint8_t MASTER_ID = 0;
 
-    TransportProtocol(ITransport &espNow) : transport(espNow) {};
+    TransportProtocol(ITransport &espNow) : transport(espNow) {peerDevices.push_back({});}
 
     void sendKeyEvent(const RawKeyEvent &keyEvent);
     void sendBitmapEvent(const RawBitmapEvent &bitmapEvent);
