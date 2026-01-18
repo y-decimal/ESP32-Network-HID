@@ -5,7 +5,7 @@ void TaskManager::masterEspTask(void *arg)
 {
   MasterEspParameters *params = static_cast<MasterEspParameters *>(arg);
 
-  QueueHandle_t eventBusQueueReference = params->EventBusQueue;
+  QueueHandle_t eventBusQueueReference = params->eventBusQueue;
   IEspNow &espNow = *params->espNow;
 
   delete params;
@@ -94,7 +94,7 @@ void TaskManager::startMasterEspTask(IEspNow &espNow)
     return;
 
   MasterEspParameters *params = new MasterEspParameters();
-  params->EventBusQueue = eventBusQueue;
+  params->eventBusQueue = eventBusQueue;
   params->espNow = &espNow;
 
   BaseType_t result = xTaskCreatePinnedToCore(
