@@ -20,6 +20,9 @@ void TaskManager::slaveEspTask(void *arg)
   EventRegistry::registerHandler(EventType::RawKey, eventBusCallback);
   EventRegistry::registerHandler(EventType::RawBitmap, eventBusCallback);
 
+  protocol->onPairingConfirmation(pairConfirmCallback);
+  protocol->onConfigReceived(configReceiveCallback);
+
   TickType_t previousWakeTime = xTaskGetTickCount();
   localKeyQueue = xQueueCreate(32, sizeof(Event));
 
