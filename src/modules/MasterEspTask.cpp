@@ -5,7 +5,7 @@ void TaskManager::masterEspTask(void *arg)
 {
   MasterEspParameters *params = static_cast<MasterEspParameters *>(arg);
 
-  QueueHandle_t EventBusQueueReference = params->EventBusQueue;
+  QueueHandle_t eventBusQueueReference = params->EventBusQueue;
   IEspNow &espNow = *params->espNow;
 
   delete params;
@@ -21,7 +21,7 @@ void TaskManager::masterEspTask(void *arg)
            sendSuccess ? "success" : "failure");
   };
 
-  auto keyReceiveCallback = [EventBusQueueReference](const uint8_t *data, size_t length, const uint8_t *senderMac)
+  auto keyReceiveCallback = [eventBusQueueReference](const uint8_t *data, size_t length, const uint8_t *senderMac)
   {
     AirKeyEvent espKeyEvent = {};
     memcpy(&espKeyEvent, data, length);
@@ -37,10 +37,10 @@ void TaskManager::masterEspTask(void *arg)
     event.cleanup = cleanupKeyEvent;
 
     printf("Sending key event to event bus: key %d %s\n", keyEvent.keyIndex, keyEvent.state ? "pressed" : "released");
-    xQueueSend(EventBusQueueReference, &event, pdMS_TO_TICKS(20));
+    xQueueSend(eventBusQueueReference, &event, pdMS_TO_TICKS(20));
   };
 
-  auto bitmapReceiveCallback = [EventBusQueueReference](const uint8_t *data, size_t length, const uint8_t *senderMac)
+  auto bitmapReceiveCallback = [eventBusQueueReference](const uint8_t *data, size_t length, const uint8_t *senderMac)
   {
     if (length < 1)
     {
@@ -72,7 +72,7 @@ void TaskManager::masterEspTask(void *arg)
     event.cleanup = cleanupBitmapEvent;
 
     printf("Sending bitmap event to event bus (size: %d)\n", bitMapSize);
-    xQueueSend(EventBusQueueReference, &event, pdMS_TO_TICKS(20));
+    xQueueSend(eventBusQueueReference, &event, pdMS_TO_TICKS(20));
   };
 
   espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyEvent), keyReceiveCallback);
