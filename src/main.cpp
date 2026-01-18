@@ -19,12 +19,6 @@ TaskManager taskManager(mainCfg, espGpio, espNow); // Move outside setup()
 
 void keyPrintCallback(const Event &event)
 {
-  if (event.type != EventType::RawKey || event.type != EventType::IdKey)
-  {
-    printf("Received wrong event type\n");
-    return;
-  }
-
   RawKeyEvent keyEvent;
   if (event.type == EventType::IdKey)
     keyEvent = event.idKeyEvt.raw;
@@ -38,12 +32,6 @@ void keyPrintCallback(const Event &event)
 
 void bitMapPrintCallback(const Event &event)
 {
-  if (event.type != EventType::RawBitmap || event.type != EventType::IdBitmap)
-  {
-    printf("Received wrong event type\n");
-    return;
-  }
-
   static std::vector<uint8_t> lastBitmap = {0};
 
   RawBitmapEvent bitMapEvent;
@@ -122,6 +110,8 @@ void setup()
 
   EventRegistry::registerHandler(EventType::RawKey, keyPrintCallback);
   EventRegistry::registerHandler(EventType::RawBitmap, bitMapPrintCallback);
+  EventRegistry::registerHandler(EventType::IdKey, keyPrintCallback);
+  EventRegistry::registerHandler(EventType::IdBitmap, bitMapPrintCallback);
 
   KeyScannerConfig kCfg = mainCfg.getConfig<KeyScannerConfig>();
   printf("KeyScanner Config: %d rows, %d cols, refresh %d ms, bitmap interval "
