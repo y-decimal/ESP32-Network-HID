@@ -4,26 +4,36 @@
 #include <functional>
 #include <interfaces/IEspNow.h>
 
-class FakeEspNow : public IEspNow {
+class FakeEspNow : public IEspNow
+{
 public:
-  bool sendData(uint8_t packetType, uint8_t *data, size_t length) override {
+  bool sendData(uint8_t packetType, const uint8_t *data, size_t length, const uint8_t *targetMac) override
+  {
     // do nothing
     return true;
   }
   bool registerPacketTypeCallback(uint8_t packetType,
-                                  receiveCallback callback) override {
+                                  receiveCallback callback) override
+  {
     callbacks[packetType] = callback;
     return true;
   }
-  void simulateReceiveData(uint8_t packetType, uint8_t *data, size_t length,
-                           uint8_t senderMac[6]) {
-    if (callbacks[packetType]) {
+  void simulateReceiveData(uint8_t packetType, const uint8_t *data, size_t length, const uint8_t *senderMac)
+  {
+    if (callbacks[packetType])
+    {
       callbacks[packetType](data, length, senderMac);
     }
   }
 
+  bool clearCallback(uint8_t packetType) override
+  {
+    callbacks[packetType] = nullptr;
+    return true;
+  }
+
 private:
-  receiveCallback callbacks[256];
+  receiveCallback callbacks[256] = {nullptr};
 };
 
 #endif
