@@ -15,8 +15,8 @@ void TransportProtocol::sendKeyEvent(const RawKeyEvent &keyEvent)
     size_t len = sizeof(RawKeyEvent);
     uint8_t *buffer = (uint8_t *)malloc(len);
     memcpy(buffer, &keyEvent, len);
-    transport.sendData(KEY_EVENT, buffer, len, masterMac);
-    delete buffer;
+    transport.sendData(KEY_EVENT, buffer, len, masterMac.data());
+    free(buffer);
 }
 
 void TransportProtocol::sendBitmapEvent(const RawBitmapEvent &bitmapEvent)
@@ -24,16 +24,16 @@ void TransportProtocol::sendBitmapEvent(const RawBitmapEvent &bitmapEvent)
     size_t len = sizeof(RawKeyEvent);
     uint8_t *buffer = (uint8_t *)malloc(len);
     memcpy(buffer, &bitmapEvent, len);
-    transport.sendData(KEY_BITMAP, buffer, len, masterMac);
-    delete buffer;
+    transport.sendData(KEY_BITMAP, buffer, len, masterMac.data());
+    free(buffer);
 }
 
 void TransportProtocol::requestConfig(uint8_t id)
 {
     uint8_t emptyPacket = 0;
     mac_t mac = {};
-    getMacById(id, mac);
-    transport.sendData(CONFIG_REQUEST, &emptyPacket, sizeof(emptyPacket), mac);
+    getMacById(id, mac.data());
+    transport.sendData(CONFIG_REQUEST, &emptyPacket, sizeof(emptyPacket), mac.data());
 }
 
 void TransportProtocol::pushConfig(uint8_t id, const ConfigManager *config)
@@ -43,8 +43,9 @@ void TransportProtocol::pushConfig(uint8_t id, const ConfigManager *config)
     memcpy(buffer, config, len);
 
     mac_t mac = {};
-    getMacById(id, mac);
-    transport.sendData(CONFIG, buffer, len, mac);
+    getMacById(id, mac.data());
+    transport.sendData(CONFIG, buffer, len, mac.data());
+    free(buffer);
 }
 
 void TransportProtocol::sendPairingRequest(const uint8_t *data = nullptr, size_t dataLen = 0)
@@ -69,7 +70,7 @@ uint8_t TransportProtocol::getSelfId() const
 
 void TransportProtocol::getMacById(uint8_t id, uint8_t *out) const
 {
-    memcpy(out, peerDevices.at(id), sizeof(mac_t));
+    memcpy(out, peerDevices.at(id).data(), sizeof(mac_t));
 }
 
 uint8_t TransportProtocol::getIdByMac(const uint8_t *mac) const
@@ -77,11 +78,8 @@ uint8_t TransportProtocol::getIdByMac(const uint8_t *mac) const
     size_t macSize = sizeof(mac_t);
     for (int i = 0; i < peerDevices.size(); i++)
     {
-        if (memcmp(mac, peerDevices[i], macSize) == 0)
-            if (memcmp(peerDevices[i], BROADCASTMAC, macSize) == 0 ||
-                memcmp(peerDevices[i], NULLMAC, macSize == 0))
-                return 0;
-        return i;
+        if (memcmp(mac, peerDevices[i].data(), macSize) == 0)
+            return i;
     }
     return 0xFF;
 }
