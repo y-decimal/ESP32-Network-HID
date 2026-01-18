@@ -62,8 +62,7 @@ private:
 
     ITransport &transport;
 
-    std::vector<mac_t> communicationPartners = {}; // List of active communication partners at runtime
-    std::unordered_map<mac_t, uint8_t> macToIdMap;
+    std::vector<mac_t> peerDevices = {}; // List of active communication partners at runtime
     mac_t masterMac = {};
 };
 
