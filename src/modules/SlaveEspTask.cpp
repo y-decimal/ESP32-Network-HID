@@ -27,11 +27,6 @@ void TaskManager::slaveEspTask(void *arg)
 
   auto pairReceiveCallback = [&connected, &masterMac, &broadcastMac](const uint8_t *data, size_t length, const uint8_t *senderMac)
   {
-    if (memcmp(senderMac, broadcastMac, 6) == 0)
-    {
-      printf("Received broadcast MAC, ignoring\n");
-      return; // Ignore broadcasts
-    }
     memcpy(masterMac, senderMac, 6);
     connected = true;
     printf("Received master MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
