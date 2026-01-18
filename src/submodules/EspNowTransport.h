@@ -1,5 +1,5 @@
-#ifndef ESPNOW_H
-#define ESPNOW_H
+#ifndef ESPNOWTRANSPORT_H
+#define ESPNOWTRANSPORT_H
 
 #include <interfaces/IEspNow.h>
 #include <esp_now.h>

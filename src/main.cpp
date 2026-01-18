@@ -8,7 +8,7 @@
 
 #include <interfaces/IEspNow.h>
 #include <submodules/Esp32Gpio.h>
-#include <submodules/EspNow.h>
+#include <submodules/EspNowTransport.h>
 
 Esp32Gpio espGpio;
 EspNow espNow;
