@@ -8,19 +8,22 @@
 
 class ConfigManager; // Forward declaration
 
-struct KeyScannerParameters {
+struct KeyScannerParameters
+{
   ConfigManager *configManager = nullptr;
-  QueueHandle_t eventBusHandle = nullptr;
+  QueueHandle_t eventBusQueue = nullptr;
   IGpio *gpio = nullptr;
 };
 
-struct SlaveEspParameters {
+struct SlaveEspParameters
+{
   QueueHandle_t keyEventQueue = nullptr;
   IEspNow *espNow = nullptr;
 };
 
-struct MasterEspParameters {
-  QueueHandle_t EventBusQueue = nullptr;
+struct MasterEspParameters
+{
+  QueueHandle_t eventBusQueue = nullptr;
   IEspNow *espNow = nullptr;
 };
 
