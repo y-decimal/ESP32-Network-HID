@@ -76,7 +76,7 @@ void TransportProtocol::sendPairingRequest(const uint8_t *data, size_t dataLen)
         len = 1;
     }
 
-    transport.sendData(PAIRING_REQUEST, pairingPacket, len, masterMac);
+    transport.sendData(PAIRING_REQUEST, pairingPacket, len, BROADCASTMAC);
 }
 
 uint8_t TransportProtocol::getSelfId() const
@@ -148,32 +148,36 @@ void TransportProtocol::onConfigReceived(std::function<void(ConfigManager &confi
 void TransportProtocol::onPairingRequest(std::function<void(const uint8_t *data, uint8_t sourceId)> callback)
 {
     pairingRequestCallback = callback;
-    transport.registerPacketTypeCallback(PAIRING_REQUEST,
-                                         [this](uint8_t type, const uint8_t *data, size_t len, const uint8_t *mac)
-                                         {
-                                             peerDevices.push_back({});
-                                             memcpy(peerDevices.back(), mac, sizeof(mac_t));
-                                             this->transport.sendData(PAIRING_CONFIRMATION, data, len, mac);
-                                             if (pairingRequestCallback)
-                                             {
-                                                 pairingRequestCallback(data, getIdByMac(mac));
-                                             }
-                                         });
 }
 
 void TransportProtocol::onPairingConfirmation(std::function<void(const uint8_t *data, uint8_t sourceId)> callback)
 {
     pairingConfirmationCallback = callback;
-    transport.registerPacketTypeCallback(PAIRING_CONFIRMATION,
-                                         [this](uint8_t type, const uint8_t *data, size_t len, const uint8_t *mac)
-                                         {
-                                             peerDevices.push_back({});
-                                             memcpy(peerDevices.back(), mac, sizeof(mac_t));
-                                             if (pairingConfirmationCallback)
-                                             {
-                                                 pairingConfirmationCallback(data, getIdByMac(mac));
-                                             }
-                                         });
 }
 
-// void TransportProtocol::
+void TransportProtocol::handlePairingRequest(const uint8_t *data, size_t dataLen, const uint8_t *mac)
+{
+    peerDevices.push_back({});
+    memcpy(peerDevices.back().data(), mac, sizeof(mac_t));
+    this->transport.sendData(PAIRING_CONFIRMATION, data, dataLen, mac);
+    printf("Received pairing request from device ID %d, mac %02x:%02x:%02x:%02x:%02x:%02x\n",
+           getIdByMac(mac), mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+    if (pairingRequestCallback)
+    {
+        pairingRequestCallback(data, getIdByMac(mac));
+    }
+}
+
+void TransportProtocol::handlePairingConfirmation(const uint8_t *data, size_t dataLen, const uint8_t *mac)
+{
+    peerDevices.push_back({});
+    memcpy(peerDevices.back().data(), mac, sizeof(mac_t));
+    printf("Paired with device ID %d, mac %02x:%02x:%02x:%02x:%02x:%02x\n",
+           getIdByMac(mac), mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+    if (pairingConfirmationCallback)
+    {
+        pairingConfirmationCallback(data, getIdByMac(mac));
+    }
+}
