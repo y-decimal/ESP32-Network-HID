@@ -1,110 +1,60 @@
-#include <shared/CommTypes.h>
+#include <submodules/EspNowProtocol.h>
 #include <system/TaskManager.h>
 
-static QueueHandle_t keyEventQueueReference = nullptr;
+static EspNowProtocol *protocol = nullptr;
+QueueHandle_t localEventBusQueue;
+static bool connected = false;
 
-void keyEventRouteCallback(const Event &event)
-{
-  xQueueSend(keyEventQueueReference, &event, pdMS_TO_TICKS(10));
-}
+void eventBusCallback(const Event &evt);
+
+void pairConfirmCallback(const uint8_t *data, const uint8_t sourceId);
+void configReceiveCallback(const ConfigManager &config, uint8_t senderId);
 
 void TaskManager::slaveEspTask(void *arg)
 {
-  SlaveEspParameters *params = static_cast<SlaveEspParameters *>(arg);
-
-  keyEventQueueReference = params->keyEventQueue;
-  IEspNow &espNow = *params->espNow;
-
-  EventRegistry::registerHandler(EventType::RawKey, keyEventRouteCallback);
-  EventRegistry::registerHandler(EventType::RawBitmap, keyEventRouteCallback);
+  MasterSlaveParameters *params = static_cast<MasterSlaveParameters *>(arg);
+  protocol = new EspNowProtocol(*params->espNow);
 
   delete params;
 
-  bool connected = false;
-  uint8_t masterMac[6] = {0};
-  uint8_t broadcastMac[6] = {255, 255, 255, 255, 255, 255};
-
-  auto pairReceiveCallback = [&connected, &masterMac, &broadcastMac](const uint8_t *data, size_t length, const uint8_t *senderMac)
-  {
-    memcpy(masterMac, senderMac, 6);
-    connected = true;
-    printf("Received master MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
-           masterMac[0], masterMac[1], masterMac[2],
-           masterMac[3], masterMac[4], masterMac[5]);
-  };
-
-  auto configReceiveCallback = [](const uint8_t *data, size_t length, const uint8_t *senderMac)
-  {
-    // Todo: Handle config update packet
-  };
-
-  bool successPairing = espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::PairingConfirmation), pairReceiveCallback);
-
-  bool successConfig = espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::Config), configReceiveCallback);
-
-  printf("SlaveEspTask: Registered pairing callback: %s\n", successPairing ? "success" : "failure");
-  printf("SlaveEspTask: Registered config callback: %s\n", successConfig ? "success" : "failure");
+  EventRegistry::registerHandler(EventType::RawKey, eventBusCallback);
+  EventRegistry::registerHandler(EventType::RawBitmap, eventBusCallback);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
-  uint8_t sequenceNumber = 0;
+  localEventBusQueue = xQueueCreate(32, sizeof(Event));
 
   for (;;)
   {
     // If not connected, attempt to pair every X seconds
     if (!connected)
     {
-      bool sendSuccess = espNow.sendData(static_cast<uint8_t>(PacketType::PairingRequest),
-                                         &sequenceNumber,
-                                         sizeof(sequenceNumber),
-                                         broadcastMac);
-      printf("Sent pairing request %d: %s\n", sequenceNumber, sendSuccess ? "success" : "fail");
-      sequenceNumber++;
-      if (sequenceNumber == 255)
-        sequenceNumber = 0;
+      protocol->sendPairingRequest();
       xTaskDelayUntil(&previousWakeTime, pdMS_TO_TICKS(3500));
+      break;
     }
+
     // If connected, process key events from the queue
-    else
+    // Wait for key events with a timeout of 1.5 seconds to allow periodic
+    // connection checks and potential reconnections
+    Event event;
+    if (xQueueReceive(localEventBusQueue, &event, pdMS_TO_TICKS(1500)))
     {
-
-      Event event;
-
-      // Wait for key events with a timeout of 1.5 seconds to allow periodic
-      // connection checks and potential reconnections
-      if (xQueueReceive(keyEventQueueReference, &event, pdMS_TO_TICKS(1500)))
+      // Process KeyEvent
+      if (event.type == EventType::RawKey)
       {
-
-        // Process KeyEvent
-        if (event.type == EventType::RawKey)
-        {
-          KeyEvent keyEvent = event.key;
-          AirKeyEvent evt = {keyEvent.keyIndex, keyEvent.state};
-
-          uint8_t data[sizeof(AirKeyEvent)] = {0};
-          memcpy(data, &evt, sizeof(AirKeyEvent));
-
-          espNow.sendData((uint8_t)PacketType::KeyEvent, data, sizeof(data), masterMac);
-          printf("Sent key event to Mac %02x:%02x:%02x:%02x:%02x:%02x\n", masterMac[0], masterMac[1], masterMac[2],
-                 masterMac[3], masterMac[4], masterMac[5]);
-        }
-
-        // Process BitMapEvent
-        if (event.type == EventType::RawBitmap)
-        {
-          BitMapEvent bitMapEvent = event.bitMap;
-          uint8_t data[bitMapEvent.bitMapSize + 1] = {0}; // Consider using dynamic allocation instead of VLA
-          data[0] = bitMapEvent.bitMapSize;
-          memcpy(data + 1, bitMapEvent.bitMapData, bitMapEvent.bitMapSize);
-
-          espNow.sendData((uint8_t)PacketType::KeyBitmap, data, sizeof(data), masterMac);
-        }
-
-        // Clean up event resources
-        if (event.cleanup)
-          event.cleanup(&event);
+        protocol->sendKeyEvent(event.rawKeyEvt);
       }
+
+      // Process BitMapEvent
+      if (event.type == EventType::RawBitmap)
+      {
+        protocol->sendBitmapEvent(event.rawBitmapEvt);
+      }
+
+      // Clean up event resources
+      if (event.cleanup)
+        event.cleanup(&event);
     }
-    vPortYield();
   }
 }
 
@@ -114,8 +64,8 @@ void TaskManager::startSlaveEspTask(IEspNow &espNow)
   if (slaveEspHandle != nullptr)
     return;
 
-  SlaveEspParameters *params = new SlaveEspParameters();
-  params->keyEventQueue = keyEventQueue;
+  MasterSlaveParameters *params = new MasterSlaveParameters();
+  params->eventBusQueue = eventBusQueue;
   params->espNow = &espNow;
 
   BaseType_t result = xTaskCreatePinnedToCore(
@@ -131,6 +81,8 @@ void TaskManager::startSlaveEspTask(IEspNow &espNow)
   {
     slaveEspHandle = nullptr;
     delete params;
+    delete localEventBusQueue;
+    delete protocol;
   }
 }
 
@@ -138,6 +90,10 @@ void TaskManager::stopSlaveEspTask()
 {
   if (slaveEspHandle == nullptr)
     return;
+
+  delete localEventBusQueue;
+  delete protocol;
+
   vTaskDelete(slaveEspHandle);
   slaveEspHandle = nullptr;
 }
@@ -147,4 +103,24 @@ void TaskManager::restartSlaveEspTask(IEspNow &espNow)
   if (slaveEspHandle != nullptr)
     stopSlaveEspTask();
   startSlaveEspTask(espNow);
+}
+
+void eventBusCallback(const Event &evt)
+{
+  xQueueSend(localEventBusQueue, &evt, pdMS_TO_TICKS(10));
+}
+
+void pairConfirmCallback(const uint8_t *data, const uint8_t sourceId)
+{
+  connected = true;
+  uint8_t masterMac[6] = {};
+  protocol->getMacById(sourceId, masterMac);
+  printf("Received master MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
+         masterMac[0], masterMac[1], masterMac[2],
+         masterMac[3], masterMac[4], masterMac[5]);
+}
+
+void configReceiveCallback(const ConfigManager &config, uint8_t senderId)
+{
+  return; // Todo: implement config handling
 }
