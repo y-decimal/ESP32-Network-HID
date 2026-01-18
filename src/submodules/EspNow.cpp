@@ -167,7 +167,7 @@ void EspNow::routeCallback(const uint8_t *mac_addr, const uint8_t *data, int dat
         return;
     }
 
-    uint8_t buffer[dataLength] = {};
+    uint8_t buffer[dataLength] = {}; // Consider using dynamic allocation instead of VLA
     memcpy(buffer, data + sizeof(header), dataLength);
 
     if (instance->callbacks[header.packetType])
