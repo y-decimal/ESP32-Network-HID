@@ -6,7 +6,7 @@
 
 // temp local definitions for testing
 
-#include <interfaces/IEspNow.h>
+#include <interfaces/ITransport.h>
 #include <submodules/Esp32Gpio.h>
 #include <submodules/EspNowTransport.h>
 
