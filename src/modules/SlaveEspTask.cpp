@@ -15,8 +15,8 @@ void TaskManager::slaveEspTask(void *arg)
   keyEventQueueReference = params->keyEventQueue;
   IEspNow &espNow = *params->espNow;
 
-  EventRegistry::registerHandler(EventType::Key, keyEventRouteCallback);
-  EventRegistry::registerHandler(EventType::BitMap, keyEventRouteCallback);
+  EventRegistry::registerHandler(EventType::RawKey, keyEventRouteCallback);
+  EventRegistry::registerHandler(EventType::RawBitmap, keyEventRouteCallback);
 
   delete params;
 
@@ -75,7 +75,7 @@ void TaskManager::slaveEspTask(void *arg)
       {
 
         // Process KeyEvent
-        if (event.type == EventType::Key)
+        if (event.type == EventType::RawKey)
         {
           KeyEvent keyEvent = event.key;
           AirKeyEvent evt = {keyEvent.keyIndex, keyEvent.state};
@@ -89,7 +89,7 @@ void TaskManager::slaveEspTask(void *arg)
         }
 
         // Process BitMapEvent
-        if (event.type == EventType::BitMap)
+        if (event.type == EventType::RawBitmap)
         {
           BitMapEvent bitMapEvent = event.bitMap;
           uint8_t data[bitMapEvent.bitMapSize + 1] = {0}; // Consider using dynamic allocation instead of VLA

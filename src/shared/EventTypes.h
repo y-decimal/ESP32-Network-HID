@@ -5,8 +5,10 @@
 
 enum class EventType : uint8_t
 {
-  Key,
-  BitMap,
+  RawKey,
+  RawBitmap,
+  IdKey,
+  IdBitmap,
   ConfigUpdate,
   COUNT
 };

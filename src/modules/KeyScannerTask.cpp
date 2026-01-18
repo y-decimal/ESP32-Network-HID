@@ -9,7 +9,7 @@ void keyEventCallback(uint16_t keyIndex, bool state)
 {
   RawKeyEvent rKeyEvent{keyIndex, state};
   Event event{};
-  event.type = EventType::Key;
+  event.type = EventType::RawKey;
   event.rawKeyEvt = rKeyEvent;
   event.cleanup = cleanupRawKeyEvent;
   if (xQueueSend(localEventQueueReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
@@ -24,7 +24,7 @@ void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap)
   memcpy(rBitmapEvent.bitMapData, bitMap, bitMapSize);
 
   Event event{};
-  event.type = EventType::BitMap;
+  event.type = EventType::RawBitmap;
   event.rawBitmapEvt = rBitmapEvent;
   event.cleanup = cleanupRawBitmapEvent;
 
