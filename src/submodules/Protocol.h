@@ -21,6 +21,8 @@ enum class PacketType : uint8_t
 class EspNowProtocol
 {
 public:
+    static const uint8_t MASTER_ID = 0;
+
     EspNowProtocol(ITransport &espNow) : transport(espNow) {};
 
     void sendKeyEvent(const RawKeyEvent &keyEvent);
@@ -58,9 +60,7 @@ private:
     ITransport &transport;
 
     std::vector<uint8_t[6]> communicationPartners = {}; // List of active communication partners at runtime
-
-    const uint8_t getMasterId() const;
-    const uint8_t getMasterMac() const;
+    uint8_t masterMac[6] = {};
 };
 
 #endif
