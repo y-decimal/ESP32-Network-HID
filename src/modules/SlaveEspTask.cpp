@@ -1,7 +1,7 @@
-#include <submodules/EspNowProtocol.h>
+#include <submodules/TransportProtocol.h>
 #include <system/TaskManager.h>
 
-static EspNowProtocol *protocol = nullptr;
+static TransportProtocol *protocol = nullptr;
 QueueHandle_t localEventBusQueue;
 static bool connected = false;
 
@@ -13,7 +13,7 @@ void configReceiveCallback(const ConfigManager &config, uint8_t senderId);
 void TaskManager::slaveEspTask(void *arg)
 {
   MasterSlaveParameters *params = static_cast<MasterSlaveParameters *>(arg);
-  protocol = new EspNowProtocol(*params->espNow);
+  protocol = new TransportProtocol(*params->espNow);
 
   delete params;
 

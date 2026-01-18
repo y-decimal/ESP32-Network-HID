@@ -13,23 +13,24 @@ enum class PacketType : uint8_t
     KeyEvent,
     KeyBitmap,
     Config,
+    ConfigRequest,
     PairingRequest,
     PairingConfirmation,
     Count
 };
 
-class EspNowProtocol
+class TransportProtocol
 {
 public:
     static const uint8_t MASTER_ID = 0;
 
-    EspNowProtocol(ITransport &espNow) : transport(espNow) {};
+    TransportProtocol(ITransport &espNow) : transport(espNow) {};
 
     void sendKeyEvent(const RawKeyEvent &keyEvent);
     void sendBitmapEvent(const RawBitmapEvent &bitmapEvent);
-    void requestConfig(const uint8_t id, ConfigManager *config);
+    void requestConfig(const uint8_t id);
     void pushConfig(const uint8_t id, ConfigManager *config);
-    void sendPairingRequest(const uint8_t *data = nullptr);
+    void sendPairingRequest(const uint8_t *data = nullptr, size_t dataLen = 0);
 
     uint8_t getSelfId() const;
     void getMacById(uint8_t id, uint8_t *out) const;
@@ -57,10 +58,13 @@ public:
     void onPairingConfirmation(std::function<void(const uint8_t *data, const uint8_t sourceId)> callback);
 
 private:
+    typedef uint8_t mac_t[6];
+
     ITransport &transport;
 
-    std::vector<uint8_t[6]> communicationPartners = {}; // List of active communication partners at runtime
-    uint8_t masterMac[6] = {};
+    std::vector<mac_t> communicationPartners = {}; // List of active communication partners at runtime
+    std::unordered_map<mac_t, uint8_t> macToIdMap;
+    mac_t masterMac = {};
 };
 
 #endif
