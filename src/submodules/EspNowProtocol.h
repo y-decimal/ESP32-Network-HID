@@ -34,6 +34,7 @@ public:
 
     void onKeyEvent(std::function<void(const RawKeyEvent &keyEvent, uint8_t senderId)> callback);
     void onBitmapEvent(std::function<void(const RawBitmapEvent &bitmapEvent, uint8_t senderId)> callback);
+    void onConfigReceived(std::function<void(const ConfigManager &config, uint8_t senderId)> callback);
 
     /**
      * @brief Allows registering custom hooks for received pairing requests.
