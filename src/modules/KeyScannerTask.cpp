@@ -5,8 +5,9 @@
 
 static QueueHandle_t localEventQueueReference = nullptr;
 
-void keyEventCallback(uint16_t keyIndex, bool state) {
-  KeyEvent keyEvent{keyIndex, state};
+void keyEventCallback(uint16_t keyIndex, bool state)
+{
+  KeyEvent keyEvent{keyIndex, state, nullptr};
   Event event{};
   event.type = EventType::Key;
   event.key = keyEvent;
@@ -15,8 +16,10 @@ void keyEventCallback(uint16_t keyIndex, bool state) {
     printf("[KeyScanner]: Could not push key event to queue\n");
 }
 
-void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap) {
+void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap)
+{
   BitMapEvent bitMapEvent{};
+  bitMapEvent.sourceMac = nullptr;
   bitMapEvent.bitMapSize = bitMapSize;
   bitMapEvent.bitMapData = static_cast<uint8_t *>(malloc(bitMapSize));
   memcpy(bitMapEvent.bitMapData, bitMap, bitMapSize);
@@ -30,14 +33,17 @@ void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap) {
     printf("[KeyScanner]: Could not push bitmap event to queue\n");
 }
 
-void TaskManager::keyScannerTask(void *arg) {
+void TaskManager::keyScannerTask(void *arg)
+{
   KeyScannerParameters *params = static_cast<KeyScannerParameters *>(arg);
 
-  if (!params) {
+  if (!params)
+  {
     printf("[KeyScannerTask]: Received invalid parameters, aborting\n");
     vTaskDelete(nullptr);
   }
-  if (!params->configManager) {
+  if (!params->configManager)
+  {
     printf("[KeyScannerTask]: Received invalid configManager, aborting\n");
     vTaskDelete(nullptr);
   }
@@ -79,10 +85,12 @@ void TaskManager::keyScannerTask(void *arg) {
   std::vector<uint8_t> localBitmap;
   localBitmap.assign(localConfig.getBitmapSize(), 0);
 
-  while (true) {
+  while (true)
+  {
     loopsSinceLastBitMap++;
     keyScanner.updateKeyState();
-    if (loopsSinceLastBitMap >= bitMapLoopInterval) {
+    if (loopsSinceLastBitMap >= bitMapLoopInterval)
+    {
       keyScanner.copyPublishedBitmap(localBitmap.data(), localBitmap.size());
       uint8_t bitMapSize = static_cast<uint8_t>(keyScanner.getBitMapSize());
       sendBitMapEvent(bitMapSize, localBitmap.data());
@@ -94,7 +102,8 @@ void TaskManager::keyScannerTask(void *arg) {
 
 // KeyScanner helper functions
 
-void TaskManager::startKeyScanner(IGpio &gpio) {
+void TaskManager::startKeyScanner(IGpio &gpio)
+{
 
   KeyScannerParameters *keyParams = new KeyScannerParameters();
   keyParams->configManager = &configManager;
@@ -103,19 +112,22 @@ void TaskManager::startKeyScanner(IGpio &gpio) {
   BaseType_t result = xTaskCreatePinnedToCore(
       keyScannerTask, "KeyScanner", STACK_KEYSCAN, keyParams, PRIORITY_KEYSCAN,
       &keyScannerHandle, CORE_KEYSCAN);
-  if (result != pdPASS) {
+  if (result != pdPASS)
+  {
     delete keyParams;
     keyScannerHandle = nullptr;
   }
 }
 
-void TaskManager::stopKeyScanner() {
+void TaskManager::stopKeyScanner()
+{
   if (keyScannerHandle == nullptr)
     return;
   vTaskDelete(keyScannerHandle);
   keyScannerHandle = nullptr;
 }
-void TaskManager::restartKeyScanner(IGpio &gpio) {
+void TaskManager::restartKeyScanner(IGpio &gpio)
+{
   if (keyScannerHandle != nullptr)
     stopKeyScanner();
   startKeyScanner(gpio);
