@@ -128,6 +128,11 @@ void TransportProtocol::onBitmapEvent(std::function<void(const RawBitmapEvent &b
     transport.registerPacketTypeCallback(KEY_BITMAP,
                                          [this](uint8_t type, const uint8_t *data, size_t len, const uint8_t *mac)
                                          {
+                                             if (getIdByMac(mac) == 0xFF)
+                                             {
+                                                 peerDevices.push_back({});
+                                                 memcpy(peerDevices.back().data(), mac, sizeof(mac_t));
+                                             }
                                              // Deserialize: [bitMapSize (1 byte)][bitMapData (N bytes)]
                                              if (bitmapEventCallback && len >= 1)
                                              {
@@ -149,6 +154,11 @@ void TransportProtocol::onConfigReceived(std::function<void(ConfigManager &confi
     transport.registerPacketTypeCallback(CONFIG,
                                          [this](uint8_t type, const uint8_t *data, size_t len, const uint8_t *mac)
                                          {
+                                             if (getIdByMac(mac) == 0xFF)
+                                             {
+                                                 peerDevices.push_back({});
+                                                 memcpy(peerDevices.back().data(), mac, sizeof(mac_t));
+                                             }
                                              if (configCallback && len >= sizeof(ConfigManager))
                                              {
                                                  ConfigManager config;
@@ -170,8 +180,11 @@ void TransportProtocol::onPairingConfirmation(std::function<void(const uint8_t *
 
 void TransportProtocol::handlePairingRequest(const uint8_t *data, size_t dataLen, const uint8_t *mac)
 {
-    peerDevices.push_back({});
-    memcpy(peerDevices.back().data(), mac, sizeof(mac_t));
+    if (getIdByMac(mac) == 0xFF)
+    {
+        peerDevices.push_back({});
+        memcpy(peerDevices.back().data(), mac, sizeof(mac_t));
+    }
     this->transport.sendData(PAIRING_CONFIRMATION, data, dataLen, mac);
     if (pairingRequestCallback)
     {
@@ -181,9 +194,12 @@ void TransportProtocol::handlePairingRequest(const uint8_t *data, size_t dataLen
 
 void TransportProtocol::handlePairingConfirmation(const uint8_t *data, size_t dataLen, const uint8_t *mac)
 {
-    peerDevices.push_back({});
-    memcpy(peerDevices.back().data(), mac, sizeof(mac_t));
-    memcpy(masterMac.data(), mac, sizeof(mac_t));
+    if (getIdByMac(mac) == 0xFF)
+    {
+        peerDevices.push_back({});
+        memcpy(peerDevices.back().data(), mac, sizeof(mac_t));
+        memcpy(masterMac.data(), mac, sizeof(mac_t));
+    }
     if (pairingConfirmationCallback)
     {
         pairingConfirmationCallback(data, getIdByMac(mac));
