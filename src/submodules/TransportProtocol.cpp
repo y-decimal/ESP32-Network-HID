@@ -108,6 +108,11 @@ void TransportProtocol::onKeyEvent(std::function<void(const RawKeyEvent &keyEven
     transport.registerPacketTypeCallback(KEY_EVENT,
                                          [this](uint8_t type, const uint8_t *data, size_t len, const uint8_t *mac)
                                          {
+                                             if (getIdByMac(mac) == 0xFF)
+                                             {
+                                                 peerDevices.push_back({});
+                                                 memcpy(peerDevices.back().data(), mac, sizeof(mac_t));
+                                             }
                                              if (keyEventCallback && len >= sizeof(RawKeyEvent))
                                              {
                                                  RawKeyEvent keyEvent;
