@@ -15,7 +15,7 @@ public:
     bool clearCallback(uint8_t packetType) override;
 
 private:
-    receiveCallback callbacks[256];
+    receiveCallback callbacks[256] = {nullptr};
     bool initialized = false;
     static EspNow *instance;
 
