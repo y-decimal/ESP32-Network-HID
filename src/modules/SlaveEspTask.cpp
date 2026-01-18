@@ -21,7 +21,7 @@ void TaskManager::slaveEspTask(void *arg)
 
   delete params;
 
-  volatile bool connected = false;
+  bool connected = false;
   uint8_t masterMac[6] = {0};
   uint8_t broadcastMac[6] = {255, 255, 255, 255, 255, 255};
 
