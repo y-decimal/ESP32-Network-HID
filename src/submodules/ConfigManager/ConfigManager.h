@@ -5,7 +5,6 @@
 #include <submodules/ConfigManager/GlobalConfig.h>
 #include <submodules/ConfigManager/KeyScannerConfig.h>
 #include <submodules/Storage/TGenericStorage.h>
-#include <submodules/Storage/NullStorage.h>
 
 // Storage keys for configuration manager (max 15 chars for ESP32 Preferences)
 #define CONFIG_MANAGER_NAMESPACE "CfgMgr"
@@ -24,20 +23,20 @@ class ConfigManager
 {
 private:
   // Reference to the storage interface
-  IStorage *storage;
 
   // Thread-safe storage for different configuration types
-  ThreadSafeGenericStorage<GlobalConfig::SerializedConfig> globalCfg{
-      storage, CONFIG_MANAGER_NAMESPACE "/" GLOBAL_CONFIG_KEY};
-  ThreadSafeGenericStorage<KeyScannerConfig::SerializedConfig> keyScannerCfg{
-      storage, CONFIG_MANAGER_NAMESPACE "/" KEYSCANNER_CONFIG_KEY};
+  ThreadSafeGenericStorage<GlobalConfig::SerializedConfig> globalCfg;
+  ThreadSafeGenericStorage<KeyScannerConfig::SerializedConfig> keyScannerCfg;
 
 public:
   /**
    * @brief Constructor for ConfigManager.
    * @param storage Reference to an IStorage implementation for data operations.
+   * If left empty ConfigManager will start in volatile storage mode
    */
-  ConfigManager(IStorage *storageBackend = nullptr);
+  ConfigManager(IStorage *storageBackend = nullptr)
+      : globalCfg(CONFIG_MANAGER_NAMESPACE "/" GLOBAL_CONFIG_KEY, storageBackend),
+        keyScannerCfg(CONFIG_MANAGER_NAMESPACE "/" KEYSCANNER_CONFIG_KEY, storageBackend) {}
 
   /**
    * @brief Retrieve the configuration of type T.
