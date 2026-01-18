@@ -7,7 +7,10 @@
 class ITransport
 {
 public:
-    using receiveCallback = std::function<void(const uint8_t *data, size_t length, const uint8_t *senderMac)>;
+    using receiveCallback = std::function<void(uint8_t packetType,
+                                               const uint8_t *data,
+                                               size_t length,
+                                               const uint8_t *senderMac)>;
 
     virtual bool sendData(uint8_t packetType, const uint8_t *data, size_t length, const uint8_t *targetMac) = 0;
     virtual bool registerPacketTypeCallback(uint8_t packetType, receiveCallback callback) = 0;

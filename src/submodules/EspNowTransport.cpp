@@ -174,7 +174,7 @@ void EspNow::routeCallback(const uint8_t *mac_addr, const uint8_t *data, int dat
     {
         if (instance->loggingEnabled)
             printf("[EspNow] Routing to callback for packet type %d\n", header.packetType);
-        instance->callbacks[header.packetType](buffer, (size_t)dataLength, mac_addr);
+        instance->callbacks[header.packetType](header.packetType, buffer, (size_t)dataLength, mac_addr);
     }
     else if (instance->loggingEnabled)
         printf("[EspNow] No callback found for packet type %d\n", header.packetType);
