@@ -35,8 +35,6 @@ void TaskManager::masterEspTask(void *arg)
     event.type = EventType::Key;
     event.key = keyEvent;
     event.cleanup = cleanupKeyEvent;
-
-    printf("Sending key event to event bus: key %d %s\n", keyEvent.keyIndex, keyEvent.state ? "pressed" : "released");
     xQueueSend(eventBusQueueReference, &event, pdMS_TO_TICKS(20));
   };
 
@@ -70,8 +68,6 @@ void TaskManager::masterEspTask(void *arg)
     event.type = EventType::BitMap;
     event.bitMap = bitmapEvent;
     event.cleanup = cleanupBitmapEvent;
-
-    printf("Sending bitmap event to event bus (size: %d)\n", bitMapSize);
     xQueueSend(eventBusQueueReference, &event, pdMS_TO_TICKS(20));
   };
 
