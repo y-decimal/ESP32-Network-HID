@@ -19,35 +19,38 @@
  * KeyScannerConfig. It utilizes a thread-safe generic storage mechanism to
  * ensure safe access to configuration data.
  */
-class ConfigManager {
+class ConfigManager
+{
 private:
   // Reference to the storage interface
-  IStorage &storage;
 
   // Thread-safe storage for different configuration types
-  ThreadSafeGenericStorage<GlobalConfig::SerializedConfig> globalCfg{
-      storage, CONFIG_MANAGER_NAMESPACE "/" GLOBAL_CONFIG_KEY};
-  ThreadSafeGenericStorage<KeyScannerConfig::SerializedConfig> keyScannerCfg{
-      storage, CONFIG_MANAGER_NAMESPACE "/" KEYSCANNER_CONFIG_KEY};
+  ThreadSafeGenericStorage<GlobalConfig::SerializedConfig> globalCfg;
+  ThreadSafeGenericStorage<KeyScannerConfig::SerializedConfig> keyScannerCfg;
 
 public:
   /**
    * @brief Constructor for ConfigManager.
    * @param storage Reference to an IStorage implementation for data operations.
+   * If left empty ConfigManager will start in volatile storage mode
    */
-  ConfigManager(IStorage &storage) : storage(storage) {}
+  ConfigManager(IStorage *storageBackend = nullptr)
+      : globalCfg(CONFIG_MANAGER_NAMESPACE "/" GLOBAL_CONFIG_KEY, storageBackend),
+        keyScannerCfg(CONFIG_MANAGER_NAMESPACE "/" KEYSCANNER_CONFIG_KEY, storageBackend) {}
 
   /**
    * @brief Retrieve the configuration of type T.
    * @return The configuration object of type T.
    */
-  template <typename T> T getConfig() const;
+  template <typename T>
+  T getConfig() const;
 
   /**
    * @brief Set the configuration of type T.
    * @param cfg The configuration object to set.
    */
-  template <typename T> void setConfig(const T &cfg);
+  template <typename T>
+  void setConfig(const T &cfg);
 
   /**
    * @brief Save all configurations to storage.
@@ -68,11 +71,14 @@ public:
  * @brief Retrieve the GlobalConfig configuration.
  * @return The GlobalConfig object.
  */
-template <> inline GlobalConfig ConfigManager::getConfig<GlobalConfig>() const {
+template <>
+inline GlobalConfig ConfigManager::getConfig<GlobalConfig>() const
+{
   GlobalConfig::SerializedConfig serialized = globalCfg.get();
   GlobalConfig config; // Create with defaults
   // Only unpack if we have valid data (size > 0)
-  if (serialized.size > 0) {
+  if (serialized.size > 0)
+  {
     config.unpackSerialized(serialized.data, serialized.size);
   }
   return config;
@@ -83,11 +89,13 @@ template <> inline GlobalConfig ConfigManager::getConfig<GlobalConfig>() const {
  * @return The KeyScannerConfig object.
  */
 template <>
-inline KeyScannerConfig ConfigManager::getConfig<KeyScannerConfig>() const {
+inline KeyScannerConfig ConfigManager::getConfig<KeyScannerConfig>() const
+{
   KeyScannerConfig::SerializedConfig serialized = keyScannerCfg.get();
   KeyScannerConfig config; // Create with defaults
   // Only unpack if we have valid data (size > 0)
-  if (serialized.size > 0) {
+  if (serialized.size > 0)
+  {
     config.unpackSerialized(serialized.data, serialized.size);
   }
   return config;
@@ -98,11 +106,13 @@ inline KeyScannerConfig ConfigManager::getConfig<KeyScannerConfig>() const {
  * @param cfg The GlobalConfig object to set.
  */
 template <>
-inline void ConfigManager::setConfig<GlobalConfig>(const GlobalConfig &cfg) {
+inline void ConfigManager::setConfig<GlobalConfig>(const GlobalConfig &cfg)
+{
   GlobalConfig::SerializedConfig serialized;
   serialized.size =
       cfg.packSerialized(serialized.data, sizeof(serialized.data));
-  if (serialized.size == 0) {
+  if (serialized.size == 0)
+  {
     printf("ERROR: Failed to serialize GlobalConfig\n");
     return;
   }
@@ -115,11 +125,13 @@ inline void ConfigManager::setConfig<GlobalConfig>(const GlobalConfig &cfg) {
  */
 template <>
 inline void
-ConfigManager::setConfig<KeyScannerConfig>(const KeyScannerConfig &cfg) {
+ConfigManager::setConfig<KeyScannerConfig>(const KeyScannerConfig &cfg)
+{
   KeyScannerConfig::SerializedConfig serialized;
   serialized.size =
       cfg.packSerialized(serialized.data, sizeof(serialized.data));
-  if (serialized.size == 0) {
+  if (serialized.size == 0)
+  {
     printf("ERROR: Failed to serialize KeyScannerConfig\n");
     return;
   }

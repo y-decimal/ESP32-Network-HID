@@ -14,7 +14,7 @@ Esp32Gpio espGpio;
 EspNow espNow;
 
 PreferencesStorage prefStorage(CONFIG_MANAGER_NAMESPACE);
-ConfigManager mainCfg(prefStorage);
+ConfigManager mainCfg(&prefStorage);
 TaskManager taskManager(mainCfg, espGpio, espNow); // Move outside setup()
 
 void keyPrintCallback(const Event &event)
