@@ -52,8 +52,8 @@ void TaskManager::startMasterEspTask(ITransport &espNow)
   {
     masterEspHandle = nullptr;
     delete params;
-    delete protocol;
-    delete eventBusQueueReference;
+    protocol = nullptr;
+    eventBusQueueReference = nullptr;
   }
 }
 
@@ -62,8 +62,8 @@ void TaskManager::stopMasterEspTask()
   if (masterEspHandle == nullptr)
     return;
 
-  delete protocol;
-  delete eventBusQueueReference;
+  protocol = nullptr;
+  eventBusQueueReference = nullptr;
 
   vTaskDelete(masterEspHandle);
   masterEspHandle = nullptr;
