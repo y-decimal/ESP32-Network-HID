@@ -22,7 +22,7 @@ struct RawKeyEvent
 struct IdentifiableKeyEvent
 {
   RawKeyEvent raw;
-  const uint8_t *sourceMac;
+  uint8_t sourceId;
 };
 
 struct RawBitmapEvent
@@ -34,7 +34,7 @@ struct RawBitmapEvent
 struct IdentifiableBitMapEvent
 {
   RawBitmapEvent raw;
-  const uint8_t *sourceMac;
+  uint8_t sourceID;
 };
 
 struct Event
