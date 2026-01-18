@@ -37,9 +37,11 @@ void TransportProtocol::sendKeyEvent(const RawKeyEvent &keyEvent)
 
 void TransportProtocol::sendBitmapEvent(const RawBitmapEvent &bitmapEvent)
 {
-    size_t len = sizeof(RawKeyEvent);
+    // Serialize as: [bitMapSize (1 byte)][bitMapData (N bytes)]
+    size_t len = 1 + bitmapEvent.bitMapSize;
     uint8_t *buffer = (uint8_t *)malloc(len);
-    memcpy(buffer, &bitmapEvent, len);
+    buffer[0] = bitmapEvent.bitMapSize;
+    memcpy(buffer + 1, bitmapEvent.bitMapData, bitmapEvent.bitMapSize);
     transport.sendData(KEY_BITMAP, buffer, len, masterMac.data());
     free(buffer);
 }
@@ -121,11 +123,17 @@ void TransportProtocol::onBitmapEvent(std::function<void(const RawBitmapEvent &b
     transport.registerPacketTypeCallback(KEY_BITMAP,
                                          [this](uint8_t type, const uint8_t *data, size_t len, const uint8_t *mac)
                                          {
-                                             if (bitmapEventCallback && len >= sizeof(RawBitmapEvent))
+                                             // Deserialize: [bitMapSize (1 byte)][bitMapData (N bytes)]
+                                             if (bitmapEventCallback && len >= 1)
                                              {
                                                  RawBitmapEvent bitmapEvent;
-                                                 memcpy(&bitmapEvent, data, sizeof(RawBitmapEvent));
-                                                 bitmapEventCallback(bitmapEvent, getIdByMac(mac));
+                                                 bitmapEvent.bitMapSize = data[0];
+                                                 if (len >= 1 + bitmapEvent.bitMapSize)
+                                                 {
+                                                     bitmapEvent.bitMapData = (uint8_t *)malloc(bitmapEvent.bitMapSize);
+                                                     memcpy(bitmapEvent.bitMapData, data + 1, bitmapEvent.bitMapSize);
+                                                     bitmapEventCallback(bitmapEvent, getIdByMac(mac));
+                                                 }
                                              }
                                          });
 }
@@ -160,9 +168,6 @@ void TransportProtocol::handlePairingRequest(const uint8_t *data, size_t dataLen
     peerDevices.push_back({});
     memcpy(peerDevices.back().data(), mac, sizeof(mac_t));
     this->transport.sendData(PAIRING_CONFIRMATION, data, dataLen, mac);
-    printf("Received pairing request from device ID %d, mac %02x:%02x:%02x:%02x:%02x:%02x\n",
-           getIdByMac(mac), mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-
     if (pairingRequestCallback)
     {
         pairingRequestCallback(data, getIdByMac(mac));
@@ -173,9 +178,7 @@ void TransportProtocol::handlePairingConfirmation(const uint8_t *data, size_t da
 {
     peerDevices.push_back({});
     memcpy(peerDevices.back().data(), mac, sizeof(mac_t));
-    printf("Paired with device ID %d, mac %02x:%02x:%02x:%02x:%02x:%02x\n",
-           getIdByMac(mac), mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-
+    memcpy(masterMac.data(), mac, sizeof(mac_t));
     if (pairingConfirmationCallback)
     {
         pairingConfirmationCallback(data, getIdByMac(mac));
