@@ -11,7 +11,7 @@
 #include <submodules/EspNow.h>
 
 Esp32Gpio espGpio;
-EspNow espNow; // Todo: implements IEspNow
+EspNow espNow;
 
 PreferencesStorage prefStorage(CONFIG_MANAGER_NAMESPACE);
 ConfigManager mainCfg(prefStorage);
