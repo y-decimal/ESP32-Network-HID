@@ -1,79 +1,25 @@
-#include <shared/CommTypes.h>
 #include <system/TaskManager.h>
+#include <submodules/EspNowProtocol.h>
+
+static EspNowProtocol *protocol = nullptr;
+static QueueHandle_t eventBusQueueReference = nullptr;
+
+void pairReceiveCallback(const uint8_t *data, uint8_t sourceId);
+void keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderId);
+void bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_t senderId);
 
 void TaskManager::masterEspTask(void *arg)
 {
   MasterEspParameters *params = static_cast<MasterEspParameters *>(arg);
 
-  QueueHandle_t eventBusQueueReference = params->eventBusQueue;
-  IEspNow &espNow = *params->espNow;
+  eventBusQueueReference = params->eventBusQueue;
+  protocol = new EspNowProtocol(*params->espNow);
 
   delete params;
 
-  auto pairReceiveCallback = [&espNow](const uint8_t *data, size_t length, const uint8_t *senderMac)
-  {
-    bool sendSuccess = espNow.sendData(static_cast<uint8_t>(PacketType::PairingConfirmation), data, length, senderMac);
-    uint8_t receivedSeqNum = 0;
-    memcpy(&receivedSeqNum, data, length);
-    printf("Received Pairing request %d from %02x:%02x:%02x:%02x:%02x:%02x, sent reply: %s\n",
-           receivedSeqNum,
-           senderMac[0], senderMac[1], senderMac[2], senderMac[3], senderMac[4], senderMac[5],
-           sendSuccess ? "success" : "failure");
-  };
-
-  auto keyReceiveCallback = [eventBusQueueReference](const uint8_t *data, size_t length, const uint8_t *senderMac)
-  {
-    AirKeyEvent espKeyEvent = {};
-    memcpy(&espKeyEvent, data, length);
-
-    KeyEvent keyEvent;
-    keyEvent.keyIndex = espKeyEvent.keyIndex;
-    keyEvent.state = espKeyEvent.state;
-    keyEvent.sourceMac = senderMac;
-
-    Event event = {};
-    event.type = EventType::Key;
-    event.key = keyEvent;
-    event.cleanup = cleanupKeyEvent;
-    xQueueSend(eventBusQueueReference, &event, pdMS_TO_TICKS(20));
-  };
-
-  auto bitmapReceiveCallback = [eventBusQueueReference](const uint8_t *data, size_t length, const uint8_t *senderMac)
-  {
-    if (length < 1)
-    {
-      printf("Invalid bitmap packet: too short\n");
-      return;
-    }
-
-    uint8_t bitMapSize = data[0];
-
-    // Allocate memory for the bitmap data
-    uint8_t *bitMapData = static_cast<uint8_t *>(malloc(bitMapSize));
-    if (!bitMapData)
-    {
-      printf("Failed to allocate memory for bitmap\n");
-      return;
-    }
-
-    // Copy the bitmap data (skip first byte which is the size)
-    memcpy(bitMapData, data + 1, bitMapSize);
-
-    BitMapEvent bitmapEvent;
-    bitmapEvent.bitMapSize = bitMapSize;
-    bitmapEvent.bitMapData = bitMapData;
-    bitmapEvent.sourceMac = senderMac;
-
-    Event event = {};
-    event.type = EventType::BitMap;
-    event.bitMap = bitmapEvent;
-    event.cleanup = cleanupBitmapEvent;
-    xQueueSend(eventBusQueueReference, &event, pdMS_TO_TICKS(20));
-  };
-
-  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyEvent), keyReceiveCallback);
-  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::KeyBitmap), bitmapReceiveCallback);
-  espNow.registerPacketTypeCallback(static_cast<uint8_t>(PacketType::PairingRequest), pairReceiveCallback);
+  protocol->onKeyEvent(keyReceiveCallback);
+  protocol->onBitmapEvent(bitmapReceiveCallback);
+  protocol->onPairingRequest(pairReceiveCallback);
 
   TickType_t previousWakeTime = xTaskGetTickCount();
 
@@ -113,6 +59,10 @@ void TaskManager::stopMasterEspTask()
 {
   if (masterEspHandle == nullptr)
     return;
+
+  delete protocol;
+  delete eventBusQueueReference;
+  
   vTaskDelete(masterEspHandle);
   masterEspHandle = nullptr;
 }
@@ -123,3 +73,31 @@ void TaskManager::restartMasterEspTask(IEspNow &espNow)
     stopMasterEspTask();
   startMasterEspTask(espNow);
 }
+
+void pairReceiveCallback(const uint8_t *data, uint8_t sourceId)
+{
+  uint8_t senderMac[6] = {};
+  protocol->getMacById(sourceId, senderMac);
+  printf("Received Pairing request from %02x:%02x:%02x:%02x:%02x:%02x",
+         senderMac[0], senderMac[1], senderMac[2], senderMac[3], senderMac[4], senderMac[5]);
+};
+
+void keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderId)
+{
+  Event event = {};
+  event.type = EventType::IdKey;
+  event.idKeyEvt.raw = keyEvent;
+  event.idKeyEvt.sourceId = senderId;
+  event.cleanup = cleanupIdentifiableKeyEvent;
+  xQueueSend(eventBusQueueReference, &event, pdMS_TO_TICKS(20));
+};
+
+void bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_t senderId)
+{
+  Event event = {};
+  event.type = EventType::IdBitmap;
+  event.idBitmapEvt.raw = bitmapEvent;
+  event.idBitmapEvt.sourceID = senderId;
+  event.cleanup = cleanupIdentifiableBitmapEvent;
+  xQueueSend(eventBusQueueReference, &event, pdMS_TO_TICKS(20));
+};
