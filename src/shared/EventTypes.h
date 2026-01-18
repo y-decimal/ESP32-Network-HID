@@ -47,8 +47,8 @@ struct Event
   {
     RawKeyEvent rawKeyEvt;
     RawBitmapEvent rawBitmapEvt;
-    IdentifiableKeyEvent iKeyEvt;
-    IdentifiableBitMapEvent iBitmapEvt;
+    IdentifiableKeyEvent idKeyEvt;
+    IdentifiableBitMapEvent idBitmapEvt;
   };
 };
 
