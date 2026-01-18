@@ -6,6 +6,7 @@
 #include <interfaces/ITransport.h>
 #include <functional>
 #include <vector>
+#include <array>
 #include <unordered_map>
 
 enum class PacketType : uint8_t
@@ -59,7 +60,7 @@ public:
     void onPairingConfirmation(std::function<void(const uint8_t *data, uint8_t sourceId)> callback);
 
 private:
-    typedef uint8_t mac_t[6];
+    typedef std::array<uint8_t, 6> mac_t;
 
     ITransport &transport;
 
