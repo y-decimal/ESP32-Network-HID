@@ -8,10 +8,10 @@
 #include "../FakeStorage.h"
 #endif
 
-#include <submodules/Storage/GenericStorage.h>
+#include <submodules/Storage/TGenericStorage.h>
 #include <unity.h>
 
-#define NAMESPACE "GenStorTest"
+#define NAMESPACE "TGenStorTest"
 #define TEST_KEY "test_key"
 #define LOAD_KEY "load_key"
 #define NONEXISTENT_KEY "nonexistent_key"
@@ -42,7 +42,7 @@ void test_GenericStorage_initialization() {
     char name[10];
   };
 
-  GenericStorage<TestData> storage(TEST_KEY, &testStorage);
+  ThreadSafeGenericStorage<TestData> storage(TEST_KEY, &testStorage);
   TEST_ASSERT_FALSE(storage.isDirty());
 }
 
@@ -51,7 +51,7 @@ void test_GenericStorage_set_marks_dirty() {
     int value;
   };
 
-  GenericStorage<TestData> storage(TEST_KEY, &testStorage);
+  ThreadSafeGenericStorage<TestData> storage(TEST_KEY, &testStorage);
   TestData data = {42};
 
   storage.set(data);
@@ -64,7 +64,7 @@ void test_GenericStorage_save_clears_dirty() {
     int value;
   };
 
-  GenericStorage<TestData> storage(TEST_KEY, &testStorage);
+  ThreadSafeGenericStorage<TestData> storage(TEST_KEY, &testStorage);
   TestData data = {42};
 
   storage.set(data);
@@ -81,13 +81,13 @@ void test_GenericStorage_load_restores_data() {
     char text[5];
   };
 
-  GenericStorage<TestData> storage1(LOAD_KEY, &testStorage);
+  ThreadSafeGenericStorage<TestData> storage1(LOAD_KEY, &testStorage);
   TestData data = {123, "test"};
 
   storage1.set(data);
   storage1.save();
 
-  GenericStorage<TestData> storage2(LOAD_KEY, &testStorage);
+  ThreadSafeGenericStorage<TestData> storage2(LOAD_KEY, &testStorage);
   bool loaded = storage2.load();
 
   TEST_ASSERT_TRUE(loaded);
@@ -101,7 +101,7 @@ void test_GenericStorage_load_fails_on_nonexistent_key() {
     int value;
   };
 
-  GenericStorage<TestData> storage(NONEXISTENT_KEY, &testStorage);
+  ThreadSafeGenericStorage<TestData> storage(NONEXISTENT_KEY, &testStorage);
   bool loaded = storage.load();
 
   TEST_ASSERT_FALSE(loaded);
@@ -112,7 +112,7 @@ void test_GenericStorage_clearDirty() {
     int value;
   };
 
-  GenericStorage<TestData> storage(TEST_KEY, &testStorage);
+  ThreadSafeGenericStorage<TestData> storage(TEST_KEY, &testStorage);
   TestData data = {42};
 
   storage.set(data);
@@ -127,7 +127,7 @@ void test_GenericStorage_multiple_saves() {
     int value;
   };
 
-  GenericStorage<TestData> storage(MULTI_KEY, &testStorage);
+  ThreadSafeGenericStorage<TestData> storage(MULTI_KEY, &testStorage);
 
   TestData data1 = {100};
   storage.set(data1);
@@ -137,7 +137,7 @@ void test_GenericStorage_multiple_saves() {
   storage.set(data2);
   storage.save();
 
-  GenericStorage<TestData> storage2(MULTI_KEY, &testStorage);
+  ThreadSafeGenericStorage<TestData> storage2(MULTI_KEY, &testStorage);
   storage2.load();
 
   TEST_ASSERT_EQUAL(200, storage2.get().value);

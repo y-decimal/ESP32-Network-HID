@@ -36,12 +36,12 @@ void tearDown() {
 }
 
 void test_ConfigManager_initialization() {
-  ConfigManager manager(testStorage);
+  ConfigManager manager(&testStorage);
   TEST_ASSERT_TRUE(true); // Basic initialization test
 }
 
 void test_ConfigManager_getConfig_GlobalConfig_defaults() {
-  ConfigManager manager(testStorage);
+  ConfigManager manager(&testStorage);
   GlobalConfig config = manager.getConfig<GlobalConfig>();
 
   // Test that we get a valid config with defaults
@@ -51,7 +51,7 @@ void test_ConfigManager_getConfig_GlobalConfig_defaults() {
 }
 
 void test_ConfigManager_getConfig_KeyScannerConfig_defaults() {
-  ConfigManager manager(testStorage);
+  ConfigManager manager(&testStorage);
   KeyScannerConfig config = manager.getConfig<KeyScannerConfig>();
 
   // Test that we get a valid config with defaults
@@ -59,7 +59,7 @@ void test_ConfigManager_getConfig_KeyScannerConfig_defaults() {
 }
 
 void test_ConfigManager_setConfig_GlobalConfig() {
-  ConfigManager manager(testStorage);
+  ConfigManager manager(&testStorage);
   GlobalConfig config;
   MacAddress testMac = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
   config.setMac(testMac);
@@ -73,7 +73,7 @@ void test_ConfigManager_setConfig_GlobalConfig() {
 }
 
 void test_ConfigManager_setConfig_KeyScannerConfig() {
-  ConfigManager manager(testStorage);
+  ConfigManager manager(&testStorage);
   KeyScannerConfig config;
   config.setRefreshRate(100);
 
@@ -84,7 +84,7 @@ void test_ConfigManager_setConfig_KeyScannerConfig() {
 }
 
 void test_ConfigManager_saveConfig() {
-  ConfigManager manager(testStorage);
+  ConfigManager manager(&testStorage);
   GlobalConfig config;
   MacAddress testMac = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
   config.setMac(testMac);
@@ -96,7 +96,7 @@ void test_ConfigManager_saveConfig() {
 }
 
 void test_ConfigManager_loadConfig() {
-  ConfigManager manager1(testStorage);
+  ConfigManager manager1(&testStorage);
   GlobalConfig config;
   MacAddress testMac = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66};
   config.setMac(testMac);
@@ -108,7 +108,7 @@ void test_ConfigManager_loadConfig() {
   bool saved = manager1.saveConfig();
   TEST_ASSERT_TRUE(saved);
 
-  ConfigManager manager2(testStorage);
+  ConfigManager manager2(&testStorage);
   bool loaded = manager2.loadConfig();
 
   TEST_ASSERT_TRUE(loaded);
@@ -119,7 +119,7 @@ void test_ConfigManager_loadConfig() {
 }
 
 void test_ConfigManager_save_and_load_multiple_configs() {
-  ConfigManager manager1(testStorage);
+  ConfigManager manager1(&testStorage);
 
   GlobalConfig globalCfg;
   MacAddress testMac = {0x10, 0x20, 0x30, 0x40, 0x50, 0x60};
@@ -132,7 +132,7 @@ void test_ConfigManager_save_and_load_multiple_configs() {
 
   manager1.saveConfig();
 
-  ConfigManager manager2(testStorage);
+  ConfigManager manager2(&testStorage);
   manager2.loadConfig();
 
   GlobalConfig retrievedGlobal = manager2.getConfig<GlobalConfig>();
@@ -145,7 +145,7 @@ void test_ConfigManager_save_and_load_multiple_configs() {
 }
 
 void test_ConfigManager_overwrite_config() {
-  ConfigManager manager(testStorage);
+  ConfigManager manager(&testStorage);
 
   GlobalConfig config1;
   MacAddress mac1 = {0x01, 0x01, 0x01, 0x01, 0x01, 0x01};
@@ -159,7 +159,7 @@ void test_ConfigManager_overwrite_config() {
   manager.setConfig(config2);
   manager.saveConfig();
 
-  ConfigManager manager2(testStorage);
+  ConfigManager manager2(&testStorage);
   manager2.loadConfig();
   GlobalConfig retrieved = manager2.getConfig<GlobalConfig>();
 

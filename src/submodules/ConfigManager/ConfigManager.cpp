@@ -1,7 +1,7 @@
 #include <submodules/ConfigManager/ConfigManager.h>
 
-bool ConfigManager::saveConfig() {
-
+bool ConfigManager::saveConfig()
+{
   bool globalSaved = false;
   bool keySaved = false;
 
@@ -18,8 +18,8 @@ bool ConfigManager::saveConfig() {
   return globalSaved && keySaved;
 }
 
-bool ConfigManager::loadConfig() {
-
+bool ConfigManager::loadConfig()
+{
   bool globalLoaded = false;
   bool keyLoaded = false;
 

@@ -6,7 +6,7 @@
 // temp local definitions for testing
 
 PreferencesStorage prefStorage(CONFIG_MANAGER_NAMESPACE);
-ConfigManager mainCfg(prefStorage);
+ConfigManager mainCfg(&prefStorage);
 TaskManager taskManager(mainCfg); // Move outside setup()
 
 void keyPrintCallback(const Event &event) {
