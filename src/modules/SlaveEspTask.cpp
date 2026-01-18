@@ -81,8 +81,7 @@ void TaskManager::startSlaveEspTask(ITransport &espNow)
   {
     slaveEspHandle = nullptr;
     delete params;
-    delete localEventBusQueue;
-    delete protocol;
+    protocol = nullptr;
   }
 }
 
@@ -91,8 +90,14 @@ void TaskManager::stopSlaveEspTask()
   if (slaveEspHandle == nullptr)
     return;
 
-  delete localEventBusQueue;
+  if (localKeyQueue != nullptr)
+  {
+    vQueueDelete(localKeyQueue);
+    localKeyQueue = nullptr;
+  }
+
   delete protocol;
+  protocol = nullptr;
 
   vTaskDelete(slaveEspHandle);
   slaveEspHandle = nullptr;
@@ -107,7 +112,10 @@ void TaskManager::restartSlaveEspTask(ITransport &espNow)
 
 void eventBusCallback(const Event &evt)
 {
-  xQueueSend(localEventBusQueue, &evt, pdMS_TO_TICKS(10));
+  if (localKeyQueue != nullptr)
+  {
+    xQueueSend(localKeyQueue, &evt, pdMS_TO_TICKS(10));
+  }
 }
 
 void pairConfirmCallback(const uint8_t *data, const uint8_t sourceId)
