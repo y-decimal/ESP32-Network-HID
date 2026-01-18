@@ -30,7 +30,7 @@ void TaskManager::slaveEspTask(void *arg)
     {
       protocol->sendPairingRequest();
       xTaskDelayUntil(&previousWakeTime, pdMS_TO_TICKS(3500));
-      break;
+      continue;
     }
 
     // If connected, process key events from the queue
