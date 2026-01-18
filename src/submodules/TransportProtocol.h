@@ -65,6 +65,12 @@ private:
 
     std::vector<mac_t> peerDevices = {}; // List of active communication partners at runtime
     mac_t masterMac = {};
+
+    std::function<void(const RawKeyEvent &keyEvent, uint8_t senderId)> keyEventCallback;
+    std::function<void(const RawBitmapEvent &bitmapEvent, uint8_t senderId)> bitmapEventCallback;
+    std::function<void(ConfigManager &config, uint8_t senderId)> configCallback;
+    std::function<void(const uint8_t *, uint8_t)> pairingRequestCallback;
+    std::function<void(const uint8_t *, uint8_t)> pairingConfirmationCallback;
 };
 
 #endif
