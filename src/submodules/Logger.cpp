@@ -141,6 +141,7 @@ void Logger::log(const char *logNamespace, LogLevel level, const char *message)
         writeWithNamespace(logNamespace, level, message);
         break;
     case LogMode::Global:
+        std::lock_guard<std::mutex> lock(LoggerCore::mutex);
         if (LoggerCore::globalCallback)
             LoggerCore::globalCallback(logNamespace, level, message);
         break;
