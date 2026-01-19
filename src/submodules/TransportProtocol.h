@@ -1,5 +1,5 @@
-#ifndef ESPNOWPROTOCOL_H
-#define ESPNOWPROTOCOL_H
+#ifndef TRANSPORTPROTOCOL_H
+#define TRANSPORTPROTOCOL_H
 
 #include <shared/EventTypes.h>
 #include <submodules/ConfigManager/ConfigManager.h>
