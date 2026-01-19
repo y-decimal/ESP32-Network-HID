@@ -1,6 +1,8 @@
 #include <system/TaskManager.h>
 #include <submodules/Logger.h>
 
+static constexpr char* LOG_NAMESPACE = "LoggerTask";
+
 static QueueHandle_t localLogQueueReference = nullptr;
 
 struct LogEvent
@@ -12,11 +14,16 @@ struct LogEvent
 
 void callback(const char *logNamespace, Logger::LogLevel level, const char *message)
 {
-    if (!localLogQueueReference)
+    if (!localLogQueueReference) {
+        Logger::writeWithNamespace(LOG_NAMESPACE, Logger::LogLevel::warn, "Log queue not initialized");
         return;
+    }
+
 
     LogEvent logEvent{logNamespace, level, message};
-    xQueueSend(localLogQueueReference, &logEvent, pdMS_TO_TICKS(15));
+    if (xQueueSend(localLogQueueReference, &logEvent, pdMS_TO_TICKS(15)) != pdPASS) {
+        Logger::writeWithNamespace(LOG_NAMESPACE, Logger::LogLevel::warn, "Failed to send log event to queue");
+    }
 }
 
 void TaskManager::loggerTask(void *arg)
