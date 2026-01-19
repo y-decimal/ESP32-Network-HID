@@ -1,7 +1,7 @@
 #include <system/TaskManager.h>
 #include <submodules/Logger.h>
 
-static constexpr char *LOG_NAMESPACE = "LoggerTask";
+static constexpr const char *LOG_NAMESPACE = "LoggerTask";
 
 static QueueHandle_t localLogQueueReference = nullptr;
 
