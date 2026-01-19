@@ -26,4 +26,9 @@ static constexpr uint32_t STACK_KEYSCAN = 4096;
 static constexpr UBaseType_t PRIORITY_KEYSCAN = 5;
 static constexpr BaseType_t CORE_KEYSCAN = 1;
 
+// Logger Task Config
+static constexpr uint32_t STACK_LOGGER = 4096;
+static constexpr UBaseType_t PRIORITY_LOGGER = 3;
+static constexpr BaseType_t CORE_LOGGER = 0;
+
 #endif

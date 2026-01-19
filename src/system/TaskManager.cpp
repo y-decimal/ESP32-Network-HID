@@ -21,4 +21,5 @@ void TaskManager::initializeTasks() {
   // Implement role based logic here later
   startPriorityEventHandler();
   startKeyScanner();
+  startLogger();
 }
