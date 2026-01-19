@@ -1,22 +1,36 @@
-#include <shared/EventTypes.h>
-#include <submodules/Esp32Gpio.h>
-#include <submodules/KeyScanner.h>
-#include <system/TaskManager.h>
+#include <modules/KeyScannerTask.h>
 
-static QueueHandle_t eventBusReference = nullptr;
+// Initialize static member variable
+KeyScannerTask *KeyScannerTask::instance = nullptr;
 
-void keyEventCallback(uint16_t keyIndex, bool state)
+KeyScannerTask::KeyScannerTask(ConfigManager &configManager, IGpio &gpio)
+    : configManagerRef(&configManager), 
+      gpioRef(&gpio)
+{
+  instance = this;
+}
+
+KeyScannerTask::~KeyScannerTask()
+{
+  instance = nullptr;
+  // more later if needed
+}
+
+void KeyScannerTask::keyEventCallback(uint16_t keyIndex, bool state)
 {
   RawKeyEvent rKeyEvent{keyIndex, state};
   Event event{};
   event.type = EventType::RawKey;
   event.rawKeyEvt = rKeyEvent;
   event.cleanup = cleanupRawKeyEvent;
-  if (xQueueSend(eventBusReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
-    printf("[KeyScanner]: Could not push key event to queue\n");
+  if (!EventRegistry::pushEvent(event))
+  {
+    KeyScannerTask::instance->internalLog->error("Failed to push key event to EventRegistry");
+    event.cleanup(&event);
+  }
 }
 
-void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap)
+void KeyScannerTask::sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap)
 {
   RawBitmapEvent rBitmapEvent{};
   rBitmapEvent.bitMapSize = bitMapSize;
@@ -28,36 +42,30 @@ void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap)
   event.rawBitmapEvt = rBitmapEvent;
   event.cleanup = cleanupRawBitmapEvent;
 
-  if (xQueueSend(eventBusReference, &event, pdMS_TO_TICKS(10)) != pdTRUE)
-    printf("[KeyScanner]: Could not push bitmap event to queue\n");
+  if (!EventRegistry::pushEvent(event))
+  {
+    KeyScannerTask::instance->internalLog->error("Failed to push bitmap event to EventRegistry");
+    event.cleanup(&event);
+  }
 }
 
-void TaskManager::keyScannerTask(void *arg)
+void KeyScannerTask::taskEntry(void *arg)
 {
-  KeyScannerParameters *params = static_cast<KeyScannerParameters *>(arg);
+  KeyScannerTask *task = static_cast<KeyScannerTask *>(arg);
 
-  if (!params)
+  if (!task)
   {
-    printf("[KeyScannerTask]: Received invalid parameters, aborting\n");
+    KeyScannerTask::instance->internalLog->error("Received invalid parameters, aborting");
     vTaskDelete(nullptr);
   }
-  if (!params->configManager)
-  {
-    printf("[KeyScannerTask]: Received invalid configManager, aborting\n");
-    vTaskDelete(nullptr);
-  }
-
-  eventBusReference = params->eventBusQueue;
 
   // Get immutable local copy of config at task startup.
   // ConfigManager holds the live reference; this task operates only on its
   // snapshot.
   KeyScannerConfig localConfig =
-      params->configManager->getConfig<KeyScannerConfig>();
+      task->configManagerRef->getConfig<KeyScannerConfig>();
 
-  IGpio &gpio = *params->gpio;
-
-  delete params;
+  IGpio &gpio = *task->gpioRef;
 
   // Store pin vectors locally so their data() pointers remain valid
   pinType rowPins = localConfig.getRowPins();
@@ -74,9 +82,7 @@ void TaskManager::keyScannerTask(void *arg)
       pdMS_TO_TICKS((1000 / localConfig.getRefreshRate()));
 
   // Calculate bitmap send interval in loops based on frequency
-  // bitMapSendInterval is now in Hz (frequency), so convert to loop count
-  uint16_t bitMapLoopInterval =
-      localConfig.getRefreshRate() / localConfig.getBitMapSendInterval();
+  uint16_t bitMapLoopInterval = localConfig.getRefreshRate() / localConfig.getBitMapSendInterval();
   if (bitMapLoopInterval == 0)
     bitMapLoopInterval = 1; // Minimum 1 loop if freq > refresh rate
 
@@ -101,34 +107,46 @@ void TaskManager::keyScannerTask(void *arg)
 
 // KeyScanner helper functions
 
-void TaskManager::startKeyScanner(IGpio &gpio)
+void KeyScannerTask::start(TaskParameters params)
 {
+  internalLog = new Logger(KEYSCANNER_NAMESPACE);
 
-  KeyScannerParameters *keyParams = new KeyScannerParameters();
-  keyParams->configManager = &configManager;
-  keyParams->eventBusQueue = eventBusQueue;
-  keyParams->gpio = &gpio;
+
+  if (keyScannerTaskHandle != nullptr)
+  {
+    internalLog->warn("KeyScannerTask already running");
+    return;
+  }
+
+  internalLog->info("Starting KeyScannerTask with stack size %u, priority %d, core affinity %d",
+                   params.stackSize, params.priority, params.coreAffinity);
+
   BaseType_t result = xTaskCreatePinnedToCore(
-      keyScannerTask, "KeyScanner", STACK_KEYSCAN, keyParams, PRIORITY_KEYSCAN,
-      &keyScannerHandle, CORE_KEYSCAN);
+      taskEntry, "KeyScannerTask", params.stackSize, this,
+      params.priority, &keyScannerTaskHandle, params.coreAffinity);
   if (result != pdPASS)
   {
-    delete keyParams;
-    keyScannerHandle = nullptr;
+    internalLog->error("Failed to create KeyScannerTask");
+    keyScannerTaskHandle = nullptr;
   }
 }
 
-void TaskManager::stopKeyScanner()
+void KeyScannerTask::stop()
 {
-  if (keyScannerHandle == nullptr)
+  internalLog->info("Stopping KeyScannerTask");
+  if (keyScannerTaskHandle == nullptr)
+  {
+    internalLog->info("Stop called but KeyScannerTask is not running");
     return;
-  eventBusReference = nullptr;
-  vTaskDelete(keyScannerHandle);
-  keyScannerHandle = nullptr;
+  }
+  vTaskDelete(keyScannerTaskHandle);
+  keyScannerTaskHandle = nullptr;
 }
-void TaskManager::restartKeyScanner(IGpio &gpio)
+
+void KeyScannerTask::restart(TaskParameters params)
 {
-  if (keyScannerHandle != nullptr)
-    stopKeyScanner();
-  startKeyScanner(gpio);
+  internalLog->info("Restarting KeyScannerTask");
+  if (keyScannerTaskHandle != nullptr)
+    stop();
+  start(params);
 }
