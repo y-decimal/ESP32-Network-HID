@@ -133,7 +133,7 @@ void Logger::error(const char *format, ...)
 
     va_list args;
     va_start(args, format);
-    log(logNs, LogLevel::error, format, args);
+    logV(logNs, LogLevel::error, format, args);
     va_end(args);
 }
 
@@ -146,7 +146,7 @@ void Logger::warn(const char *format, ...)
 
     va_list args;
     va_start(args, format);
-    log(logNs, LogLevel::warn, format, args);
+    logV(logNs, LogLevel::warn, format, args);
     va_end(args);
 }
 
@@ -159,7 +159,7 @@ void Logger::info(const char *format, ...)
 
     va_list args;
     va_start(args, format);
-    log(logNs, LogLevel::info, format, args);
+    logV(logNs, LogLevel::info, format, args);
     va_end(args);
 }
 
@@ -172,24 +172,14 @@ void Logger::debug(const char *format, ...)
 
     va_list args;
     va_start(args, format);
-    log(logNs, LogLevel::debug, format, args);
+    logV(logNs, LogLevel::debug, format, args);
     va_end(args);
 }
 
-void Logger::log(const char *logNamespace, LogLevel level, const char *format, va_list args)
+void Logger::log(const char *logNamespace, LogLevel level, const char *format, ...)
 {
-    switch (mode)
-    {
-    case LogMode::Local:
-        writeWithNamespaceV(logNamespace, level, format, args);
-        break;
-    case LogMode::Global:
-        // Format the message for global callback
-        char messageBuffer[256];
-        vsnprintf(messageBuffer, sizeof(messageBuffer), format, args);
-        std::lock_guard<std::mutex> lock(LoggerCore::mutex);
-        if (LoggerCore::globalCallback)
-            LoggerCore::globalCallback(logNamespace, level, messageBuffer);
-        break;
-    }
+    va_list args;
+    va_start(args, format);
+    logV(logNamespace, level, format, args);
+    va_end(args);
 }
