@@ -62,11 +62,16 @@ void TaskManager::stopMasterEspTask()
   if (masterEspHandle == nullptr)
     return;
 
-  protocol = nullptr;
   eventBusQueueReference = nullptr;
 
   vTaskDelete(masterEspHandle);
   masterEspHandle = nullptr;
+
+  if (protocol != nullptr)
+  {
+    delete protocol;
+    protocol = nullptr;
+  }
 }
 
 void TaskManager::restartMasterEspTask(ITransport &espNow)
