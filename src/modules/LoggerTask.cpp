@@ -70,6 +70,12 @@ void TaskManager::stopLogger()
         return;
     vTaskDelete(loggerHandle);
     loggerHandle = nullptr;
+
+    if (localLogQueueReference != nullptr)
+    {
+        vQueueDelete(localLogQueueReference);
+        localLogQueueReference = nullptr;
+    }
 }
 
 void TaskManager::restartLogger()
