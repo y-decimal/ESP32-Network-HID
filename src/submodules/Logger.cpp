@@ -106,6 +106,24 @@ void Logger::setMode(LogMode mode)
     this->mode = mode;
 }
 
+void Logger::logV(const char *logNamespace, LogLevel level, const char *format, va_list args)
+{
+    switch (mode)
+    {
+    case LogMode::Local:
+        writeWithNamespaceV(logNamespace, level, format, args);
+        break;
+    case LogMode::Global:
+        // Format the message for global callback
+        char messageBuffer[256];
+        vsnprintf(messageBuffer, sizeof(messageBuffer), format, args);
+        std::lock_guard<std::mutex> lock(LoggerCore::mutex);
+        if (LoggerCore::globalCallback)
+            LoggerCore::globalCallback(logNamespace, level, messageBuffer);
+        break;
+    }
+}
+
 void Logger::error(const char *format, ...)
 {
     const char *logNs = this->logNamespace.c_str();
