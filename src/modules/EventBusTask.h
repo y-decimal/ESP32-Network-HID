@@ -8,7 +8,9 @@
 class EventBusTask : public ITask
 {
 public:
-  EventBusTask(QueueHandle_t eventQueue) : queue(eventQueue) {};
+  EventBusTask();
+  ~EventBusTask();
+
   void start(TaskParameters params) override;
   void stop() override;
   void restart(TaskParameters params) override;
