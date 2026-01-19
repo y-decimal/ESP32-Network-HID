@@ -5,6 +5,8 @@
 #include <queue.h>
 #include <submodules/Logger.h>
 
+static constexpr const char *LOGGERTASK_NAMESPACE = "LoggerTask";
+
 class LoggerTask : public ITask
 {
 public:

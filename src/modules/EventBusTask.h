@@ -6,6 +6,8 @@
 #include <queue.h>
 #include <submodules/Logger.h>
 
+static constexpr const char *EVENTBUSTASK_NAMESPACE = "EventBusTask";
+
 class EventBusTask : public ITask
 {
 public:
