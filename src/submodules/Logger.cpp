@@ -96,7 +96,7 @@ void Logger::error(const char *message)
 {
     const char *logNs = this->logNamespace.c_str();
 
-    if (getNamespaceLevel(logNs) != LogLevel::error)
+    if (getNamespaceLevel(logNs) < LogLevel::error)
         return;
 
     log(logNs, LogLevel::error, message);
@@ -106,7 +106,7 @@ void Logger::warn(const char *message)
 {
     const char *logNs = this->logNamespace.c_str();
 
-    if (getNamespaceLevel(logNs) != LogLevel::warn)
+    if (getNamespaceLevel(logNs) < LogLevel::warn)
         return;
 
     log(logNs, LogLevel::warn, message);
@@ -116,7 +116,7 @@ void Logger::info(const char *message)
 {
     const char *logNs = this->logNamespace.c_str();
 
-    if (getNamespaceLevel(logNs) != LogLevel::info)
+    if (getNamespaceLevel(logNs) < LogLevel::info)
         return;
 
     log(logNs, LogLevel::info, message);
@@ -126,7 +126,7 @@ void Logger::debug(const char *message)
 {
     const char *logNs = this->logNamespace.c_str();
 
-    if (getNamespaceLevel(logNs) != LogLevel::debug)
+    if (getNamespaceLevel(logNs) < LogLevel::debug)
         return;
 
     log(logNs, LogLevel::debug, message);
