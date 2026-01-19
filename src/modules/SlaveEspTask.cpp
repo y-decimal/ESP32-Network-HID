@@ -99,8 +99,12 @@ void TaskManager::stopSlaveEspTask()
     localKeyQueue = nullptr;
   }
 
-  delete protocol;
-  protocol = nullptr;
+  if (protocol != nullptr)
+  {
+    protocol->clearCallbacks();
+    delete protocol;
+    protocol = nullptr;
+  }
 
   vTaskDelete(slaveEspHandle);
   slaveEspHandle = nullptr;

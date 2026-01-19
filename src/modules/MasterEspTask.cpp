@@ -68,6 +68,7 @@ void TaskManager::stopMasterEspTask()
 
   if (protocol != nullptr)
   {
+    protocol->clearCallbacks();
     delete protocol;
     protocol = nullptr;
   }
