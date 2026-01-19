@@ -1,6 +1,9 @@
 #include <modules/LoggerTask.h>
 
-static constexpr const char *LOG_NAMESPACE = "LoggerTask";
+// Initialize static member variable
+LoggerTask *LoggerTask::instance = nullptr;
+
+static constexpr const char *MASTERTASK_NAMESPACE = "LoggerTask";
 
 struct LogEvent
 {
@@ -9,15 +12,11 @@ struct LogEvent
     const char *logMsgPointer;
 };
 
-LoggerTask::LoggerTask(ILogSink &logSink) : logSink(logSink), internalLog(LOG_NAMESPACE)
+LoggerTask::LoggerTask(ILogSink &logSink) : logSink(logSink), internalLog(MASTERTASK_NAMESPACE)
 {
     Logger::setGlobalSink(&logSink);
-    internalLog.info("Creating LoggerTask");
     if (instance != nullptr)
-    {
-        internalLog.error("LoggerTask instance already exists");
         return;
-    };
     instance = this;
     localQueue = xQueueCreate(32, sizeof(LogEvent));
     Logger::setLogCallback(callback); // Set callback after queue creation for safety
@@ -66,7 +65,7 @@ void LoggerTask::taskEntry(void *arg)
         LogEvent evt;
         if (xQueueReceive(instance->localQueue, &evt, portMAX_DELAY))
         {
-            instance->internalLog.writeWithNamespace(evt.logNsPointer, evt.level, evt.logMsgPointer);
+            instance->internalLog.log(evt.logNsPointer, evt.level, evt.logMsgPointer);
         }
     }
 }
