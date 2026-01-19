@@ -23,12 +23,12 @@ EventBusTask::~EventBusTask()
 // Main task loop
 void EventBusTask::taskEntry(void *param)
 {
-  QueueHandle_t queue = static_cast<QueueHandle_t>(param);
+  EventBusTask* instance = static_cast<EventBusTask*>(param);
   Event event;
 
   while (true)
   {
-    if (xQueueReceive(queue, &event, portMAX_DELAY))
+    if (xQueueReceive(instance->localQueue, &event, portMAX_DELAY))
     {
       const auto handlers = EventRegistry::getHandler(event.type);
       for (auto callback : handlers)
@@ -66,7 +66,7 @@ void EventBusTask::start(TaskParameters params)
     return;
 
   BaseType_t result = xTaskCreatePinnedToCore(
-      EventBusTask::taskEntry, "EventBusHandler", params.stackSize, localQueue,
+      EventBusTask::taskEntry, "EventBusHandler", params.stackSize, this,
       params.priority, &eventBusHandle, params.coreAffinity);
 
   if (result != pdPASS)
