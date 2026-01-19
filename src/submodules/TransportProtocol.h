@@ -43,7 +43,7 @@ public:
 
     /**
      * @brief Allows registering custom hooks for received pairing requests.
-     * @param data A pointer to the contents of the pairing request, a sequence number by default.
+     * @param data A pointer to the contents of the pairing request.
      * Only valid for the duration of the callback
      * @param sourceId The runtime ID assigned to the source upon pairing, can be used to address packets or
      * with getMacById(uint8_t id) to retrieve the mac of the device
@@ -52,8 +52,7 @@ public:
 
     /**
      * @brief Allows registering custom hooks for received pairing confirmations.
-     * @param data A pointer to the contents of the pairing confirmation, contains the request's
-     * sequence number by default. Only valid for the duration of the callback
+     * @param data A pointer to the contents of the pairing confirmation. Only valid for the duration of the callback
      * @param sourceId The runtime ID assigned to the source upon pairing, can be used to address packets or
      * with getMacById(uint8_t id) to retrieve the mac of the device
      */
