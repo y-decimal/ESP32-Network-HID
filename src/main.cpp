@@ -50,57 +50,15 @@ static void bitMapPrintCallback(const Event &event)
     std::string debugStr = "Bitmap change: Size " + std::to_string(bitMapEvent.bitMapSize) + " Data:";
     for (size_t i = 0; i < bitMapEvent.bitMapSize; i++)
     {
-      debugStr += " " + std::to_string(bitMapEvent.bitMapData[i]);;
+      debugStr += " " + std::to_string(bitMapEvent.bitMapData[i]);
+      ;
     }
     logger.info("%s", debugStr.c_str());
-    
+
     lastBitmap.assign(bitMapEvent.bitMapData, bitMapEvent.bitMapData + bitMapEvent.bitMapSize);
   }
 }
 
-void simulateConfig()
-{
-
-  if (mainCfg.loadConfig())
-  {
-    logger.info("Config loaded from flash");
-    return;
-  }
-
-  logger.info("No config in flash, creating new config...");
-  GlobalConfig gCfg;
-
-  DeviceRole roles[1] = {DeviceRole::Keyboard};
-  gCfg.setRoles(roles, 1);
-
-  uint8_t mac[6];
-  esp_efuse_mac_get_default(mac);
-  MacAddress deviceMac = {mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]};
-  gCfg.setMac(deviceMac);
-
-  mainCfg.setConfig(gCfg);
-
-  KeyScannerConfig kCfg;
-
-  uint8_t rowCount = 2;
-  uint8_t colCount = 2;
-  uint8_t ROWPINS[2] = {9, 10};
-  uint8_t COLPINS[2] = {17, 18};
-  uint16_t refreshRate = 1000;
-  uint16_t bitMapSendFrequency = 1;
-
-  KeyScannerConfig::KeyCfgParams cfgParams = {
-      rowCount, colCount, ROWPINS, COLPINS, refreshRate, bitMapSendFrequency};
-
-  kCfg.setConfig(cfgParams);
-
-  mainCfg.setConfig(kCfg);
-
-  if (mainCfg.saveConfig())
-    logger.info("Config saved to flash");
-  else
-    logger.error("Saving config failed");
-}
 
 void setup()
 {
@@ -115,27 +73,11 @@ void setup()
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
 
-  simulateConfig();
 
   EventRegistry::registerHandler(EventType::RawKey, keyPrintCallback);
   EventRegistry::registerHandler(EventType::RawBitmap, bitMapPrintCallback);
   EventRegistry::registerHandler(EventType::IdKey, keyPrintCallback);
   EventRegistry::registerHandler(EventType::IdBitmap, bitMapPrintCallback);
-
-  KeyScannerConfig kCfg = mainCfg.getConfig<KeyScannerConfig>();
-  logger.info("KeyScanner Config: %d rows, %d cols, refresh %d ms, bitmap interval %d ms",
-         kCfg.getRowsCount(), kCfg.getColCount(), kCfg.getRefreshRate(),
-         kCfg.getBitMapSendInterval());
-
-  GlobalConfig gCfg = mainCfg.getConfig<GlobalConfig>();
-  DeviceRole roles[static_cast<size_t>(DeviceRole::Count)] = {DeviceRole::Count};
-  gCfg.getRoles(roles, static_cast<size_t>(DeviceRole::Count));
-  logger.info("Device Role: %d", (uint8_t)roles[0]);
-  uint8_t mac[6];
-  gCfg.getMac(mac, 6);
-  logger.info("Device MAC: %02x:%02x:%02x:%02x:%02x:%02x",
-         mac[0], mac[1], mac[2],
-         mac[3], mac[4], mac[5]);
 
   taskManager.start();
 
