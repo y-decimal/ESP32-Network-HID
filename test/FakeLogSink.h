@@ -14,7 +14,7 @@ public:
         if (lastLogMessage) {
             delete[] lastLogMessage;
         }
-        size_t len = strlen(logNamespace) + strlen(message) + 4; // for brackets and null terminator
+        size_t len = strlen(logNamespace) + strlen(message) + 5; // for brackets, space, and null terminator (plus safety)
         lastLogMessage = new char[len];
         snprintf(lastLogMessage, len, "[%s] %s", logNamespace, message);
     }
