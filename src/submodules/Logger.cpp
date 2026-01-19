@@ -82,7 +82,7 @@ void Logger::writeWithNamespace(const char *logNamespace, LogLevel level, const 
 
     // Create buffer on stack to avoid dangling pointer issues
     char buffer[256];
-    snprintf(buffer, sizeof(buffer), "[%s] %s : %s", logNamespace, logLevelToString(level), message);
+    snprintf(buffer, sizeof(buffer), "%s : %s", logLevelToString(level), message);
 
     LoggerCore::globalSink->writeLog(logNamespace, buffer);
 }
