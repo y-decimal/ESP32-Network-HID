@@ -20,6 +20,7 @@ ConfigManager mainCfg(&prefStorage);
 TaskManager taskManager(mainCfg, espGpio, espNow); // Move outside setup()
 
 ArduinoLogSink logSink;
+Logger logger("Main");
 
 void keyPrintCallback(const Event &event)
 {
@@ -31,7 +32,7 @@ void keyPrintCallback(const Event &event)
 
   uint8_t keyIndex = keyEvent.keyIndex;
   bool state = keyEvent.state;
-  printf("Key event: Key %d %s\n", keyIndex, state ? "pressed" : "released");
+  logger.info("Key event: Key %d %s", keyIndex, state ? "pressed" : "released");
 }
 
 void bitMapPrintCallback(const Event &event)
@@ -46,12 +47,13 @@ void bitMapPrintCallback(const Event &event)
 
   if (memcmp(lastBitmap.data(), bitMapEvent.bitMapData, bitMapEvent.bitMapSize) != 0)
   {
-    printf("Bitmap change: Size %d Data:", bitMapEvent.bitMapSize);
+    std::string debugStr = "Bitmap change: Size " + std::to_string(bitMapEvent.bitMapSize) + " Data:";
     for (size_t i = 0; i < bitMapEvent.bitMapSize; i++)
     {
-      printf(" %02x", bitMapEvent.bitMapData[i]);
+      debugStr += " " + std::to_string(bitMapEvent.bitMapData[i]);;
     }
-    printf("\n");
+    logger.info("%s", debugStr.c_str());
+    
     lastBitmap.assign(bitMapEvent.bitMapData, bitMapEvent.bitMapData + bitMapEvent.bitMapSize);
   }
 }
@@ -61,12 +63,11 @@ void simulateConfig()
 
   if (mainCfg.loadConfig())
   {
-    printf("Config loaded from flash\n");
+    logger.info("Config loaded from flash");
     return;
   }
 
-  printf("No config in flash, creating new config...\n");
-
+  logger.info("No config in flash, creating new config...");
   GlobalConfig gCfg;
 
   DeviceRole roles[1] = {DeviceRole::Keyboard};
@@ -96,17 +97,20 @@ void simulateConfig()
   mainCfg.setConfig(kCfg);
 
   if (mainCfg.saveConfig())
-    printf("Config saved to flash\n");
+    logger.info("Config saved to flash");
   else
-    printf("Saving config failed\n");
+    logger.error("Saving config failed");
 }
 
 void setup()
 {
   Serial.begin(115200);
   delay(3000);
+
   Logger::setGlobalSink(&logSink);
-  printf("initializing...\n");
+  Logger::setDefaultLogLevel(Logger::LogLevel::info);
+
+  logger.info("initializing...");
 
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
@@ -119,24 +123,23 @@ void setup()
   EventRegistry::registerHandler(EventType::IdBitmap, bitMapPrintCallback);
 
   KeyScannerConfig kCfg = mainCfg.getConfig<KeyScannerConfig>();
-  printf("KeyScanner Config: %d rows, %d cols, refresh %d ms, bitmap interval "
-         "%d ms\n",
+  logger.info("KeyScanner Config: %d rows, %d cols, refresh %d ms, bitmap interval %d ms",
          kCfg.getRowsCount(), kCfg.getColCount(), kCfg.getRefreshRate(),
          kCfg.getBitMapSendInterval());
 
   GlobalConfig gCfg = mainCfg.getConfig<GlobalConfig>();
   DeviceRole roles[static_cast<size_t>(DeviceRole::Count)] = {DeviceRole::Count};
   gCfg.getRoles(roles, static_cast<size_t>(DeviceRole::Count));
-  printf("Device Role: %d\n", (uint8_t)roles[0]);
+  logger.info("Device Role: %d", (uint8_t)roles[0]);
   uint8_t mac[6];
   gCfg.getMac(mac, 6);
-  printf("Device MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
+  logger.info("Device MAC: %02x:%02x:%02x:%02x:%02x:%02x",
          mac[0], mac[1], mac[2],
          mac[3], mac[4], mac[5]);
 
   taskManager.start();
 
-  printf("setup done\n");
+  logger.info("setup complete");
 }
 
 void loop() {}
