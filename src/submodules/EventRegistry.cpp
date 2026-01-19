@@ -23,7 +23,7 @@ void EventRegistry::clearHandlers(EventType type)
   handlers[(size_t)type].clear();
 }
 
-void EventRegistry::registerPushCallback(EventCallback cb)
+void EventRegistry::registerPushCallback(PushCallback cb)
 {
   pushCallback = cb;
 }
@@ -37,8 +37,7 @@ bool EventRegistry::pushEvent(const Event &event)
 {
   if (pushCallback)
   {
-    pushCallback(event);
-    return true;
+    return pushCallback(event);
   }
   return false;
 }

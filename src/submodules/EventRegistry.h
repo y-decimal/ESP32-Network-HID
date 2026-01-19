@@ -16,11 +16,14 @@ class EventRegistry {
 public:
   /// @brief Type definition for event handler callbacks.
   using EventCallback = void (*)(const Event &);
+  using PushCallback = bool (*)(const Event &);
 
   /**
    * @brief Register an event handler for a specific event type.
    * @param type The type of event to register the handler for.
    * @param cb The callback function to be invoked when the event occurs.
+   * 
+   * Format: void callback(const Event &event);
    */
   static void registerHandler(EventType type, EventCallback cb);
 
@@ -28,6 +31,8 @@ public:
    * @brief Retrieve the list of registered handlers for a specific event type.
    * @param type The type of event to retrieve handlers for.
    * @return A vector of callback functions registered for the event type.
+   * 
+   * Format: std::vector<EventCallback> getHandler(EventType type);
    */
   static std::vector<EventCallback> getHandler(EventType type);
 
@@ -37,16 +42,30 @@ public:
    */
   static void clearHandlers(EventType type);
 
-  static void registerPushCallback(EventCallback cb);
+  /**
+   * @brief Register a global push callback for events.
+   * @param cb The callback function to be invoked to push events.
+   * 
+   * Format: bool pushEvent(const Event &event);
+   */
+  static void registerPushCallback(PushCallback cb);
 
+  /**
+   * @brief Clear the registered global push callback.
+   */
   static void clearPushCallback();
 
+  /**
+   * @brief Push an event using the registered push callback.
+   * @param event The event to be pushed.
+   * @return True if the event was successfully pushed, false otherwise.
+   */
   static bool pushEvent(const Event &event);
 
 
 private:
   static std::vector<EventCallback> handlers[(size_t)EventType::COUNT];
-  static EventCallback pushCallback;
+  static PushCallback pushCallback;
 };
 
 #endif
