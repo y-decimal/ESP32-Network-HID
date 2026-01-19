@@ -2,6 +2,7 @@
 #define ITASK_H
 
 #include <FreeRTOS.h>
+#include <task.h>
 
 class ITask
 {
