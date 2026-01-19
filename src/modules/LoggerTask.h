@@ -19,7 +19,8 @@ private:
     TaskHandle_t loggerHandle = nullptr;
     static LoggerTask* instance;
     ILogSink &logSink;
-    
+    Logger internalLog;
+
     static void taskEntry(void *param);
 
     static void callback(const char *logNamespace, Logger::LogLevel level, const char *message);
