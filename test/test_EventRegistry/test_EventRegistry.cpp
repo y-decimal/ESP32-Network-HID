@@ -37,58 +37,57 @@ void tearDown(void) {
 }
 
 void test_register_single_handler(void) {
-  EventRegistry::registerHandler(EventType::Key, test_callback_1);
+  EventRegistry::registerHandler(EventType::RawKey, test_callback_1);
 
-  auto handlers = EventRegistry::getHandler(EventType::Key);
+  auto handlers = EventRegistry::getHandler(EventType::RawKey);
   TEST_ASSERT_EQUAL(1, handlers.size());
 }
 
 void test_register_multiple_handlers_same_type(void) {
-  EventRegistry::registerHandler(EventType::Key, test_callback_1);
-  EventRegistry::registerHandler(EventType::Key, test_callback_2);
+  EventRegistry::registerHandler(EventType::RawKey, test_callback_1);
+  EventRegistry::registerHandler(EventType::RawKey, test_callback_2);
 
-  auto handlers = EventRegistry::getHandler(EventType::Key);
+  auto handlers = EventRegistry::getHandler(EventType::RawKey);
   TEST_ASSERT_EQUAL(2, handlers.size());
 }
 
 void test_register_handlers_different_types(void) {
-  EventRegistry::registerHandler(EventType::Key, test_callback_1);
-  EventRegistry::registerHandler(EventType::BitMap, test_callback_2);
+  EventRegistry::registerHandler(EventType::RawKey, test_callback_1);
+  EventRegistry::registerHandler(EventType::RawBitmap, test_callback_2);
 
-  auto handlers_press = EventRegistry::getHandler(EventType::Key);
-  auto handlers_release = EventRegistry::getHandler(EventType::BitMap);
-
+  auto handlers_press = EventRegistry::getHandler(EventType::RawKey);
+  auto handlers_release = EventRegistry::getHandler(EventType::RawBitmap);
   TEST_ASSERT_EQUAL(1, handlers_press.size());
   TEST_ASSERT_EQUAL(1, handlers_release.size());
 }
 
 void test_get_handler_empty(void) {
-  auto handlers = EventRegistry::getHandler(EventType::Key);
+  auto handlers = EventRegistry::getHandler(EventType::RawKey);
   TEST_ASSERT_EQUAL(0, handlers.size());
 }
 
 void test_handlers_are_callable(void) {
-  EventRegistry::registerHandler(EventType::Key, test_callback_1);
+  EventRegistry::registerHandler(EventType::RawKey, test_callback_1);
 
-  auto handlers = EventRegistry::getHandler(EventType::Key);
+  auto handlers = EventRegistry::getHandler(EventType::RawKey);
   TEST_ASSERT_EQUAL(1, handlers.size());
 
   Event test_event{};
-  test_event.type = EventType::Key;
+  test_event.type = EventType::RawKey;
   handlers[0](test_event);
 
   TEST_ASSERT_EQUAL(1, callback1_count);
-  TEST_ASSERT_EQUAL(EventType::Key, last_event.type);
+  TEST_ASSERT_EQUAL(EventType::RawKey, last_event.type);
 }
 
 void test_multiple_handlers_execution(void) {
-  EventRegistry::registerHandler(EventType::Key, test_callback_1);
-  EventRegistry::registerHandler(EventType::Key, test_callback_2);
+  EventRegistry::registerHandler(EventType::RawKey, test_callback_1);
+  EventRegistry::registerHandler(EventType::RawKey, test_callback_2);
 
-  auto handlers = EventRegistry::getHandler(EventType::Key);
+  auto handlers = EventRegistry::getHandler(EventType::RawKey);
 
   Event test_event{};
-  test_event.type = EventType::Key;
+  test_event.type = EventType::RawKey;
 
   for (auto &handler : handlers) {
     handler(test_event);

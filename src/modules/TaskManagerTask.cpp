@@ -10,11 +10,11 @@ void TaskManager::taskManagerTask(void *args) {
   uint16_t loopsSincePrint = 0;
 
   while (true) {
-    loopsSincePrint++;
-    if (loopsSincePrint > 10) {
-      printf("running...\n");
-      loopsSincePrint = 0;
-    }
+    // loopsSincePrint++;
+    // if (loopsSincePrint > 10) {
+    //   printf("running...\n");
+    //   loopsSincePrint = 0;
+    // }
     xTaskDelayUntil(&previousWakeTime, PERIOD_TASKMANAGER);
   }
 }

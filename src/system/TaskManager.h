@@ -2,10 +2,13 @@
 #define TASKMANAGER_H
 
 #include <FreeRTOS.h>
+#include <interfaces/ITransport.h>
+#include <interfaces/IGpio.h>
 #include <submodules/ConfigManager/ConfigManager.h>
 #include <submodules/EventRegistry.h>
 #include <system/SystemConfig.h>
 #include <system/TaskParameters.h>
+#include <submodules/Logger.h>
 
 /**
  * @brief Central controller for the lifecycle of system tasks.
@@ -22,7 +25,8 @@
  * taskManagerTask) that reacts to configuration updates and task
  * health checks.
  */
-class TaskManager {
+class TaskManager
+{
 public:
   /**
    * @brief Construct a new TaskManager.
@@ -32,7 +36,7 @@ public:
    *               referenced ConfigManager instance must outlive
    *               this TaskManager.
    */
-  TaskManager(ConfigManager &config);
+  TaskManager(ConfigManager &config, IGpio &gpio, ITransport &espNow);
 
   /**
    * @brief Start the TaskManager supervisor task and any managed tasks.
@@ -64,18 +68,28 @@ public:
 private:
   // === Internal task entry points ===
   static void keyScannerTask(void *arg);
-  static void priorityEventTask(void *arg);
+  static void eventBusTask(void *arg);
+  static void slaveEspTask(void *arg);
+  static void masterEspTask(void *arg);
   static void loggerTask(void *arg);
   static void taskManagerTask(void *arg); // the supervisor loop
 
   // === Lifecycle helpers ===
-  void startKeyScanner();
+  void startKeyScanner(IGpio &gpio);
   void stopKeyScanner();
-  void restartKeyScanner();
+  void restartKeyScanner(IGpio &gpio);
 
-  void startPriorityEventHandler();
-  void stopPriorityEventHandler();
-  void restartPriorityEventHandler();
+  void startEventBus();
+  void stopEventBus();
+  void restartEventBus();
+
+  void startSlaveEspTask(ITransport &espNow);
+  void stopSlaveEspTask();
+  void restartSlaveEspTask(ITransport &espNow);
+
+  void startMasterEspTask(ITransport &espNow);
+  void stopMasterEspTask();
+  void restartMasterEspTask(ITransport &espNow);
 
   void startLogger();
   void stopLogger();
@@ -85,12 +99,17 @@ private:
   void initializeTasks();    // initializes tasks depending on the role
   void applyConfigChanges(); // TODO: Implement config-dependent task adjustment
                              // logic.
-  void checkTaskHealth(); // TODO: Implement task health monitoring and recovery
-                          // logic.
+  void checkTaskHealth();    // TODO: Implement task health monitoring and recovery
+                             // logic.
 
   // === State ===
-  QueueHandle_t highPrioEventQueue = nullptr;
-  QueueHandle_t lowPrioEventQueue = nullptr;
+  QueueHandle_t eventBusQueue = nullptr;
+  QueueHandle_t keyEventQueue = nullptr;
+
+  IGpio &gpio;
+  ITransport &espNow;
+
+  Logger logger{"TaskManager"};
 
   // NOTE: This reference may be accessed from multiple FreeRTOS tasks.
   // It is required that either:
@@ -101,8 +120,9 @@ private:
   ConfigManager &configManager;
 
   TaskHandle_t keyScannerHandle = nullptr;
-  TaskHandle_t priorityEventHandle = nullptr;
-  TaskHandle_t eventHandle = nullptr;
+  TaskHandle_t eventBusHandle = nullptr;
+  TaskHandle_t slaveEspHandle = nullptr;
+  TaskHandle_t masterEspHandle = nullptr;
   TaskHandle_t loggerHandle = nullptr;
 };
 

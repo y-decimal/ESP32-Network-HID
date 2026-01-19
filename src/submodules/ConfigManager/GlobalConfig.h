@@ -15,7 +15,7 @@
 class GlobalConfig : public Serializable {
 private:
   // Array to hold device roles
-  DeviceRole roles[(size_t)DeviceRole::Count]{};
+  DeviceRole roles[(size_t)DeviceRole::Count]{DeviceRole::Count};
 
   // Variable to hold the device MAC address
   MacAddress deviceMac{};
