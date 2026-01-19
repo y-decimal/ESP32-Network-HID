@@ -9,36 +9,45 @@ struct LogEvent
     const char *logMsgPointer;
 };
 
-LoggerTask::LoggerTask(ILogSink &logSink) : logSink(logSink)
+LoggerTask::LoggerTask(ILogSink &logSink) : logSink(logSink), internalLog(LOG_NAMESPACE)
 {
+    Logger::setGlobalSink(&logSink);
+    internalLog.info("Creating LoggerTask");
     if (instance != nullptr)
+    {
+        internalLog.error("LoggerTask instance already exists");
         return;
+    };
     instance = this;
     localQueue = xQueueCreate(32, sizeof(LogEvent));
+    Logger::setLogCallback(callback); // Set callback after queue creation for safety
 }
 
 LoggerTask::~LoggerTask()
 {
+    internalLog.info("Destroying LoggerTask");
     if (localQueue != nullptr)
     {
         vQueueDelete(localQueue);
         localQueue = nullptr;
     }
     instance = nullptr;
+    Logger::setGlobalSink(nullptr);
+    Logger::setLogCallback(nullptr);
 }
 
 void LoggerTask::callback(const char *logNamespace, Logger::LogLevel level, const char *message)
 {
     if (!instance || !instance->localQueue)
     {
-        Logger::writeWithNamespace(LOG_NAMESPACE, Logger::LogLevel::warn, "Log queue not initialized");
+        instance->internalLog.warn("Log queue not initialized");
         return;
     }
 
     LogEvent logEvent{logNamespace, level, message};
     if (xQueueSend(instance->localQueue, &logEvent, 0) != pdPASS)
     {
-        Logger::writeWithNamespace(LOG_NAMESPACE, Logger::LogLevel::error, "Failed to send log event to queue");
+        instance->internalLog.error("Failed to send log event to queue");
     }
 }
 
@@ -48,26 +57,28 @@ void LoggerTask::taskEntry(void *arg)
     if (instance->localQueue == nullptr)
     {
         // Failed to create log queue; terminate this task to avoid using a null queue handle.
-        Logger::writeWithNamespace(LOG_NAMESPACE, Logger::LogLevel::error, "Failed to create log queue");
+        instance->internalLog.error("Failed to create log queue");
         vTaskDelete(nullptr);
     }
-    Logger::setLogCallback(callback);
 
     for (;;)
     {
         LogEvent evt;
         if (xQueueReceive(instance->localQueue, &evt, portMAX_DELAY))
         {
-            Logger::writeWithNamespace(evt.logNsPointer, evt.level, evt.logMsgPointer);
+            instance->internalLog.writeWithNamespace(evt.logNsPointer, evt.level, evt.logMsgPointer);
         }
     }
 }
 
 void LoggerTask::start(TaskParameters params)
 {
+    internalLog.info("Starting LoggerTask");
     if (loggerHandle != nullptr)
+    {
+        internalLog.warn("LoggerTask already running");
         return;
-
+    }
     BaseType_t result = xTaskCreatePinnedToCore(
         LoggerTask::taskEntry, "LoggerTask", params.stackSize,
         this, params.priority, &loggerHandle,
@@ -75,21 +86,29 @@ void LoggerTask::start(TaskParameters params)
 
     if (result != pdPASS)
     {
+        internalLog.error("Failed to create LoggerTask");
         loggerHandle = nullptr;
     }
 }
 
 void LoggerTask::stop()
 {
+    internalLog.info("Stopping LoggerTask");
     if (loggerHandle == nullptr)
+    {
+        internalLog.info("Stop called but LoggerTask is not running");
         return;
+    }
     vTaskDelete(loggerHandle);
     loggerHandle = nullptr;
 }
 
 void LoggerTask::restart(TaskParameters params)
 {
+    internalLog.info("Restarting LoggerTask");
     if (loggerHandle != nullptr)
+    {
         stop();
+    }
     start(params);
 }
