@@ -1,5 +1,6 @@
 #include <submodules/Logger.h>
 #include <mutex>
+#include <cstdio>
 namespace
 {
     struct LoggerCore
@@ -75,17 +76,29 @@ void Logger::setLogCallback(globalLogCallback callback)
     LoggerCore::globalCallback = std::move(callback);
 }
 
-void Logger::writeWithNamespace(const char *logNamespace, LogLevel level, const char *message)
+void Logger::writeWithNamespaceV(const char *logNamespace, LogLevel level, const char *format, va_list args)
 {
     std::lock_guard<std::mutex> lock(LoggerCore::mutex);
     if (LoggerCore::globalSink == nullptr)
         return;
 
-    // Create buffer on stack to avoid dangling pointer issues
-    char buffer[256];
-    snprintf(buffer, sizeof(buffer), "%s : %s", logLevelToString(level), message);
+    // Format the message first
+    char messageBuffer[256];
+    vsnprintf(messageBuffer, sizeof(messageBuffer), format, args);
+
+    // Create final buffer with log level prefix
+    char buffer[512];
+    snprintf(buffer, sizeof(buffer), "%s : %s", logLevelToString(level), messageBuffer);
 
     LoggerCore::globalSink->writeLog(logNamespace, buffer);
+}
+
+void Logger::writeWithNamespace(const char *logNamespace, LogLevel level, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    writeWithNamespaceV(logNamespace, level, format, args);
+    va_end(args);
 }
 
 void Logger::setMode(LogMode mode)
@@ -93,57 +106,72 @@ void Logger::setMode(LogMode mode)
     this->mode = mode;
 }
 
-void Logger::error(const char *message)
+void Logger::error(const char *format, ...)
 {
     const char *logNs = this->logNamespace.c_str();
 
     if (getNamespaceLevel(logNs) < LogLevel::error)
         return;
 
-    log(logNs, LogLevel::error, message);
+    va_list args;
+    va_start(args, format);
+    log(logNs, LogLevel::error, format, args);
+    va_end(args);
 }
 
-void Logger::warn(const char *message)
+void Logger::warn(const char *format, ...)
 {
     const char *logNs = this->logNamespace.c_str();
 
     if (getNamespaceLevel(logNs) < LogLevel::warn)
         return;
 
-    log(logNs, LogLevel::warn, message);
+    va_list args;
+    va_start(args, format);
+    log(logNs, LogLevel::warn, format, args);
+    va_end(args);
 }
 
-void Logger::info(const char *message)
+void Logger::info(const char *format, ...)
 {
     const char *logNs = this->logNamespace.c_str();
 
     if (getNamespaceLevel(logNs) < LogLevel::info)
         return;
 
-    log(logNs, LogLevel::info, message);
+    va_list args;
+    va_start(args, format);
+    log(logNs, LogLevel::info, format, args);
+    va_end(args);
 }
 
-void Logger::debug(const char *message)
+void Logger::debug(const char *format, ...)
 {
     const char *logNs = this->logNamespace.c_str();
 
     if (getNamespaceLevel(logNs) < LogLevel::debug)
         return;
 
-    log(logNs, LogLevel::debug, message);
+    va_list args;
+    va_start(args, format);
+    log(logNs, LogLevel::debug, format, args);
+    va_end(args);
 }
 
-void Logger::log(const char *logNamespace, LogLevel level, const char *message)
+void Logger::log(const char *logNamespace, LogLevel level, const char *format, va_list args)
 {
     switch (mode)
     {
     case LogMode::Local:
-        writeWithNamespace(logNamespace, level, message);
+        writeWithNamespaceV(logNamespace, level, format, args);
         break;
     case LogMode::Global:
+        // Format the message for global callback
+        char messageBuffer[256];
+        vsnprintf(messageBuffer, sizeof(messageBuffer), format, args);
         std::lock_guard<std::mutex> lock(LoggerCore::mutex);
         if (LoggerCore::globalCallback)
-            LoggerCore::globalCallback(logNamespace, level, message);
+            LoggerCore::globalCallback(logNamespace, level, messageBuffer);
         break;
     }
 }
