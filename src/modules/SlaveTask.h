@@ -23,7 +23,7 @@ private:
     TaskHandle_t slaveTaskHandle = nullptr;
     QueueHandle_t localQueue = nullptr;
     ITransport *transportRef = nullptr;
-    Logger *logger = nullptr;
+    Logger *internalLog = nullptr;
     TransportProtocol *protocol = nullptr;
     static SlaveTask *instance;
 

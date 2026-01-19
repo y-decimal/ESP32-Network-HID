@@ -21,7 +21,7 @@ public:
 private:
     TaskHandle_t masterTaskHandle = nullptr;
     ITransport *transportRef = nullptr;
-    Logger *logger = nullptr;
+    Logger *internalLog = nullptr;
     TransportProtocol *protocol = nullptr;
     static MasterTask *instance;
 

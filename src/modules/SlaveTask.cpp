@@ -14,18 +14,18 @@ SlaveTask::SlaveTask(ITransport &transport) : transportRef(&transport)
 
 SlaveTask::~SlaveTask()
 {
-  logger->info("Destroying SlaveTask");
+  internalLog->info("Destroying SlaveTask");
   instance = nullptr;
   if (localQueue != nullptr)
   {
     vQueueDelete(localQueue);
     localQueue = nullptr;
   }
-  if (logger)
-    delete logger;
+  if (internalLog)
+    delete internalLog;
   if (protocol)
     delete protocol;
-  logger = nullptr;
+  internalLog = nullptr;
   protocol = nullptr;
 }
 
@@ -78,15 +78,15 @@ void SlaveTask::taskEntry(void *arg)
 
 void SlaveTask::start(TaskParameters params)
 {
-  logger = new Logger(SLAVETASK_NAMESPACE);
+  internalLog = new Logger(SLAVETASK_NAMESPACE);
   protocol = new TransportProtocol(*transportRef);
 
-  logger->info("Starting SlaveTask with stack size %u, priority %d, core affinity %d",
-               params.stackSize, params.priority, params.coreAffinity);
+  internalLog->info("Starting SlaveTask with stack size %u, priority %d, core affinity %d",
+                    params.stackSize, params.priority, params.coreAffinity);
 
   if (slaveTaskHandle != nullptr)
   {
-    logger->warn("SlaveTask is already running!");
+    internalLog->warn("SlaveTask is already running!");
     return;
   }
 
@@ -97,16 +97,16 @@ void SlaveTask::start(TaskParameters params)
   if (result != pdPASS)
   {
     slaveTaskHandle = nullptr;
-    logger->error("Failed to create SlaveTask!");
+    internalLog->error("Failed to create SlaveTask!");
   }
 }
 
 void SlaveTask::stop()
 {
-  logger->info("Stopping SlaveTask");
+  internalLog->info("Stopping SlaveTask");
   if (slaveTaskHandle == nullptr)
   {
-    logger->warn("Stop called but SlaveTask is not running");
+    internalLog->warn("Stop called but SlaveTask is not running");
     return;
   }
 
@@ -118,17 +118,17 @@ void SlaveTask::stop()
   vTaskDelete(slaveTaskHandle);
   slaveTaskHandle = nullptr;
 
-  if (logger)
-    delete logger;
+  if (internalLog)
+    delete internalLog;
   if (protocol)
     delete protocol;
-  logger = nullptr;
+  internalLog = nullptr;
   protocol = nullptr;
 }
 
 void SlaveTask::restart(TaskParameters params)
 {
-  logger->info("Restarting SlaveTask");
+  internalLog->info("Restarting SlaveTask");
   if (slaveTaskHandle != nullptr)
     stop();
   start(params);
@@ -138,7 +138,7 @@ void SlaveTask::eventBusCallback(const Event &evt)
 {
   if (SlaveTask::instance == nullptr)
   {
-    SlaveTask::instance->logger->error("SlaveTask instance is null in eventBusCallback");
+    SlaveTask::instance->internalLog->error("SlaveTask instance is null in eventBusCallback");
     return;
   }
 
@@ -152,24 +152,24 @@ void SlaveTask::pairConfirmCallback(const uint8_t *data, const uint8_t sourceId)
 {
   if (SlaveTask::instance == nullptr)
   {
-    SlaveTask::instance->logger->error("SlaveTask instance is null in pairConfirmCallback");
+    SlaveTask::instance->internalLog->error("SlaveTask instance is null in pairConfirmCallback");
     return;
   }
   SlaveTask::instance->connected = true;
   uint8_t masterMac[6] = {};
   SlaveTask::instance->protocol->getMacById(sourceId, masterMac);
-  SlaveTask::instance->logger->info("Received master MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
-                                    masterMac[0], masterMac[1], masterMac[2],
-                                    masterMac[3], masterMac[4], masterMac[5]);
+  SlaveTask::instance->internalLog->info("Received master MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
+                                         masterMac[0], masterMac[1], masterMac[2],
+                                         masterMac[3], masterMac[4], masterMac[5]);
 }
 
 void SlaveTask::configReceiveCallback(const ConfigManager &config, uint8_t senderId)
 {
   if (SlaveTask::instance == nullptr)
   {
-    SlaveTask::instance->logger->error("SlaveTask instance is null in configReceiveCallback");
+    SlaveTask::instance->internalLog->error("SlaveTask instance is null in configReceiveCallback");
     return;
   }
-  SlaveTask::instance->logger->info("Received configuration update from master ID %u", senderId);
+  SlaveTask::instance->internalLog->info("Received configuration update from master ID %u", senderId);
   return; // Todo: implement config handling
 }
