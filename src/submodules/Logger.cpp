@@ -77,10 +77,14 @@ void Logger::setLogCallback(globalLogCallback callback)
 
 void Logger::writeWithNamespace(const char *logNamespace, LogLevel level, const char *message)
 {
-    std::string formatted = std::string("(") + logLevelToString(level) + ") " + " : " + message;
-    const char *result = formatted.c_str(); // Only valid while formatted is in scope
+    if (LoggerCore::globalSink == nullptr)
+        return;
 
-    LoggerCore::globalSink->writeLog(logNamespace, result);
+    // Create buffer on stack to avoid dangling pointer issues
+    char buffer[256];
+    snprintf(buffer, sizeof(buffer), "[%s] %s : %s", logNamespace, logLevelToString(level), message);
+
+    LoggerCore::globalSink->writeLog(logNamespace, buffer);
 }
 
 void Logger::setMode(LogMode mode)
