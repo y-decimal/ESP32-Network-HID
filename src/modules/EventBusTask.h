@@ -4,6 +4,7 @@
 #include <interfaces/ITask.h>
 #include <submodules/EventRegistry.h>
 #include <queue.h>
+#include <submodules/Logger.h>
 
 class EventBusTask : public ITask
 {
@@ -18,7 +19,8 @@ public:
 private:
   QueueHandle_t localQueue = nullptr;
   TaskHandle_t eventBusHandle = nullptr;
-  static EventBusTask* instance;
+  static EventBusTask *instance;
+  Logger internalLog = Logger("EventBus");
 
   static void taskEntry(void *param);
 
