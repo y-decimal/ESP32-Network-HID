@@ -77,6 +77,7 @@ void Logger::setLogCallback(globalLogCallback callback)
 
 void Logger::writeWithNamespace(const char *logNamespace, LogLevel level, const char *message)
 {
+    std::lock_guard<std::mutex> lock(LoggerCore::mutex);
     if (LoggerCore::globalSink == nullptr)
         return;
 
