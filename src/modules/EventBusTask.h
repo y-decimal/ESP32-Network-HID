@@ -21,8 +21,8 @@ public:
 private:
   QueueHandle_t localQueue = nullptr;
   TaskHandle_t eventBusHandle = nullptr;
+  Logger *internalLog = nullptr;
   static EventBusTask *instance;
-  Logger internalLog = Logger("EventBus");
 
   static void taskEntry(void *param);
 
