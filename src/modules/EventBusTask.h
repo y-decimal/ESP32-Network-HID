@@ -16,7 +16,7 @@ public:
   void restart(TaskParameters params) override;
 
 private:
-  QueueHandle_t localQueue;
+  QueueHandle_t localQueue = nullptr;
   TaskHandle_t eventBusHandle = nullptr;
   static EventBusTask* instance;
 
