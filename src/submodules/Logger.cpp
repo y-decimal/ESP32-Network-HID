@@ -137,8 +137,11 @@ void Logger::log(const char *logNamespace, LogLevel level, const char *message)
     switch (mode)
     {
     case LogMode::Local:
-        writeWithNamespace(logNamespace, LogLevel::error, message);
+        writeWithNamespace(logNamespace, level, message);
+        break;
     case LogMode::Global:
-        LoggerCore::globalCallback(logNamespace, LogLevel::error, message);
+        if (LoggerCore::globalCallback)
+            LoggerCore::globalCallback(logNamespace, level, message);
+        break;
     }
 }
