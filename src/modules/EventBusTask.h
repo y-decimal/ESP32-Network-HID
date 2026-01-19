@@ -16,11 +16,7 @@ public:
   void restart(TaskParameters params) override;
 
 private:
-  static constexpr uint32_t STACK_EVENTBUS = 4096;
-  static constexpr UBaseType_t PRIORITY_EVENTBUS = 5;
-  static constexpr BaseType_t CORE_EVENTBUS = 1;
-
-  QueueHandle_t queue;
+  QueueHandle_t localQueue;
   TaskHandle_t eventBusHandle = nullptr;
   static void taskEntry(void *param);
   void TaskMain();
