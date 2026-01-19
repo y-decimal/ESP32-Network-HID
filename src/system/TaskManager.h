@@ -65,6 +65,7 @@ private:
   // === Internal task entry points ===
   static void keyScannerTask(void *arg);
   static void priorityEventTask(void *arg);
+  static void loggerTask(void *arg);
   static void taskManagerTask(void *arg); // the supervisor loop
 
   // === Lifecycle helpers ===
@@ -75,6 +76,10 @@ private:
   void startPriorityEventHandler();
   void stopPriorityEventHandler();
   void restartPriorityEventHandler();
+
+  void startLogger();
+  void stopLogger();
+  void restartLogger();
 
   // === Internal helpers ===
   void initializeTasks();    // initializes tasks depending on the role
@@ -98,6 +103,7 @@ private:
   TaskHandle_t keyScannerHandle = nullptr;
   TaskHandle_t priorityEventHandle = nullptr;
   TaskHandle_t eventHandle = nullptr;
+  TaskHandle_t loggerHandle = nullptr;
 };
 
 #endif
