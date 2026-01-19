@@ -68,15 +68,9 @@ void TransportProtocol::pushConfig(uint8_t id, const ConfigManager *config)
 
 void TransportProtocol::sendPairingRequest(const uint8_t *data, size_t dataLen)
 {
-    uint8_t *pairingPacket;
-    size_t len = dataLen;
-    if (data)
-        pairingPacket = const_cast<uint8_t *>(data);
-    else
-    {
-        pairingPacket = new uint8_t(0);
-        len = 1;
-    }
+    uint8_t emptyPacket = 0;
+    const uint8_t *pairingPacket = data ? data : &emptyPacket;
+    size_t len = data ? dataLen : 1;
 
     transport.sendData(PAIRING_REQUEST, pairingPacket, len, BROADCASTMAC);
 }
