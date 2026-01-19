@@ -1,7 +1,7 @@
 #include <system/TaskManager.h>
 #include <submodules/Logger.h>
 
-static constexpr char* LOG_NAMESPACE = "LoggerTask";
+static constexpr char *LOG_NAMESPACE = "LoggerTask";
 
 static QueueHandle_t localLogQueueReference = nullptr;
 
@@ -14,14 +14,15 @@ struct LogEvent
 
 void callback(const char *logNamespace, Logger::LogLevel level, const char *message)
 {
-    if (!localLogQueueReference) {
+    if (!localLogQueueReference)
+    {
         Logger::writeWithNamespace(LOG_NAMESPACE, Logger::LogLevel::warn, "Log queue not initialized");
         return;
     }
 
-
     LogEvent logEvent{logNamespace, level, message};
-    if (xQueueSend(localLogQueueReference, &logEvent, pdMS_TO_TICKS(15)) != pdPASS) {
+    if (xQueueSend(localLogQueueReference, &logEvent, pdMS_TO_TICKS(15)) != pdPASS)
+    {
         Logger::writeWithNamespace(LOG_NAMESPACE, Logger::LogLevel::warn, "Failed to send log event to queue");
     }
 }
@@ -29,6 +30,12 @@ void callback(const char *logNamespace, Logger::LogLevel level, const char *mess
 void TaskManager::loggerTask(void *arg)
 {
     localLogQueueReference = xQueueCreate(32, sizeof(LogEvent));
+    if (localLogQueueReference == nullptr)
+    {
+        // Failed to create log queue; terminate this task to avoid using a null queue handle.
+        Logger::writeWithNamespace(LOG_NAMESPACE, Logger::LogLevel::error, "Failed to create log queue");
+        vTaskDelete(nullptr);
+    }
     Logger::setLogCallback(callback);
 
     for (;;)
