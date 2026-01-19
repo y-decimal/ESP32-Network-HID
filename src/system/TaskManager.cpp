@@ -30,21 +30,21 @@ void TaskManager::initializeTasks()
   gCfg.getRoles(roles, static_cast<size_t>(DeviceRole::Count));
   if (roles[0] == DeviceRole::Master)
   {
-    printf("Starting Master ESP Task\n");
+    logger.info("Starting Master ESP Task");
     stopSlaveEspTask();
     stopKeyScanner();
     startMasterEspTask(espNow);
   }
   else if (roles[0] == DeviceRole::Keyboard)
   {
-    printf("Starting Slave ESP Task\n");
+    logger.info("Starting Slave ESP Task and KeyScanner Task");
     stopMasterEspTask();
     startKeyScanner(gpio);
     startSlaveEspTask(espNow);
   }
   else
   {
-    printf("No ESP Task started\n");
+    logger.info("No ESP Task started due to undefined role");
     stopMasterEspTask();
     stopSlaveEspTask();
     stopKeyScanner();

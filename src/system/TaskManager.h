@@ -8,6 +8,7 @@
 #include <submodules/EventRegistry.h>
 #include <system/SystemConfig.h>
 #include <system/TaskParameters.h>
+#include <submodules/Logger.h>
 
 /**
  * @brief Central controller for the lifecycle of system tasks.
@@ -107,6 +108,8 @@ private:
 
   IGpio &gpio;
   ITransport &espNow;
+
+  Logger logger{"TaskManager"};
 
   // NOTE: This reference may be accessed from multiple FreeRTOS tasks.
   // It is required that either:
