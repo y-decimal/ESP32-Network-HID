@@ -1,5 +1,9 @@
 #include <submodules/EventRegistry.h>
 
+// Initialize static member variables
+std::vector<EventRegistry::EventCallback> EventRegistry::handlers[(size_t)EventType::COUNT]{};
+EventRegistry::PushCallback EventRegistry::pushCallback = nullptr;
+
 void EventRegistry::registerHandler(EventType type, EventCallback callback)
 {
   // Add the callback to the vector of handlers for the specified event type
@@ -12,10 +16,6 @@ EventRegistry::getHandler(EventType type)
   // Return the vector of handlers for the specified event type
   return handlers[(size_t)type];
 }
-
-// Initialize the static member variable
-std::vector<EventRegistry::EventCallback>
-    EventRegistry::handlers[(size_t)EventType::COUNT]{};
 
 void EventRegistry::clearHandlers(EventType type)
 {
