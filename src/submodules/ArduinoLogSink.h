@@ -9,7 +9,7 @@ class ArduinoLogSink : public ILogSink
 public:
     void writeLog(const char *logNamespace, const char *message) override
     {
-        printf("[%s] %s", logNamespace, message);
+        printf("[%s] %s\n", logNamespace, message);
     }
 };
 
