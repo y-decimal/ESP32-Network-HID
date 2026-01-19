@@ -37,8 +37,16 @@ public:
    */
   static void clearHandlers(EventType type);
 
+  static void registerPushCallback(EventCallback cb);
+
+  static void clearPushCallback();
+
+  static bool pushEvent(const Event &event);
+
+
 private:
   static std::vector<EventCallback> handlers[(size_t)EventType::COUNT];
+  static EventCallback pushCallback;
 };
 
 #endif
