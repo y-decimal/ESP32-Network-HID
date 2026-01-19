@@ -12,17 +12,17 @@
 #include <submodules/Esp32Gpio.h>
 #include <submodules/EspNowTransport.h>
 
-Esp32Gpio espGpio;
-EspNow espNow;
+static Esp32Gpio espGpio;
+static EspNow espNow;
+static ArduinoLogSink logSink;
+static PreferencesStorage prefStorage(CONFIG_MANAGER_NAMESPACE);
 
-PreferencesStorage prefStorage(CONFIG_MANAGER_NAMESPACE);
-ConfigManager mainCfg(&prefStorage);
-TaskManager taskManager(mainCfg, espGpio, espNow); // Move outside setup()
+TaskManager::Platform platform = {espGpio, espNow, logSink, prefStorage};
+static TaskManager taskManager(platform);
 
-ArduinoLogSink logSink;
-Logger logger("Main");
+static Logger logger("Main");
 
-void keyPrintCallback(const Event &event)
+static void keyPrintCallback(const Event &event)
 {
   RawKeyEvent keyEvent;
   if (event.type == EventType::IdKey)
@@ -35,7 +35,7 @@ void keyPrintCallback(const Event &event)
   logger.info("Key event: Key %d %s", keyIndex, state ? "pressed" : "released");
 }
 
-void bitMapPrintCallback(const Event &event)
+static void bitMapPrintCallback(const Event &event)
 {
   static std::vector<uint8_t> lastBitmap = {0};
 
