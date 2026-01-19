@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 #include <functional>
+#include <cstdarg>
 
 class Logger
 {
@@ -34,20 +35,21 @@ public:
     static LogLevel getNamespaceLevel(const char *logNamespace);
     static void setDefaultLogLevel(LogLevel level);
     static void setLogCallback(globalLogCallback callback);
-    static void writeWithNamespace(const char *logNamespace, LogLevel level, const char *message);
+    static void writeWithNamespace(const char *logNamespace, LogLevel level, const char *format, ...);
+    static void writeWithNamespaceV(const char *logNamespace, LogLevel level, const char *format, va_list args);
 
     void setMode(LogMode mode);
 
-    void error(const char *message);
-    void warn(const char *message);
-    void info(const char *message);
-    void debug(const char *message);
+    void error(const char *format, ...);
+    void warn(const char *format, ...);
+    void info(const char *format, ...);
+    void debug(const char *format, ...);
 
 private:
     LogMode mode = LogMode::Local;
     std::string logNamespace;
 
-    void log(const char *logNamespace, LogLevel level, const char *message);
+    void log(const char *logNamespace, LogLevel level, const char *format, va_list args);
 };
 
 #endif
