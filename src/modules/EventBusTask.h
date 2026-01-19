@@ -18,7 +18,12 @@ public:
 private:
   QueueHandle_t localQueue;
   TaskHandle_t eventBusHandle = nullptr;
+  static EventBusTask* instance;
+
   static void taskEntry(void *param);
-  void TaskMain();
+
+  static bool staticPushCallback(const Event &event);
+  bool pushToQueue(const Event &event);
 };
+
 #endif
