@@ -3,7 +3,6 @@
 
 #include <interfaces/ITask.h>
 #include <submodules/EventRegistry.h>
-#include <FreeRTOS.h>
 #include <queue.h>
 
 class EventBusTask : public ITask
