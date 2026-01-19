@@ -1,7 +1,8 @@
-#include <system/TaskManager.h>
+#include <modules/EventBusTask.h>
 
-void TaskManager::eventBusTask(void *arg) {
-  QueueHandle_t queue = static_cast<QueueHandle_t>(arg);
+
+void EventBusTask::taskEntry(void *param) {
+  QueueHandle_t queue = static_cast<QueueHandle_t>(param);
   Event event;
 
   while (true) {
@@ -15,29 +16,29 @@ void TaskManager::eventBusTask(void *arg) {
 
 // EventHandler helper functions
 
-void TaskManager::startEventBus() {
+void EventBusTask::start(TaskParameters params) {
 
   if (eventBusHandle != nullptr)
     return;
 
   BaseType_t result = xTaskCreatePinnedToCore(
-      eventBusTask, "EventBusHandler", STACK_EVENTBUS, eventBusQueue,
-      PRIORITY_EVENTBUS, &eventBusHandle, CORE_EVENTBUS);
+      EventBusTask::taskEntry, "EventBusHandler", params.stackSize, queue,
+      params.priority, &eventBusHandle, params.coreAffinity);
 
   if (result != pdPASS) {
     eventBusHandle = nullptr;
   }
 }
 
-void TaskManager::stopEventBus() {
+void EventBusTask::stop() {
   if (eventBusHandle == nullptr)
     return;
   vTaskDelete(eventBusHandle);
   eventBusHandle = nullptr;
 }
 
-void TaskManager::restartEventBus() {
+void EventBusTask::restart(TaskParameters params) {
   if (eventBusHandle != nullptr)
-    stopEventBus();
-  startEventBus();
+    stop();
+  start(params);
 }
