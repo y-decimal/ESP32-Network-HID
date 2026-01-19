@@ -21,7 +21,6 @@ void TaskManager::masterEspTask(void *arg)
   protocol->onBitmapEvent(bitmapReceiveCallback);
   protocol->onPairingRequest(pairReceiveCallback);
 
-  TickType_t previousWakeTime = xTaskGetTickCount();
 
   for (;;)
   {
