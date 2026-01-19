@@ -41,6 +41,8 @@ public:
     void onBitmapEvent(std::function<void(const RawBitmapEvent &bitmapEvent, uint8_t senderId)> callback);
     void onConfigReceived(std::function<void(ConfigManager &config, uint8_t senderId)> callback);
 
+    void clearCallbacks();
+
     /**
      * @brief Allows registering custom hooks for received pairing requests.
      * @param data A pointer to the contents of the pairing request.

@@ -205,3 +205,12 @@ void TransportProtocol::handlePairingConfirmation(const uint8_t *data, size_t da
         pairingConfirmationCallback(data, getIdByMac(mac));
     }
 }
+
+void TransportProtocol::clearCallbacks()
+{
+    keyEventCallback = nullptr;
+    bitmapEventCallback = nullptr;
+    configCallback = nullptr;
+    pairingRequestCallback = nullptr;
+    pairingConfirmationCallback = nullptr;
+}
