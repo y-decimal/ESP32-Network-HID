@@ -55,6 +55,6 @@ struct Event
 inline void cleanupRawKeyEvent(Event *event) { return; }
 inline void cleanupRawBitmapEvent(Event *event) { free(event->rawBitmapEvt.bitMapData); }
 inline void cleanupIdentifiableKeyEvent(Event *event) { return; }
-inline void cleanupIdentifiableBitmapEvent(Event *event) { free(event->rawBitmapEvt.bitMapData); }
+inline void cleanupIdentifiableBitmapEvent(Event *event) { free(event->idBitmapEvt.raw.bitMapData); }
 
 #endif
