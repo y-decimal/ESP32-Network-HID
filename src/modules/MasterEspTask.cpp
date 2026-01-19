@@ -103,7 +103,7 @@ void bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_t senderId)
   Event event = {};
   event.type = EventType::IdBitmap;
   event.idBitmapEvt.raw = bitmapEvent;
-  event.idBitmapEvt.sourceID = senderId;
+  event.idBitmapEvt.sourceId = senderId;
   event.cleanup = cleanupIdentifiableBitmapEvent;
   xQueueSend(eventBusQueueReference, &event, pdMS_TO_TICKS(20));
 };

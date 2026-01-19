@@ -34,7 +34,7 @@ struct RawBitmapEvent
 struct IdentifiableBitMapEvent
 {
   RawBitmapEvent raw;
-  uint8_t sourceID;
+  uint8_t sourceId;
 };
 
 struct Event
