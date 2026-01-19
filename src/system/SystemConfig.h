@@ -31,4 +31,9 @@ static constexpr uint32_t STACK_MASTERESP = 4096;
 static constexpr UBaseType_t PRIORITY_MASTERESP = 5;
 static constexpr BaseType_t CORE_MASTERESP = 0;
 
+// Logger Task Config
+static constexpr uint32_t STACK_LOGGER = 4096;
+static constexpr UBaseType_t PRIORITY_LOGGER = 3;
+static constexpr BaseType_t CORE_LOGGER = 0;
+
 #endif

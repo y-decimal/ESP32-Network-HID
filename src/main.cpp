@@ -3,6 +3,8 @@
 #include <submodules/ConfigManager/ConfigManager.h>
 #include <submodules/Storage/PreferencesStorage.h>
 #include <system/TaskManager.h>
+#include <submodules/ArduinoLogSink.h>
+#include <submodules/Logger.h>
 
 // temp local definitions for testing
 
@@ -16,6 +18,8 @@ EspNow espNow;
 PreferencesStorage prefStorage(CONFIG_MANAGER_NAMESPACE);
 ConfigManager mainCfg(&prefStorage);
 TaskManager taskManager(mainCfg, espGpio, espNow); // Move outside setup()
+
+ArduinoLogSink logSink;
 
 void keyPrintCallback(const Event &event)
 {
@@ -101,6 +105,7 @@ void setup()
 {
   Serial.begin(115200);
   delay(3000);
+  Logger::setGlobalSink(&logSink);
   printf("initializing...\n");
 
   WiFi.mode(WIFI_STA);

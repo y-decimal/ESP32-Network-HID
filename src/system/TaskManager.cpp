@@ -23,7 +23,8 @@ void TaskManager::initializeTasks()
 
   // Implement role based logic here later
   startEventBus();
-
+  startLogger();
+  
   DeviceRole roles[static_cast<size_t>(DeviceRole::Count)] = {DeviceRole::Count};
   GlobalConfig gCfg = configManager.getConfig<GlobalConfig>();
   gCfg.getRoles(roles, static_cast<size_t>(DeviceRole::Count));
