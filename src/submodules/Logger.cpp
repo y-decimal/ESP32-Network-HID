@@ -3,10 +3,6 @@
 #include <cstdio>
 #include <cstring>
 
-static constexpr size_t MAX_EARLY_LOG_MESSAGES = 32;
-static constexpr size_t MAX_EARLY_LOG_MESSAGE_SIZE = 128;
-static constexpr size_t MAX_NAMESPACE_LENGTH = 32;
-
 namespace
 {
     struct EarlyLogMessage
