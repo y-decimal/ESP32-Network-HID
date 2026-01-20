@@ -12,7 +12,8 @@
  * registered to respond to specific events, and multiple handlers
  * can be associated with each event type.
  */
-class EventRegistry {
+class EventRegistry
+{
 public:
   /// @brief Type definition for event handler callbacks.
   using EventCallback = void (*)(const Event &);
@@ -56,10 +57,10 @@ public:
    */
   static bool pushEvent(const Event &event);
 
-
 private:
   static std::vector<EventCallback> handlers[(size_t)EventType::COUNT];
   static PushCallback pushCallback;
+  static std::mutex mutex;
 };
 
 #endif
