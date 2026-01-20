@@ -29,6 +29,7 @@ void MasterTask::taskEntry(void *arg)
   task->protocol->onKeyEvent(keyReceiveCallback);
   task->protocol->onBitmapEvent(bitmapReceiveCallback);
   task->protocol->onPairingRequest(pairReceiveCallback);
+  log.debug("Registered TransportProtocol callbacks");
 
   for (;;)
   {
@@ -104,6 +105,7 @@ void MasterTask::keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderI
   event.idKeyEvt.sourceId = senderId;
   event.cleanup = cleanupIdentifiableKeyEvent;
   EventRegistry::pushEvent(event);
+  log.debug("Pushed key event from device ID %u to EventRegistry", senderId);
 };
 
 void MasterTask::bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_t senderId)
@@ -114,4 +116,5 @@ void MasterTask::bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_
   event.idBitmapEvt.sourceId = senderId;
   event.cleanup = cleanupIdentifiableBitmapEvent;
   EventRegistry::pushEvent(event);
+  log.debug("Pushed bitmap event from device ID %u to EventRegistry", senderId);
 };
