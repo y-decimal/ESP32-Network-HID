@@ -8,10 +8,9 @@ SlaveTask *SlaveTask::instance = nullptr;
 
 SlaveTask::SlaveTask(ITransport &transport) : transportRef(&transport)
 {
-  instance = this;
   if (instance != nullptr)
     instance->~SlaveTask();
-
+  instance = this;
   localQueue = xQueueCreate(16, sizeof(Event));
 }
 
@@ -80,7 +79,7 @@ void SlaveTask::start(TaskParameters params)
 {
 
   log.info("Starting SlaveTask with stack size %u, priority %d, core affinity %d",
-                    params.stackSize, params.priority, params.coreAffinity);
+           params.stackSize, params.priority, params.coreAffinity);
 
   if (slaveTaskHandle != nullptr)
   {
@@ -98,7 +97,7 @@ void SlaveTask::start(TaskParameters params)
   {
     slaveTaskHandle = nullptr;
     log.error("Failed to create SlaveTask!");
-    delete(protocol);
+    delete (protocol);
     protocol = nullptr;
   }
 }
@@ -137,7 +136,7 @@ void SlaveTask::eventBusCallback(const Event &evt)
 {
   if (SlaveTask::instance == nullptr)
   {
-   log.error("SlaveTask instance is null in eventBusCallback");
+    log.error("SlaveTask instance is null in eventBusCallback");
     return;
   }
 
@@ -158,8 +157,8 @@ void SlaveTask::pairConfirmCallback(const uint8_t *data, uint8_t sourceId)
   uint8_t masterMac[6] = {};
   SlaveTask::instance->protocol->getMacById(sourceId, masterMac);
   log.info("Received master MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
-                                         masterMac[0], masterMac[1], masterMac[2],
-                                         masterMac[3], masterMac[4], masterMac[5]);
+           masterMac[0], masterMac[1], masterMac[2],
+           masterMac[3], masterMac[4], masterMac[5]);
 }
 
 void SlaveTask::configReceiveCallback(const ConfigManager &config, uint8_t senderId)
