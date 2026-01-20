@@ -35,3 +35,11 @@ bool ConfigManager::loadConfig()
 
   return globalLoaded && keyLoaded;
 }
+
+bool ConfigManager::clearAllConfigs()
+{
+  bool globalCleared = globalCfg.clearAll();
+  bool keyCleared = keyScannerCfg.clearAll();
+
+  return globalCleared && keyCleared;
+}
