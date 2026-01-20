@@ -33,23 +33,23 @@ public:
     IStorage &storage;
   };
 
-  enum TaskId : uint32_t
+  enum TaskId : uint32_t // Define task IDs as bit flags, determines starting/stopping order
   {
-    EVENT_BUS_TASK = 1 << 0,
-    LOGGER_TASK = 1 << 1,
-    KEYSCANNER_TASK = 1 << 2,
-    MASTER_TASK = 1 << 3,
-    SLAVE_TASK = 1 << 4
+    LOGGER_TASK = 1 << 0,
+    EVENT_BUS_TASK = 1 << 1,
+    MASTER_TASK = 1 << 2,
+    SLAVE_TASK = 1 << 3,
+    KEYSCANNER_TASK = 1 << 4
   };
 
   TaskManager(Platform &platform)
       : platform(platform),
         configManager(&platform.storage),
-        eventBusTask(),
         loggerTask(),
-        keyScannerTask(configManager, platform.gpio),
+        eventBusTask(),
         masterTask(platform.transport),
-        slaveTask(platform.transport)
+        slaveTask(platform.transport),
+        keyScannerTask(configManager, platform.gpio)
   {
   }
 
@@ -59,15 +59,16 @@ private:
   Platform &platform;
   ConfigManager configManager;
 
-  // Task classes are stored here
-  EventBusTask eventBusTask;
+  // Task classes are stored here, this is also the order they will be started/stopped
   LoggerTask loggerTask;
-  KeyScannerTask keyScannerTask;
+  EventBusTask eventBusTask;
   MasterTask masterTask;
   SlaveTask slaveTask;
+  KeyScannerTask keyScannerTask;
 
   // Bitmap of currently active tasks
   uint32_t currentTasks = 0;
+  uint32_t coreModules = (TaskId::EVENT_BUS_TASK | TaskId::LOGGER_TASK);
 
   void startModules(uint32_t moduleBitmap);
   void stopTaskByBit(uint32_t bit);
