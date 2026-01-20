@@ -1,4 +1,7 @@
 #include <modules/KeyScannerTask.h>
+#include <submodules/Logger.h>
+
+static Logger log(KEYSCANNER_NAMESPACE);
 
 // Initialize static member variable
 KeyScannerTask *KeyScannerTask::instance = nullptr;
@@ -7,6 +10,8 @@ KeyScannerTask::KeyScannerTask(ConfigManager &configManager, IGpio &gpio)
     : configManagerRef(&configManager), 
       gpioRef(&gpio)
 {
+  if (instance != nullptr)
+    instance->~KeyScannerTask();
   instance = this;
 }
 
@@ -25,7 +30,7 @@ void KeyScannerTask::keyEventCallback(uint16_t keyIndex, bool state)
   event.cleanup = cleanupRawKeyEvent;
   if (!EventRegistry::pushEvent(event))
   {
-    KeyScannerTask::instance->internalLog->error("Failed to push key event to EventRegistry");
+    log.error("Failed to push key event to EventRegistry");
     event.cleanup(&event);
   }
 }
@@ -44,7 +49,7 @@ void KeyScannerTask::sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap)
 
   if (!EventRegistry::pushEvent(event))
   {
-    KeyScannerTask::instance->internalLog->error("Failed to push bitmap event to EventRegistry");
+    log.error("Failed to push bitmap event to EventRegistry");
     event.cleanup(&event);
   }
 }
@@ -55,7 +60,7 @@ void KeyScannerTask::taskEntry(void *arg)
 
   if (!task)
   {
-    KeyScannerTask::instance->internalLog->error("Received invalid parameters, aborting");
+    log.error("Received invalid parameters, aborting");
     vTaskDelete(nullptr);
   }
 
@@ -109,16 +114,13 @@ void KeyScannerTask::taskEntry(void *arg)
 
 void KeyScannerTask::start(TaskParameters params)
 {
-  internalLog = new Logger(KEYSCANNER_NAMESPACE);
-
-
   if (keyScannerTaskHandle != nullptr)
   {
-    internalLog->warn("KeyScannerTask already running");
+    log.warn("KeyScannerTask already running");
     return;
   }
 
-  internalLog->info("Starting KeyScannerTask with stack size %u, priority %d, core affinity %d",
+  log.info("Starting KeyScannerTask with stack size %u, priority %d, core affinity %d",
                    params.stackSize, params.priority, params.coreAffinity);
 
   BaseType_t result = xTaskCreatePinnedToCore(
@@ -126,17 +128,17 @@ void KeyScannerTask::start(TaskParameters params)
       params.priority, &keyScannerTaskHandle, params.coreAffinity);
   if (result != pdPASS)
   {
-    internalLog->error("Failed to create KeyScannerTask");
+    log.error("Failed to create KeyScannerTask");
     keyScannerTaskHandle = nullptr;
   }
 }
 
 void KeyScannerTask::stop()
 {
-  internalLog->info("Stopping KeyScannerTask");
+  log.info("Stopping KeyScannerTask");
   if (keyScannerTaskHandle == nullptr)
   {
-    internalLog->info("Stop called but KeyScannerTask is not running");
+    log.info("Stop called but KeyScannerTask is not running");
     return;
   }
   vTaskDelete(keyScannerTaskHandle);
@@ -145,7 +147,7 @@ void KeyScannerTask::stop()
 
 void KeyScannerTask::restart(TaskParameters params)
 {
-  internalLog->info("Restarting KeyScannerTask");
+  log.info("Restarting KeyScannerTask");
   if (keyScannerTaskHandle != nullptr)
     stop();
   start(params);
