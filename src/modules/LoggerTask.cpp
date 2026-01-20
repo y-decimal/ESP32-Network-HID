@@ -48,24 +48,22 @@ void LoggerTask::callback(const char *logNamespace, Logger::LogLevel level, cons
     {
         internalLogInstance.error("Failed to send log event to queue");
     }
+    else 
+    {
+        internalLogInstance.debug("Log event queued: [%s] %s", logEvent.logNs, logEvent.logMsg);
+    }
 }
 
 void LoggerTask::taskEntry(void *arg)
 {
     LoggerTask *instance = static_cast<LoggerTask *>(arg);
-    if (instance->localQueue == nullptr)
-    {
-        // Failed to create log queue; terminate this task to avoid using a null queue handle.
-        internalLogInstance.error("Failed to create log queue");
-        vTaskDelete(nullptr);
-    }
 
     for (;;)
     {
         LogEvent evt;
         if (xQueueReceive(instance->localQueue, &evt, portMAX_DELAY))
         {
-            internalLogInstance.log(evt.logNs, evt.level, evt.logMsg);
+            internalLogInstance.log(evt.logNs, evt.level, evt.logMsg); // Forward log to internal logger
         }
     }
 }
