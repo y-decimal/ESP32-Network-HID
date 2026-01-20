@@ -164,7 +164,7 @@ void Logger::logV(const char *logNamespace, LogLevel level, const char *format, 
     char msg[MAX_EARLY_LOG_MESSAGE_SIZE];
     vsnprintf(msg, sizeof(msg), format, args);
 
-    if (LoggerCore::globalCallback && this->mode == LogMode::Global)
+    if (LoggerCore::globalCallback && mode == LogMode::Global)
     {
         LoggerCore::globalCallback(logNamespace, level, msg);
         return;
