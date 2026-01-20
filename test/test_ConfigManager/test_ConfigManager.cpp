@@ -8,12 +8,12 @@
 #include "../FakeStorage.h"
 #endif
 
-#include <submodules/ConfigManager/ConfigManager.cpp>
-#include <submodules/ConfigManager/ConfigManager.h>
-#include <submodules/ConfigManager/GlobalConfig.cpp>
-#include <submodules/ConfigManager/GlobalConfig.h>
-#include <submodules/ConfigManager/KeyScannerConfig.cpp>
-#include <submodules/ConfigManager/KeyScannerConfig.h>
+#include <submodules/Config/ConfigManager.cpp>
+#include <submodules/Config/ConfigManager.h>
+#include <submodules/Config/GlobalConfig.cpp>
+#include <submodules/Config/GlobalConfig.h>
+#include <submodules/Config/KeyScannerConfig.cpp>
+#include <submodules/Config/KeyScannerConfig.h>
 #include <unity.h>
 
 #define NAMESPACE "CfgMgrTest"
@@ -61,7 +61,7 @@ void test_ConfigManager_getConfig_KeyScannerConfig_defaults() {
 void test_ConfigManager_setConfig_GlobalConfig() {
   ConfigManager manager(&testStorage);
   GlobalConfig config;
-  MacAddress testMac = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
+  GlobalConfig::MacAddress testMac = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
   config.setMac(testMac);
 
   manager.setConfig(config);
@@ -86,7 +86,7 @@ void test_ConfigManager_setConfig_KeyScannerConfig() {
 void test_ConfigManager_saveConfig() {
   ConfigManager manager(&testStorage);
   GlobalConfig config;
-  MacAddress testMac = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
+  GlobalConfig::MacAddress testMac = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
   config.setMac(testMac);
 
   manager.setConfig(config);
@@ -98,7 +98,7 @@ void test_ConfigManager_saveConfig() {
 void test_ConfigManager_loadConfig() {
   ConfigManager manager1(&testStorage);
   GlobalConfig config;
-  MacAddress testMac = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66};
+  GlobalConfig::MacAddress testMac = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66};
   config.setMac(testMac);
   KeyScannerConfig scannerConfig;
   scannerConfig.setRefreshRate(150);
@@ -122,7 +122,7 @@ void test_ConfigManager_save_and_load_multiple_configs() {
   ConfigManager manager1(&testStorage);
 
   GlobalConfig globalCfg;
-  MacAddress testMac = {0x10, 0x20, 0x30, 0x40, 0x50, 0x60};
+  GlobalConfig::MacAddress testMac = {0x10, 0x20, 0x30, 0x40, 0x50, 0x60};
   globalCfg.setMac(testMac);
   manager1.setConfig(globalCfg);
 
@@ -148,13 +148,13 @@ void test_ConfigManager_overwrite_config() {
   ConfigManager manager(&testStorage);
 
   GlobalConfig config1;
-  MacAddress mac1 = {0x01, 0x01, 0x01, 0x01, 0x01, 0x01};
+  GlobalConfig::MacAddress mac1 = {0x01, 0x01, 0x01, 0x01, 0x01, 0x01};
   config1.setMac(mac1);
   manager.setConfig(config1);
   manager.saveConfig();
 
   GlobalConfig config2;
-  MacAddress mac2 = {0x02, 0x02, 0x02, 0x02, 0x02, 0x02};
+  GlobalConfig::MacAddress mac2 = {0x02, 0x02, 0x02, 0x02, 0x02, 0x02};
   config2.setMac(mac2);
   manager.setConfig(config2);
   manager.saveConfig();
