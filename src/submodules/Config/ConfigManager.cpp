@@ -2,18 +2,17 @@
 
 bool ConfigManager::saveConfig()
 {
-  bool globalSaved = false;
-  bool keySaved = false;
+  bool globalSaved = globalCfg.save();
+  bool keySaved = keyScannerCfg.save();
 
-  if (globalCfg.isDirty())
-    globalSaved = globalCfg.save();
-  else
-    globalSaved = true;
+  if (!globalSaved)
+    configLog.error("Failed to save GlobalConfig");
+  if (!keySaved)
+    configLog.error("Failed to save KeyScannerConfig");
 
-  if (keyScannerCfg.isDirty())
-    keySaved = keyScannerCfg.save();
-  else
-    keySaved = true;
+  configLog.info("Configuration save status: GlobalConfig=%s, KeyScannerConfig=%s",
+                 globalSaved ? "success" : "failure",
+                 keySaved ? "success" : "failure");
 
   return globalSaved && keySaved;
 }
