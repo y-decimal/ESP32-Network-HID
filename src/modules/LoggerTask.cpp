@@ -12,9 +12,8 @@ struct LogEvent
     const char *logMsgPointer;
 };
 
-LoggerTask::LoggerTask(ILogSink &logSink) : logSink(logSink)
+LoggerTask::LoggerTask()
 {
-    Logger::setGlobalSink(&logSink);
     if (instance != nullptr)
         instance->~LoggerTask();
     instance = this;
@@ -30,7 +29,6 @@ LoggerTask::~LoggerTask()
         localQueue = nullptr;
     }
     instance = nullptr;
-    Logger::setGlobalSink(nullptr);
     Logger::setLogCallback(nullptr);
 }
 
@@ -78,7 +76,7 @@ void LoggerTask::start(TaskParameters params)
         return;
     }
     BaseType_t result = xTaskCreatePinnedToCore(
-        LoggerTask::taskEntry, "LoggerTask", params.stackSize,
+        taskEntry, "LoggerTask", params.stackSize,
         this, params.priority, &loggerHandle,
         params.coreAffinity);
 

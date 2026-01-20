@@ -10,7 +10,7 @@ static constexpr const char *LOGGERTASK_NAMESPACE = "LoggerTask";
 class LoggerTask : public ITask
 {
 public:
-    LoggerTask(ILogSink &logSink);
+    LoggerTask();
     ~LoggerTask();
     void start(TaskParameters params) override;
     void stop() override;
@@ -20,7 +20,6 @@ private:
     QueueHandle_t localQueue;
     TaskHandle_t loggerHandle = nullptr;
     static LoggerTask *instance;
-    ILogSink &logSink;
 
     static void taskEntry(void *param);
 
