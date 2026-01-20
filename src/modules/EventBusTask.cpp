@@ -14,20 +14,11 @@ EventBusTask::EventBusTask()
     delete instance;
   }
   instance = this;
-  localQueue = xQueueCreate(32, sizeof(Event));
-  if (!localQueue)
-    log.error("Failed to create EventBusTask queue");
-  else
-    EventRegistry::registerPushCallback(staticPushCallback);
 }
 
 EventBusTask::~EventBusTask()
 {
-  if (localQueue != nullptr)
-  {
-    vQueueDelete(localQueue);
-    localQueue = nullptr;
-  }
+  stop();
   EventRegistry::clearPushCallback();
   instance = nullptr;
 }
@@ -74,6 +65,13 @@ bool EventBusTask::pushToQueue(const Event &event)
 
 void EventBusTask::start(TaskParameters params)
 {
+  localQueue = xQueueCreate(32, sizeof(Event));
+  if (!localQueue)
+  {
+    log.error("Failed to create EventBusTask queue");
+    return;
+  }
+
   log.setMode(Logger::LogMode::Global);
 
   log.info("Starting EventBusTask");
@@ -90,7 +88,9 @@ void EventBusTask::start(TaskParameters params)
   {
     eventBusHandle = nullptr;
     log.error("Failed to create EventBusTask");
+    return;
   }
+  EventRegistry::registerPushCallback(staticPushCallback);
 }
 
 void EventBusTask::stop()
@@ -103,6 +103,13 @@ void EventBusTask::stop()
   }
   vTaskDelete(eventBusHandle);
   eventBusHandle = nullptr;
+
+  if (localQueue)
+  {
+    vQueueDelete(localQueue);
+    localQueue = nullptr;
+  }
+  EventRegistry::clearPushCallback();
 }
 
 void EventBusTask::restart(TaskParameters params)
