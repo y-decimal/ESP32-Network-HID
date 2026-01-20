@@ -7,9 +7,9 @@ namespace
 {
     struct EarlyLogMessage
     {
-        char logNamespace[MAX_NAMESPACE_LENGTH];
+        char logNamespace[Logger::MAX_NAMESPACE_LENGTH];
         Logger::LogLevel level;
-        char message[MAX_EARLY_LOG_MESSAGE_SIZE];
+        char message[Logger::MAX_EARLY_LOG_MESSAGE_SIZE];
     };
 
     struct LoggerCore
@@ -19,7 +19,7 @@ namespace
         static std::unordered_map<std::string, Logger::LogLevel> namespaceLevels;
         static Logger::globalLogCallback globalCallback;
         static Logger::LogLevel defaultLogLevel;
-        static EarlyLogMessage earlyMessages[MAX_EARLY_LOG_MESSAGES];
+        static EarlyLogMessage earlyMessages[Logger::MAX_EARLY_LOG_MESSAGES];
         static size_t earlyMessageCount;
         static size_t earlyMessageIndex;
         static bool loggingReady;
@@ -30,7 +30,7 @@ namespace
     std::unordered_map<std::string, Logger::LogLevel> LoggerCore::namespaceLevels{};
     Logger::globalLogCallback LoggerCore::globalCallback = nullptr;
     Logger::LogLevel LoggerCore::defaultLogLevel = Logger::LogLevel::info;
-    EarlyLogMessage LoggerCore::earlyMessages[MAX_EARLY_LOG_MESSAGES] = {};
+    EarlyLogMessage LoggerCore::earlyMessages[Logger::MAX_EARLY_LOG_MESSAGES] = {};
     size_t LoggerCore::earlyMessageCount = 0;
     size_t LoggerCore::earlyMessageIndex = 0;
     bool LoggerCore::loggingReady = false;
