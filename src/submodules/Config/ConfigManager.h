@@ -2,8 +2,8 @@
 #define CONFIGMANAGER_H
 
 #include <interfaces/IStorage.h>
-#include <submodules/ConfigManager/GlobalConfig.h>
-#include <submodules/ConfigManager/KeyScannerConfig.h>
+#include <submodules/Config/GlobalConfig.h>
+#include <submodules/Config/KeyScannerConfig.h>
 #include <submodules/Storage/TGenericStorage.h>
 
 // Storage keys for configuration manager (max 15 chars for ESP32 Preferences)

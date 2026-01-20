@@ -2,7 +2,7 @@
 #define TRANSPORTPROTOCOL_H
 
 #include <shared/EventTypes.h>
-#include <submodules/ConfigManager/ConfigManager.h>
+#include <submodules/Config/ConfigManager.h>
 #include <interfaces/ITransport.h>
 #include <functional>
 #include <vector>

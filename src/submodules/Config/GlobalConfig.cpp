@@ -1,4 +1,4 @@
-#include <submodules/ConfigManager/GlobalConfig.h>
+#include <submodules/Config/GlobalConfig.h>
 
 void GlobalConfig::setRoles(DeviceRole *roleArray, size_t arrSize) {
 

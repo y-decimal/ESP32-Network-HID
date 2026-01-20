@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <WiFi.h>
-#include <submodules/ConfigManager/ConfigManager.h>
+#include <submodules/Config/ConfigManager.h>
 #include <submodules/Storage/PreferencesStorage.h>
 #include <system/TaskManager.h>
 #include <submodules/ArduinoLogSink.h>

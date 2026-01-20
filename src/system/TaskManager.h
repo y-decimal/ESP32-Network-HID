@@ -9,7 +9,7 @@
 #include <modules/MasterTask.h>
 #include <modules/SlaveTask.h>
 
-#include <submodules/ConfigManager/ConfigManager.h>
+#include <submodules/Config/ConfigManager.h>
 #include <submodules/Logger.h>
 #include <system/SystemConfig.h>
 
