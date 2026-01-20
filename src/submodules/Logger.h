@@ -26,6 +26,10 @@ public:
         debug
     };
 
+    static constexpr const size_t MAX_EARLY_LOG_MESSAGES = 32;
+    static constexpr const size_t MAX_EARLY_LOG_MESSAGE_SIZE = 128;
+    static constexpr const size_t MAX_NAMESPACE_LENGTH = 32;
+
     using globalLogCallback = std::function<void(const char *logNamespace, LogLevel level, const char *message)>;
 
     Logger(const char *logNamespace);
@@ -52,13 +56,12 @@ private:
     char logNamespace[32];
 
     void logV(const char *logNamespace, LogLevel level, const char *format, va_list args);
-    void storeEarlyLogMessage(const char *logNamespace, LogLevel level, const char *format, va_list args);
 
-    static void writeWithNamespace(const char *logNamespace, LogLevel level, const char *format, ...);
-    static void writeWithNamespaceV(const char *logNamespace, LogLevel level, const char *format, va_list args);
-    static void internalWrite(const char *logNamespace, LogLevel level, const char *msg);
+    static void storeEarlyLogMessage(const char *logNamespace, LogLevel level, const char *msg);
     static void flushEarlyLogMessages();
+    static void clearEarlyLogMessages();
 
+    static void internalWrite(const char *logNamespace, LogLevel level, const char *msg);
 };
 
 #endif
