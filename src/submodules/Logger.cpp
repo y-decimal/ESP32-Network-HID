@@ -185,8 +185,8 @@ void Logger::logV(const char *logNamespace, LogLevel level, const char *format, 
 void Logger::internalWrite(const char *logNamespace, Logger::LogLevel level, const char *msg)
 {
     // Create buffer with log level prefix
-    size_t bufSize = strlen(msg) + MAX_NAMESPACE_LENGTH + sizeof(" : ") + 10;
-    char buffer[bufSize];
+    constexpr size_t BUFFER_SIZE = MAX_EARLY_LOG_MESSAGE_SIZE + MAX_NAMESPACE_LENGTH + sizeof(" : ") + 10;
+    char buffer[BUFFER_SIZE];
     snprintf(buffer, sizeof(buffer), "%s : %s", logLevelToString(level), msg);
 
     LoggerCore::globalSink->writeLog(logNamespace, buffer);
