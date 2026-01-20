@@ -16,20 +16,17 @@ struct LogEvent
 LoggerTask::LoggerTask()
 {
     if (instance != nullptr)
-        instance->~LoggerTask();
+    {
+        internalLogInstance.warn("LoggerTask instance already exists, replacing");
+        delete instance;
+    }
     instance = this;
-    localQueue = xQueueCreate(32, sizeof(LogEvent));
 }
 
 LoggerTask::~LoggerTask()
 {
-    if (localQueue != nullptr)
-    {
-        vQueueDelete(localQueue);
-        localQueue = nullptr;
-    }
+    stop();
     instance = nullptr;
-    Logger::setLogCallback(nullptr);
 }
 
 void LoggerTask::callback(const char *logNamespace, Logger::LogLevel level, const char *message)
@@ -76,6 +73,13 @@ void LoggerTask::taskEntry(void *arg)
 void LoggerTask::start(TaskParameters params)
 {
 
+    localQueue = xQueueCreate(32, sizeof(LogEvent));
+    if(localQueue == nullptr)
+    {
+        internalLogInstance.error("Failed to create LoggerTask queue");
+        return;
+    }
+
     internalLogInstance.info("Starting LoggerTask");
 
     if (loggerHandle != nullptr)
@@ -94,6 +98,7 @@ void LoggerTask::start(TaskParameters params)
         loggerHandle = nullptr;
         return;
     }
+    
     Logger::setLogCallback(callback); // Set callback after queue creation for safety
 }
 
