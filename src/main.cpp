@@ -21,6 +21,44 @@ static PreferencesStorage prefStorage(CONFIG_MANAGER_NAMESPACE);
 TaskManager::Platform platform = {espGpio, espNow, prefStorage};
 static TaskManager taskManager(platform);
 
+static void keyPrintCallback(const Event &event);
+static void bitMapPrintCallback(const Event &event);
+static void setKeyboardConfig();
+static void setHostConfig();
+
+void setup()
+{
+  Logger::setNamespaceLevel(LOGGERTASK_NAMESPACE, Logger::LogLevel::warn);
+  Logger::setDefaultLogLevel(Logger::LogLevel::info);
+
+  // setHostConfig();
+  // setKeyboardConfig();
+
+  logger.info("Starting setup...");
+  Serial.begin(115200);
+  logger.info("Serial initialized.");
+  delay(3000);
+
+  static ArduinoLogSink logSink;
+  Logger::setGlobalSink(&logSink);
+
+  logger.info("initializing...");
+
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+
+  EventRegistry::registerHandler(EventType::RawKey, keyPrintCallback);
+  EventRegistry::registerHandler(EventType::RawBitmap, bitMapPrintCallback);
+  EventRegistry::registerHandler(EventType::IdKey, keyPrintCallback);
+  EventRegistry::registerHandler(EventType::IdBitmap, bitMapPrintCallback);
+
+  taskManager.start();
+
+  logger.info("setup complete");
+}
+
+void loop() {}
+
 static void keyPrintCallback(const Event &event)
 {
   RawKeyEvent keyEvent;
@@ -57,31 +95,50 @@ static void bitMapPrintCallback(const Event &event)
   }
 }
 
-void setup()
+static void setKeyboardConfig()
 {
-  Logger::setNamespaceLevel("LoggerTask", Logger::LogLevel::warn);
-  Logger::setDefaultLogLevel(Logger::LogLevel::info);
-  logger.info("Starting setup...");
-  Serial.begin(115200);
-  logger.info("Serial initialized.");
-  delay(3000);
-  
-  static ArduinoLogSink logSink;
-  Logger::setGlobalSink(&logSink);
+  ConfigManager configManager(&prefStorage);
 
-  logger.info("initializing...");
+  configManager.clearAllConfigs();
 
-  WiFi.mode(WIFI_STA);
-  WiFi.disconnect();
+  GlobalConfig globalConfig;
 
-  EventRegistry::registerHandler(EventType::RawKey, keyPrintCallback);
-  EventRegistry::registerHandler(EventType::RawBitmap, bitMapPrintCallback);
-  EventRegistry::registerHandler(EventType::IdKey, keyPrintCallback);
-  EventRegistry::registerHandler(EventType::IdBitmap, bitMapPrintCallback);
+  GlobalConfig::DeviceModule modules[] = {GlobalConfig::DeviceModule::Keyscanner};
+  globalConfig.setDeviceModules(modules, sizeof(modules) / sizeof(modules[0]));
 
-  taskManager.start();
+  GlobalConfig::MacAddress mac = {};
+  esp_base_mac_addr_get(mac);
+  globalConfig.setMac(mac);
 
-  logger.info("setup complete");
+  globalConfig.setDeviceMode(GlobalConfig::DeviceMode::Slave);
+  configManager.setConfig(globalConfig);
+
+  KeyScannerConfig keyScannerConfig;
+  keyScannerConfig.setRefreshRate(1000);
+  keyScannerConfig.setBitmapSendFrequency(10);
+  uint8_t rowPins[2] = {9, 10};
+  uint8_t colPins[2] = {17, 18};
+  keyScannerConfig.setPins(rowPins, 2, colPins, 2);
+
+  configManager.setConfig(keyScannerConfig);
+
+  configManager.saveConfig();
 }
 
-void loop() {}
+static void setHostConfig()
+{
+  ConfigManager configManager(&prefStorage);
+
+  configManager.clearAllConfigs();
+
+  GlobalConfig globalConfig;
+
+  GlobalConfig::MacAddress mac = {};
+  esp_base_mac_addr_get(mac);
+  globalConfig.setMac(mac);
+
+  globalConfig.setDeviceMode(GlobalConfig::DeviceMode::Master);
+  configManager.setConfig(globalConfig);
+
+  configManager.saveConfig();
+}
