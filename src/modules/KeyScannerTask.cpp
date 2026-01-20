@@ -11,7 +11,10 @@ KeyScannerTask::KeyScannerTask(ConfigManager &configManager, IGpio &gpio)
       gpioRef(&gpio)
 {
   if (instance != nullptr)
-    instance->~KeyScannerTask();
+  {
+    log.warn("KeyScannerTask instance already exists, replacing");
+    delete instance;
+  }
   instance = this;
 }
 

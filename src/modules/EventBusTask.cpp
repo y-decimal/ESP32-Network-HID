@@ -10,6 +10,7 @@ EventBusTask::EventBusTask()
 {
   if (instance != nullptr)
   {
+    log.warn("EventBusTask instance already exists, replacing");
     delete instance;
   }
   instance = this;
