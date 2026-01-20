@@ -28,9 +28,11 @@ void SlaveTask::taskEntry(void *arg)
 
   EventRegistry::registerHandler(EventType::RawKey, eventBusCallback);
   EventRegistry::registerHandler(EventType::RawBitmap, eventBusCallback);
+  log.debug("Registered EventBus callbacks");
 
   task->protocol->onPairingConfirmation(pairConfirmCallback);
   task->protocol->onConfigReceived(configReceiveCallback);
+  log.debug("Registered TransportProtocol callbacks");
 
   TickType_t previousWakeTime = xTaskGetTickCount();
 
@@ -40,6 +42,7 @@ void SlaveTask::taskEntry(void *arg)
     if (!task->connected)
     {
       task->protocol->sendPairingRequest();
+      log.debug("Sent pairing request to master");
       xTaskDelayUntil(&previousWakeTime, pdMS_TO_TICKS(3500));
       continue;
     }
@@ -54,17 +57,26 @@ void SlaveTask::taskEntry(void *arg)
       if (event.type == EventType::RawKey)
       {
         task->protocol->sendKeyEvent(event.rawKeyEvt);
+        log.debug("Sent key event to master");
       }
 
       // Process BitMapEvent
       if (event.type == EventType::RawBitmap)
       {
         task->protocol->sendBitmapEvent(event.rawBitmapEvt);
+        log.debug("Sent bitmap event to master");
       }
 
       // Clean up event resources
       if (event.cleanup)
+      {
         event.cleanup(&event);
+        log.debug("Cleaned up event resources");
+      }
+      else
+      {
+        log.debug("No cleanup function for event");
+      }
     }
   }
 }
@@ -144,6 +156,7 @@ void SlaveTask::eventBusCallback(const Event &evt)
   if (SlaveTask::instance->localQueue != nullptr)
   {
     xQueueSend(SlaveTask::instance->localQueue, &evt, pdMS_TO_TICKS(10));
+    log.debug("Event pushed to SlaveTask queue");
   }
 }
 
