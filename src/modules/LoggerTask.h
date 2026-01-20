@@ -19,7 +19,6 @@ public:
 private:
     QueueHandle_t localQueue;
     TaskHandle_t loggerHandle = nullptr;
-    Logger *internalLog = nullptr;
     static LoggerTask *instance;
     ILogSink &logSink;
 
