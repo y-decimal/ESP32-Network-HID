@@ -20,6 +20,8 @@
 
 static Logger taskLog("TaskManager");
 
+using DeviceRole = GlobalConfig::DeviceRole;
+
 class TaskManager
 {
 public:
@@ -49,7 +51,7 @@ public:
     bool configLoaded = configManager.loadConfig();
     if (!configLoaded)
       taskLog.warn("Failed to load configuration, using defaults");
-    DeviceRole roles[(size_t)DeviceRole::Count];
+    GlobalConfig::DeviceRole roles[(size_t)DeviceRole::Count];
     configManager.getConfig<GlobalConfig>().getRoles(roles, (size_t)DeviceRole::Count);
     for (size_t i = 0; i < (size_t)DeviceRole::Count; i++)
     {
