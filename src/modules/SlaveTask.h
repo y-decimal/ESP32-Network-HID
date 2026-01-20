@@ -5,7 +5,6 @@
 #include <interfaces/ITransport.h>
 #include <submodules/TransportProtocol.h>
 #include <submodules/EventRegistry.h>
-#include <submodules/Logger.h>
 #include <queue.h>
 
 static constexpr const char *SLAVETASK_NAMESPACE = "SlaveTask";
@@ -23,7 +22,6 @@ private:
     TaskHandle_t slaveTaskHandle = nullptr;
     QueueHandle_t localQueue = nullptr;
     ITransport *transportRef = nullptr;
-    Logger *internalLog = nullptr;
     TransportProtocol *protocol = nullptr;
     static SlaveTask *instance;
 
