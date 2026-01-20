@@ -4,7 +4,6 @@
 #include <interfaces/ITask.h>
 #include <submodules/EventRegistry.h>
 #include <queue.h>
-#include <submodules/Logger.h>
 
 static constexpr const char *EVENTBUSTASK_NAMESPACE = "EventBusTask";
 
@@ -21,7 +20,6 @@ public:
 private:
   QueueHandle_t localQueue = nullptr;
   TaskHandle_t eventBusHandle = nullptr;
-  Logger *internalLog = nullptr;
   static EventBusTask *instance;
 
   static void taskEntry(void *param);
