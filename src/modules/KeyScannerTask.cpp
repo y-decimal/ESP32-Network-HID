@@ -20,6 +20,7 @@ KeyScannerTask::KeyScannerTask(ConfigManager &configManager, IGpio &gpio)
 
 KeyScannerTask::~KeyScannerTask()
 {
+  stop();
   instance = nullptr;
   // more later if needed
 }
