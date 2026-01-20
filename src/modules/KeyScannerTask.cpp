@@ -37,7 +37,7 @@ void KeyScannerTask::keyEventCallback(uint16_t keyIndex, bool state)
     log.error("Failed to push key event to EventRegistry");
     event.cleanup(&event);
   }
-  else 
+  else
   {
     log.debug("Pushed key event: Key %d %s", keyIndex, state ? "pressed" : "released");
   }
@@ -60,7 +60,7 @@ void KeyScannerTask::sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap)
     log.error("Failed to push bitmap event to EventRegistry");
     event.cleanup(&event);
   }
-  else 
+  else
   {
     log.debug("Pushed bitmap event of size %d", bitMapSize);
   }
@@ -97,31 +97,47 @@ void KeyScannerTask::taskEntry(void *arg)
   keyScanner.registerOnKeyChangeCallback(keyEventCallback);
   log.debug("Registered key event callback with KeyScanner");
 
-  TickType_t previousWakeTime = xTaskGetTickCount();
-  TickType_t refreshRateToTicks =
-      pdMS_TO_TICKS((1000 / localConfig.getRefreshRate()));
-
-  // Calculate bitmap send interval in loops based on frequency
-  uint16_t bitMapLoopInterval = localConfig.getRefreshRate() / localConfig.getBitMapSendInterval();
-  if (bitMapLoopInterval == 0)
-    bitMapLoopInterval = 1; // Minimum 1 loop if freq > refresh rate
-
-  uint16_t loopsSinceLastBitMap = 0;
   std::vector<uint8_t> localBitmap;
   localBitmap.assign(localConfig.getBitmapSize(), 0);
 
-  while (true)
+  const uint32_t keyScanInterval = 1000000 / localConfig.getRefreshRate();
+  const uint32_t bitmapSendInterval = 1000000 / localConfig.getBitMapSendInterval();
+
+  uint64_t lastScanTime = esp_timer_get_time();
+  uint64_t lastBitmapTime = lastScanTime;
+  uint64_t lastLogTime = lastScanTime;
+  uint32_t timesExecuted = 0;
+
+  for (;;)
   {
-    loopsSinceLastBitMap++;
-    keyScanner.updateKeyState();
-    if (loopsSinceLastBitMap >= bitMapLoopInterval)
+    uint64_t time = esp_timer_get_time();
+
+    if (time - lastScanTime >= keyScanInterval - 1)
     {
-      keyScanner.copyPublishedBitmap(localBitmap.data(), localBitmap.size());
-      uint8_t bitMapSize = static_cast<uint8_t>(keyScanner.getBitMapSize());
-      sendBitMapEvent(bitMapSize, localBitmap.data());
-      loopsSinceLastBitMap = 0;
+      keyScanner.updateKeyState();
+      timesExecuted++;
+      lastScanTime = time;
+
+      if (time - lastBitmapTime >= bitmapSendInterval - 1)
+      {
+        keyScanner.copyPublishedBitmap(localBitmap.data(), localBitmap.size());
+        uint8_t bitMapSize = static_cast<uint8_t>(keyScanner.getBitMapSize());
+        sendBitMapEvent(bitMapSize, localBitmap.data());
+        lastBitmapTime = time;
+        log.debug("Bitmap sent");
+      }
+
+      if (time - lastLogTime >= 5000000)
+      {
+        float avgUpdateInterval = (time - lastLogTime) / timesExecuted;
+        float avgRefreshRateHz = timesExecuted / 5;
+        log.debug("Average Keyscan update rate (Hz): %.2f, interval (uS): %.1f", avgRefreshRateHz, avgUpdateInterval);
+        lastLogTime = time;
+        timesExecuted = 0;
+      }
     }
-    xTaskDelayUntil(&previousWakeTime, refreshRateToTicks);
+    else
+      vPortYield();
   }
 }
 
