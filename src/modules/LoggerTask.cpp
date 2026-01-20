@@ -19,7 +19,6 @@ LoggerTask::LoggerTask()
         instance->~LoggerTask();
     instance = this;
     localQueue = xQueueCreate(32, sizeof(LogEvent));
-    Logger::setLogCallback(callback); // Set callback after queue creation for safety
 }
 
 LoggerTask::~LoggerTask()
@@ -78,6 +77,7 @@ void LoggerTask::start(TaskParameters params)
 {
 
     internalLogInstance.info("Starting LoggerTask");
+
     if (loggerHandle != nullptr)
     {
         internalLogInstance.warn("LoggerTask already running");
@@ -92,11 +92,14 @@ void LoggerTask::start(TaskParameters params)
     {
         internalLogInstance.error("Failed to create LoggerTask");
         loggerHandle = nullptr;
+        return;
     }
+    Logger::setLogCallback(callback); // Set callback after queue creation for safety
 }
 
 void LoggerTask::stop()
 {
+    Logger::setLogCallback(nullptr); // Clear callback to stop sending logs
     internalLogInstance.info("Stopping LoggerTask");
     if (loggerHandle == nullptr)
     {
