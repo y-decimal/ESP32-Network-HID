@@ -56,6 +56,7 @@ private:
 
     static void writeWithNamespace(const char *logNamespace, LogLevel level, const char *format, ...);
     static void writeWithNamespaceV(const char *logNamespace, LogLevel level, const char *format, va_list args);
+    static void internalWrite(const char *logNamespace, LogLevel level, const char *msg);
     static void flushEarlyLogMessages();
 
 };

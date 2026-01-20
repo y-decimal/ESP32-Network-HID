@@ -99,21 +99,26 @@ void Logger::setLogCallback(globalLogCallback callback)
     LoggerCore::globalCallback = std::move(callback);
 }
 
-void Logger::writeWithNamespaceV(const char *logNamespace, LogLevel level, const char *format, va_list args)
+// Internal function that assumes mutex is already locked
+void Logger::internalWrite(const char *logNamespace, Logger::LogLevel level, const char *msg)
 {
-    std::lock_guard<std::mutex> lock(LoggerCore::mutex);
     if (LoggerCore::globalSink == nullptr)
         return;
 
-    // Format the message first
-    char messageBuffer[MAX_EARLY_LOG_MESSAGE_SIZE];
-    vsnprintf(messageBuffer, sizeof(messageBuffer), format, args);
-
     // Create final buffer with log level prefix
-    char buffer[512];
-    snprintf(buffer, sizeof(buffer), "%s : %s", logLevelToString(level), messageBuffer);
+    size_t bufSize = strlen(msg) + MAX_NAMESPACE_LENGTH + sizeof(" : ") + 10;
+    char buffer[bufSize];
+    snprintf(buffer, sizeof(buffer), "%s : %s", logLevelToString(level), msg);
 
     LoggerCore::globalSink->writeLog(logNamespace, buffer);
+}
+
+void Logger::writeWithNamespaceV(const char *logNamespace, LogLevel level, const char *format, va_list args)
+{
+    std::lock_guard<std::mutex> lock(LoggerCore::mutex);
+    char msg[MAX_EARLY_LOG_MESSAGE_SIZE];
+    vsnprintf(msg, sizeof(msg), format, args);
+    internalWrite(logNamespace, level, msg);
 }
 
 void Logger::writeWithNamespace(const char *logNamespace, LogLevel level, const char *format, ...)
@@ -230,12 +235,14 @@ void Logger::storeEarlyLogMessage(const char *logNamespace, LogLevel level, cons
 
 void Logger::flushEarlyLogMessages()
 {
-    std::lock_guard<std::mutex> lock(LoggerCore::mutex);
+    if (LoggerCore::globalSink == nullptr)
+        return;
 
     for (size_t i = 0; i < LoggerCore::earlyMessageCount; i++)
     {
         EarlyLogMessage msg = LoggerCore::earlyMessages[i];
-        writeWithNamespace(msg.logNamespace, msg.level, msg.message);
+        // Directly write without calling writeWithNamespace to avoid deadlock
+        Logger::internalWrite(msg.logNamespace, msg.level, msg.message);
         memset(&LoggerCore::earlyMessages[i], 0, sizeof(EarlyLogMessage));
     }
     LoggerCore::earlyMessageIndex = 0;
