@@ -38,7 +38,7 @@ public:
 
   struct SerializedConfig
   {
-    uint8_t data[SERIALIZED_SIZE];
+    uint8_t data[SERIALIZED_SIZE]{0};
     size_t size = SERIALIZED_SIZE;
   };
 
@@ -87,11 +87,11 @@ public:
 
 private:
   // Array to hold device roles
-  DeviceModule modules[(size_t)DeviceModule::Count]{};
-  DeviceMode mode;
+  DeviceModule modules[(size_t)DeviceModule::Count]{DeviceModule::Count};
+  DeviceMode mode = DeviceMode::Count;
 
   // Variable to hold the device MAC address
-  MacAddress deviceMac{};
+  MacAddress deviceMac{0};
 };
 
 #endif
