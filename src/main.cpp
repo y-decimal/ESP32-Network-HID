@@ -59,12 +59,14 @@ static void bitMapPrintCallback(const Event &event)
 
 void setup()
 {
-  Serial.begin(115200);
-  static ArduinoLogSink logSink;
-  delay(3000);
-
-  Logger::setGlobalSink(&logSink);
   Logger::setDefaultLogLevel(Logger::LogLevel::info);
+  logger.info("Starting setup...");
+  Serial.begin(115200);
+  logger.info("Serial initialized.");
+  delay(3000);
+  
+  static ArduinoLogSink logSink;
+  Logger::setGlobalSink(&logSink);
 
   logger.info("initializing...");
 
