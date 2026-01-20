@@ -60,7 +60,8 @@ static const char *logLevelToString(Logger::LogLevel level)
 
 Logger::Logger(const char *logNamespace)
 {
-    this->logNamespace.assign(logNamespace);
+    strncpy(this->logNamespace, logNamespace, sizeof(this->logNamespace) - 1);
+    this->logNamespace[sizeof(this->logNamespace) - 1] = '\0';
 }
 
 void Logger::setGlobalSink(ILogSink *globalSink)
