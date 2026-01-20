@@ -21,7 +21,6 @@ namespace
         static Logger::LogLevel defaultLogLevel;
         static EarlyLogMessage earlyMessages[Logger::MAX_EARLY_LOG_MESSAGES];
         static size_t earlyMessageCount;
-        static size_t earlyMessageIndex;
         static bool loggingReady;
     };
 
@@ -32,7 +31,6 @@ namespace
     Logger::LogLevel LoggerCore::defaultLogLevel = Logger::LogLevel::info;
     EarlyLogMessage LoggerCore::earlyMessages[Logger::MAX_EARLY_LOG_MESSAGES] = {};
     size_t LoggerCore::earlyMessageCount = 0;
-    size_t LoggerCore::earlyMessageIndex = 0;
     bool LoggerCore::loggingReady = false;
 }
 
