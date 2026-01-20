@@ -63,6 +63,12 @@ public:
    * @return True if load was successful, false otherwise.
    */
   bool loadConfig();
+
+  /**
+   * @brief Clear all configurations from storage.
+   * @return True if clear was successful, false otherwise.
+   */
+  bool clearAllConfigs();
 };
 
 // Template specializations
