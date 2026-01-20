@@ -50,7 +50,6 @@ static void bitMapPrintCallback(const Event &event)
     for (size_t i = 0; i < bitMapEvent.bitMapSize; i++)
     {
       debugStr += " " + std::to_string(bitMapEvent.bitMapData[i]);
-      ;
     }
     logger.info("%s", debugStr.c_str());
 
