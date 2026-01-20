@@ -4,7 +4,6 @@
 #include <interfaces/ITask.h>
 #include <submodules/KeyScanner.h>
 #include <submodules/ConfigManager/ConfigManager.h>
-#include <submodules/Logger.h>
 #include <submodules/EventRegistry.h>
 #include <queue.h>
 
@@ -23,7 +22,6 @@ private:
     ConfigManager *configManagerRef = nullptr;
     IGpio *gpioRef = nullptr;
     TaskHandle_t keyScannerTaskHandle = nullptr;
-    Logger *internalLog = nullptr;
     static KeyScannerTask *instance;
 
     static void taskEntry(void *param);
