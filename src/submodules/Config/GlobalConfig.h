@@ -17,15 +17,24 @@ public:
   // Definition of the serialized configuration structure
   typedef uint8_t MacAddress[6];
 
-  enum class DeviceRole : uint8_t
+  enum class DeviceMode : uint8_t
   {
     Master,
-    Keyboard,
+    Slave,
+    Count
+  };
+
+  enum class DeviceModule : uint8_t
+  {
+    Keyscanner, // Expand later with new modules
     Count
   };
 
   // Size of the serialized configuration
-  static const size_t SERIALIZED_SIZE = sizeof(DeviceRole) * (size_t)DeviceRole::Count + sizeof(MacAddress);
+  static const size_t SERIALIZED_SIZE =
+      sizeof(DeviceModule) * (size_t)DeviceModule::Count +
+      sizeof(DeviceMode) +
+      sizeof(MacAddress);
 
   struct SerializedConfig
   {
@@ -34,11 +43,17 @@ public:
   };
 
   /**
-   * @brief Set the device roles.
-   * @param roleArray Array of DeviceRole to set.
-   * @param arrSize Size of the roleArray.
+   * @brief Set the device modules.
+   * @param moduleArray Array of DeviceModule to set.
+   * @param arrSize Size of the moduleArray.
    */
-  void setRoles(DeviceRole *roleArray, size_t arrSize);
+  void setDeviceModules(DeviceModule *moduleArray, size_t arrSize);
+
+  /**
+   * @brief Set the device mode
+   * @param mode Mode to set, e.g. DeviceMode::Slave
+   */
+  void setDeviceMode(DeviceMode mode);
 
   /**
    * @brief Set the device MAC address.
@@ -47,11 +62,17 @@ public:
   void setMac(MacAddress mac);
 
   /**
-   * @brief Get the device roles.
-   * @param out Output array to store the roles.
+   * @brief Get the device modules.
+   * @param out Output array to store the modules.
    * @param size Size of the output array.
    */
-  void getRoles(DeviceRole *out, size_t size);
+  void getDeviceModules(DeviceModule *out, size_t size);
+
+  /**
+   * @brief Get the device mode.
+   * @return Returns the device mode, e.g. DeviceMode::Master
+   */
+  DeviceMode getDeviceMode();
 
   /**
    * @brief Get the device MAC address.
@@ -66,7 +87,8 @@ public:
 
 private:
   // Array to hold device roles
-  DeviceRole roles[(size_t)DeviceRole::Count]{DeviceRole::Count};
+  DeviceModule modules[(size_t)DeviceModule::Count]{};
+  DeviceMode mode;
 
   // Variable to hold the device MAC address
   MacAddress deviceMac{};
