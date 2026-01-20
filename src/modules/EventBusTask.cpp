@@ -1,12 +1,16 @@
 #include <modules/EventBusTask.h>
+#include <submodules/Logger.h>
+
+static Logger log(EVENTBUSTASK_NAMESPACE);
 
 // Initialize static member variable
 EventBusTask *EventBusTask::instance = nullptr;
 
 EventBusTask::EventBusTask()
 {
-  if (instance != nullptr)
-    return;
+  if (instance != nullptr) {
+    instance->~EventBusTask();
+  }
   instance = this;
   localQueue = xQueueCreate(32, sizeof(Event));
   EventRegistry::registerPushCallback(staticPushCallback);
@@ -33,7 +37,7 @@ void EventBusTask::taskEntry(void *param)
   {
     if (xQueueReceive(instance->localQueue, &event, portMAX_DELAY))
     {
-      instance->internalLog->debug("Processing event of type %d", static_cast<uint8_t>(event.type));
+      log.debug("Processing event of type %d", static_cast<uint8_t>(event.type));
       const auto handlers = EventRegistry::getHandler(event.type);
       for (auto callback : handlers)
         callback(event);
@@ -65,13 +69,12 @@ bool EventBusTask::pushToQueue(const Event &event)
 
 void EventBusTask::start(TaskParameters params)
 {
-  internalLog = new Logger(EVENTBUSTASK_NAMESPACE);
-  internalLog->setMode(Logger::LogMode::Global);
+  log.setMode(Logger::LogMode::Global);
 
-  internalLog->info("Starting EventBusTask");
+  log.info("Starting EventBusTask");
   if (eventBusHandle != nullptr)
   {
-    internalLog->warn("EventBusTask already running");
+   log.warn("EventBusTask already running");
     return;
   }
   BaseType_t result = xTaskCreatePinnedToCore(
@@ -81,29 +84,25 @@ void EventBusTask::start(TaskParameters params)
   if (result != pdPASS)
   {
     eventBusHandle = nullptr;
-    internalLog->error("Failed to create EventBusTask");
+    log.error("Failed to create EventBusTask");
   }
 }
 
 void EventBusTask::stop()
 {
-  internalLog->info("Stopping EventBusTask");
+  log.info("Stopping EventBusTask");
   if (eventBusHandle == nullptr)
   {
-    internalLog->info("Stop called but EventBusTask is not running");
+    log.info("Stop called but EventBusTask is not running");
     return;
   }
   vTaskDelete(eventBusHandle);
   eventBusHandle = nullptr;
-
-  if (internalLog)
-    delete internalLog;
-  internalLog = nullptr;
 }
 
 void EventBusTask::restart(TaskParameters params)
 {
-  internalLog->info("Restarting EventBusTask");
+  log.info("Restarting EventBusTask");
   if (eventBusHandle != nullptr)
     stop();
   start(params);
