@@ -1,20 +1,22 @@
 #include <modules/MasterTask.h>
+#include <submodules/Logger.h>
+
+static Logger log(MASTERTASK_NAMESPACE);
 
 // Initialize static member variable
 MasterTask *MasterTask::instance = nullptr;
 
 MasterTask::MasterTask(ITransport &transport) : transportRef(&transport)
 {
+  if (instance)
+    instance->~MasterTask();
   instance = this;
 }
 
 MasterTask::~MasterTask()
 {
-  if (internalLog)
-    delete internalLog;
   if (protocol)
     delete protocol;
-  internalLog = nullptr;
   protocol = nullptr;
   instance = nullptr;
 }
@@ -36,16 +38,16 @@ void MasterTask::taskEntry(void *arg)
 
 void MasterTask::start(TaskParameters params)
 {
-  protocol = new TransportProtocol(*transportRef);
-  internalLog = new Logger(MASTERTASK_NAMESPACE);
 
-  internalLog->info("Starting MasterTask with stack size %u, priority %d, core affinity %d",
-                    params.stackSize, params.priority, params.coreAffinity);
+  log.info("Starting MasterTask with stack size %u, priority %d, core affinity %d",
+           params.stackSize, params.priority, params.coreAffinity);
   if (masterTaskHandle != nullptr)
   {
-    internalLog->warn("MasterTask is already running!");
+    log.warn("MasterTask is already running!");
     return;
   }
+
+  protocol = new TransportProtocol(*transportRef);
 
   BaseType_t result = xTaskCreatePinnedToCore(taskEntry, "MasterTask",
                                               params.stackSize, this,
@@ -55,40 +57,32 @@ void MasterTask::start(TaskParameters params)
   if (result != pdPASS)
   {
     masterTaskHandle = nullptr;
-    internalLog->error("Failed to create MasterTask!");
+    log.error("Failed to create MasterTask!");
+    delete (protocol);
+    protocol = nullptr;
   }
 }
 
 void MasterTask::stop()
 {
-  internalLog->info("Stopping MasterTask");
+  log.info("Stopping MasterTask");
   if (masterTaskHandle == nullptr)
   {
-    internalLog->warn("Stop called but MasterTask is not running");
-    return;
-  }
-
-  internalLog->info("Stopping MasterTask");
-  if (masterTaskHandle == nullptr)
-  {
-    internalLog->warn("Stop called but MasterTask is not running");
+    log.warn("Stop called but MasterTask is not running");
     return;
   }
 
   vTaskDelete(masterTaskHandle);
   masterTaskHandle = nullptr;
 
-  if (internalLog)
-    delete internalLog;
   if (protocol)
     delete protocol;
-  internalLog = nullptr;
   protocol = nullptr;
 }
 
 void MasterTask::restart(TaskParameters params)
 {
-  internalLog->info("Restarting MasterTask");
+  log.info("Restarting MasterTask");
   if (masterTaskHandle != nullptr)
     stop();
   start(params);
@@ -96,7 +90,7 @@ void MasterTask::restart(TaskParameters params)
 
 void MasterTask::pairReceiveCallback(const uint8_t *data, uint8_t sourceId)
 {
-  MasterTask::instance->internalLog->info("Received pairing request from device ID %u", sourceId);
+  log.info("Received pairing request from device ID %u", sourceId);
 };
 
 void MasterTask::keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderId)

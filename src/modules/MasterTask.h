@@ -5,7 +5,6 @@
 #include <interfaces/ITransport.h>
 #include <submodules/TransportProtocol.h>
 #include <submodules/EventRegistry.h>
-#include <submodules/Logger.h>
 
 static constexpr const char *MASTERTASK_NAMESPACE = "MasterTask";
 
@@ -21,7 +20,6 @@ public:
 private:
     TaskHandle_t masterTaskHandle = nullptr;
     ITransport *transportRef = nullptr;
-    Logger *internalLog = nullptr;
     TransportProtocol *protocol = nullptr;
     static MasterTask *instance;
 
