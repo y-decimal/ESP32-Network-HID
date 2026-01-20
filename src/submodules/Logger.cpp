@@ -164,19 +164,22 @@ void Logger::logV(const char *logNamespace, LogLevel level, const char *format, 
     char msg[MAX_EARLY_LOG_MESSAGE_SIZE];
     vsnprintf(msg, sizeof(msg), format, args);
 
-    if (LoggerCore::globalCallback && mode == LogMode::Global)
+    switch (mode)
     {
-        LoggerCore::globalCallback(logNamespace, level, msg);
+    case LogMode::Local:
+        LoggerCore::loggingReady
+            ? internalWrite(logNamespace, level, msg)         // Write directly
+            : storeEarlyLogMessage(logNamespace, level, msg); // Store early message
+        return;
+    case LogMode::Global:
+        if (LoggerCore::globalCallback)
+            LoggerCore::globalCallback(logNamespace, level, msg);
+        else
+            LoggerCore::loggingReady
+                ? internalWrite(logNamespace, level, msg)                               // Write directly       
+                : storeEarlyLogMessage(getModifiedNamespace(logNamespace), level, msg); // Store early message
         return;
     }
-
-    if (!LoggerCore::loggingReady)
-    {
-        storeEarlyLogMessage(logNamespace, level, msg);
-        return;
-    }
-
-    internalWrite(logNamespace, level, msg);
 }
 
 void Logger::internalWrite(const char *logNamespace, Logger::LogLevel level, const char *msg)
@@ -201,17 +204,17 @@ void Logger::storeEarlyLogMessage(const char *logNamespace, LogLevel level, cons
     strncpy(earlyMsg.message, msg, MAX_EARLY_LOG_MESSAGE_SIZE - 1);
     earlyMsg.message[MAX_EARLY_LOG_MESSAGE_SIZE - 1] = '\0';
     LoggerCore::earlyMessages[LoggerCore::earlyMessageCount] = earlyMsg;
-    
+
     LoggerCore::earlyMessageCount++;
 }
 
 void Logger::flushEarlyLogMessages()
 {
-    printf("Flushing %zu early log messages\n", LoggerCore::earlyMessageCount);
+    internalWrite("LOG", LogLevel::info, "Flushing early log messages");
     for (size_t i = 0; i < LoggerCore::earlyMessageCount; i++)
     {
         EarlyLogMessage msg = LoggerCore::earlyMessages[i];
-        Logger::internalWrite(msg.logNamespace, msg.level, msg.message);
+        internalWrite(msg.logNamespace, msg.level, msg.message);
     }
     clearEarlyLogMessages();
 }
@@ -223,4 +226,11 @@ void Logger::clearEarlyLogMessages()
         LoggerCore::earlyMessages[i] = EarlyLogMessage{};
     }
     LoggerCore::earlyMessageCount = 0;
+}
+
+inline const char *Logger::getModifiedNamespace(const char *originalNamespace)
+{
+    static char modifiedNamespace[MAX_NAMESPACE_LENGTH];
+    snprintf(modifiedNamespace, sizeof(modifiedNamespace), "%s (LOCAL)", originalNamespace);
+    return modifiedNamespace;
 }

@@ -62,6 +62,7 @@ private:
     static void clearEarlyLogMessages();
 
     static void internalWrite(const char *logNamespace, LogLevel level, const char *msg);
+    static const char* getModifiedNamespace(const char* originalNamespace);
 };
 
 #endif
