@@ -1,4 +1,4 @@
-#include <submodules/ConfigManager/ConfigManager.h>
+#include <submodules/Config/ConfigManager.h>
 
 bool ConfigManager::saveConfig()
 {
