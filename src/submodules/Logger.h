@@ -52,9 +52,12 @@ private:
     std::string logNamespace;
 
     void logV(const char *logNamespace, LogLevel level, const char *format, va_list args);
+    void storeEarlyLogMessage(const char *logNamespace, LogLevel level, const char *format, va_list args);
 
     static void writeWithNamespace(const char *logNamespace, LogLevel level, const char *format, ...);
     static void writeWithNamespaceV(const char *logNamespace, LogLevel level, const char *format, va_list args);
+    static void flushEarlyLogMessages();
+
 };
 
 #endif

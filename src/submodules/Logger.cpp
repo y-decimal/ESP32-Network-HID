@@ -1,8 +1,20 @@
 #include <submodules/Logger.h>
 #include <mutex>
 #include <cstdio>
+#include <cstring>
+
+static constexpr size_t MAX_EARLY_LOG_MESSAGES = 32;
+static constexpr size_t MAX_EARLY_LOG_MESSAGE_SIZE = 128;
+
 namespace
 {
+    struct EarlyLogMessage
+    {
+        const char *logNamespace;
+        Logger::LogLevel level;
+        char message[MAX_EARLY_LOG_MESSAGE_SIZE];
+    };
+
     struct LoggerCore
     {
         static std::mutex mutex;
@@ -10,6 +22,10 @@ namespace
         static std::unordered_map<std::string, Logger::LogLevel> namespaceLevels;
         static Logger::globalLogCallback globalCallback;
         static Logger::LogLevel defaultLogLevel;
+        static EarlyLogMessage earlyMessages[MAX_EARLY_LOG_MESSAGES];
+        static size_t earlyMessageCount;
+        static size_t earlyMessageIndex;
+        static bool loggingReady;
     };
 
     std::mutex LoggerCore::mutex{};
@@ -17,6 +33,10 @@ namespace
     std::unordered_map<std::string, Logger::LogLevel> LoggerCore::namespaceLevels{};
     Logger::globalLogCallback LoggerCore::globalCallback = nullptr;
     Logger::LogLevel LoggerCore::defaultLogLevel = Logger::LogLevel::info;
+    EarlyLogMessage LoggerCore::earlyMessages[MAX_EARLY_LOG_MESSAGES] = {};
+    size_t LoggerCore::earlyMessageCount = 0;
+    size_t LoggerCore::earlyMessageIndex = 0;
+    bool LoggerCore::loggingReady = false;
 }
 
 static const char *logLevelToString(Logger::LogLevel level)
@@ -47,6 +67,8 @@ void Logger::setGlobalSink(ILogSink *globalSink)
 {
     std::lock_guard<std::mutex> lock(LoggerCore::mutex);
     LoggerCore::globalSink = globalSink;
+    LoggerCore::loggingReady = true;
+    flushEarlyLogMessages();
 }
 
 void Logger::setNamespaceLevel(const char *logNamespace, LogLevel level)
@@ -83,7 +105,7 @@ void Logger::writeWithNamespaceV(const char *logNamespace, LogLevel level, const
         return;
 
     // Format the message first
-    char messageBuffer[256];
+    char messageBuffer[MAX_EARLY_LOG_MESSAGE_SIZE];
     vsnprintf(messageBuffer, sizeof(messageBuffer), format, args);
 
     // Create final buffer with log level prefix
@@ -115,7 +137,7 @@ void Logger::logV(const char *logNamespace, LogLevel level, const char *format, 
         break;
     case LogMode::Global:
         // Format the message for global callback
-        char messageBuffer[256];
+        char messageBuffer[MAX_EARLY_LOG_MESSAGE_SIZE];
         vsnprintf(messageBuffer, sizeof(messageBuffer), format, args);
         std::lock_guard<std::mutex> lock(LoggerCore::mutex);
         if (LoggerCore::globalCallback)
@@ -182,4 +204,39 @@ void Logger::log(const char *logNamespace, LogLevel level, const char *format, .
     va_start(args, format);
     logV(logNamespace, level, format, args);
     va_end(args);
+}
+
+void Logger::storeEarlyLogMessage(const char *logNamespace, LogLevel level, const char *format, va_list args)
+{
+    std::lock_guard<std::mutex> lock(LoggerCore::mutex);
+
+    if (LoggerCore::earlyMessageCount >= MAX_EARLY_LOG_MESSAGES)
+        return;
+
+    char messageBuffer[MAX_EARLY_LOG_MESSAGE_SIZE];
+    vsnprintf(messageBuffer, sizeof(messageBuffer), format, args);
+
+    if (LoggerCore::globalCallback)
+    {
+        LoggerCore::globalCallback(logNamespace, level, messageBuffer);
+        return;
+    }
+    size_t currentIndex = LoggerCore::earlyMessageIndex;
+    LoggerCore::earlyMessageIndex += MAX_EARLY_LOG_MESSAGE_SIZE;
+    memcpy(LoggerCore::earlyMessages + currentIndex, messageBuffer, MAX_EARLY_LOG_MESSAGE_SIZE);
+    LoggerCore::earlyMessageCount++;
+}
+
+void Logger::flushEarlyLogMessages()
+{
+    std::lock_guard<std::mutex> lock(LoggerCore::mutex);
+
+    for (size_t i = 0; i < LoggerCore::earlyMessageCount; i++)
+    {
+        EarlyLogMessage msg = LoggerCore::earlyMessages[i];
+        writeWithNamespace(msg.logNamespace, msg.level, msg.message);
+        memset(&LoggerCore::earlyMessages[i], 0, sizeof(EarlyLogMessage));
+    }
+    LoggerCore::earlyMessageIndex = 0;
+    LoggerCore::earlyMessageCount = 0;
 }
