@@ -8,12 +8,16 @@ EventBusTask *EventBusTask::instance = nullptr;
 
 EventBusTask::EventBusTask()
 {
-  if (instance != nullptr) {
-    instance->~EventBusTask();
+  if (instance != nullptr)
+  {
+    delete instance;
   }
   instance = this;
   localQueue = xQueueCreate(32, sizeof(Event));
-  EventRegistry::registerPushCallback(staticPushCallback);
+  if (!localQueue)
+    log.error("Failed to create EventBusTask queue");
+  else
+    EventRegistry::registerPushCallback(staticPushCallback);
 }
 
 EventBusTask::~EventBusTask()
@@ -74,7 +78,7 @@ void EventBusTask::start(TaskParameters params)
   log.info("Starting EventBusTask");
   if (eventBusHandle != nullptr)
   {
-   log.warn("EventBusTask already running");
+    log.warn("EventBusTask already running");
     return;
   }
   BaseType_t result = xTaskCreatePinnedToCore(
