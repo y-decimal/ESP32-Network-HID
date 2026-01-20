@@ -14,6 +14,8 @@
 #include <submodules/Config/GlobalConfig.h>
 #include <submodules/Config/KeyScannerConfig.cpp>
 #include <submodules/Config/KeyScannerConfig.h>
+#include <submodules/Logger.h>
+#include <submodules/Logger.cpp>
 #include <unity.h>
 
 #define NAMESPACE "CfgMgrTest"
