@@ -121,6 +121,15 @@ public:
     dirty = false;
     return written;
   }
+
+  /**
+   * @brief Clear all data from storage.
+   * @return True if clear was successful, false otherwise.
+   */
+  bool clearAll()
+  {
+    return storage->clearAll();
+  }
 };
 
 #endif
