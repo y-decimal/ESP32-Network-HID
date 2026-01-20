@@ -10,7 +10,8 @@ SlaveTask::SlaveTask(ITransport &transport) : transportRef(&transport)
 {
   if (instance != nullptr)
   {
-    instance->~SlaveTask();
+    log.warn("SlaveTask instance already exists, replacing");
+    delete instance;
   }
   instance = this;
   localQueue = xQueueCreate(16, sizeof(Event));
