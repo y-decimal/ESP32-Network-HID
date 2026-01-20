@@ -38,6 +38,7 @@ void MasterTask::taskEntry(void *arg)
 
 void MasterTask::start(TaskParameters params)
 {
+  log.setMode(Logger::LogMode::Global);
 
   log.info("Starting MasterTask with stack size %u, priority %d, core affinity %d",
            params.stackSize, params.priority, params.coreAffinity);

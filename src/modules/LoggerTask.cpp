@@ -1,4 +1,5 @@
 #include <modules/LoggerTask.h>
+#include <cstring>
 
 static Logger internalLogInstance(LOGGERTASK_NAMESPACE);
 
@@ -7,9 +8,9 @@ LoggerTask *LoggerTask::instance = nullptr;
 
 struct LogEvent
 {
-    const char *logNsPointer;
+    char logNs[Logger::MAX_NAMESPACE_LENGTH];
     Logger::LogLevel level;
-    const char *logMsgPointer;
+    char logMsg[Logger::MAX_EARLY_LOG_MESSAGE_SIZE];
 };
 
 LoggerTask::LoggerTask()
@@ -40,7 +41,13 @@ void LoggerTask::callback(const char *logNamespace, Logger::LogLevel level, cons
         return;
     }
 
-    LogEvent logEvent{logNamespace, level, message};
+    LogEvent logEvent{};
+    strncpy(logEvent.logNs, logNamespace, Logger::MAX_NAMESPACE_LENGTH - 1);
+    logEvent.logNs[Logger::MAX_NAMESPACE_LENGTH - 1] = '\0';
+    logEvent.level = level;
+    strncpy(logEvent.logMsg, message, Logger::MAX_EARLY_LOG_MESSAGE_SIZE - 1);
+    logEvent.logMsg[Logger::MAX_EARLY_LOG_MESSAGE_SIZE - 1] = '\0';
+
     if (xQueueSend(instance->localQueue, &logEvent, 0) != pdPASS)
     {
         internalLogInstance.error("Failed to send log event to queue");
@@ -62,13 +69,14 @@ void LoggerTask::taskEntry(void *arg)
         LogEvent evt;
         if (xQueueReceive(instance->localQueue, &evt, portMAX_DELAY))
         {
-            internalLogInstance.log(evt.logNsPointer, evt.level, evt.logMsgPointer);
+            internalLogInstance.log(evt.logNs, evt.level, evt.logMsg);
         }
     }
 }
 
 void LoggerTask::start(TaskParameters params)
 {
+
     internalLogInstance.info("Starting LoggerTask");
     if (loggerHandle != nullptr)
     {
@@ -97,7 +105,6 @@ void LoggerTask::stop()
     }
     vTaskDelete(loggerHandle);
     loggerHandle = nullptr;
-
 }
 
 void LoggerTask::restart(TaskParameters params)

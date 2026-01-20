@@ -9,7 +9,9 @@ SlaveTask *SlaveTask::instance = nullptr;
 SlaveTask::SlaveTask(ITransport &transport) : transportRef(&transport)
 {
   if (instance != nullptr)
+  {
     instance->~SlaveTask();
+  }
   instance = this;
   localQueue = xQueueCreate(16, sizeof(Event));
 }
@@ -77,6 +79,7 @@ void SlaveTask::taskEntry(void *arg)
 
 void SlaveTask::start(TaskParameters params)
 {
+  log.setMode(Logger::LogMode::Global);
 
   log.info("Starting SlaveTask with stack size %u, priority %d, core affinity %d",
            params.stackSize, params.priority, params.coreAffinity);
@@ -156,7 +159,7 @@ void SlaveTask::pairConfirmCallback(const uint8_t *data, uint8_t sourceId)
   SlaveTask::instance->connected = true;
   uint8_t masterMac[6] = {};
   SlaveTask::instance->protocol->getMacById(sourceId, masterMac);
-  log.info("Received master MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
+  log.info("Received master MAC: %02x:%02x:%02x:%02x:%02x:%02x",
            masterMac[0], masterMac[1], masterMac[2],
            masterMac[3], masterMac[4], masterMac[5]);
 }

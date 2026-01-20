@@ -7,7 +7,7 @@ static Logger log(KEYSCANNER_NAMESPACE);
 KeyScannerTask *KeyScannerTask::instance = nullptr;
 
 KeyScannerTask::KeyScannerTask(ConfigManager &configManager, IGpio &gpio)
-    : configManagerRef(&configManager), 
+    : configManagerRef(&configManager),
       gpioRef(&gpio)
 {
   if (instance != nullptr)
@@ -114,6 +114,8 @@ void KeyScannerTask::taskEntry(void *arg)
 
 void KeyScannerTask::start(TaskParameters params)
 {
+  log.setMode(Logger::LogMode::Global);
+
   if (keyScannerTaskHandle != nullptr)
   {
     log.warn("KeyScannerTask already running");
@@ -121,7 +123,7 @@ void KeyScannerTask::start(TaskParameters params)
   }
 
   log.info("Starting KeyScannerTask with stack size %u, priority %d, core affinity %d",
-                   params.stackSize, params.priority, params.coreAffinity);
+           params.stackSize, params.priority, params.coreAffinity);
 
   BaseType_t result = xTaskCreatePinnedToCore(
       taskEntry, "KeyScannerTask", params.stackSize, this,
