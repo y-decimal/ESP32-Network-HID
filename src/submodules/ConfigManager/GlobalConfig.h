@@ -3,7 +3,6 @@
 
 #include <cstring>
 #include <interfaces/ISerializableStructs.h>
-#include <shared/CommTypes.h>
 
 /**
  * @brief Global configuration class managing device roles and MAC address.
@@ -12,20 +11,24 @@
  * MAC address. It also implements serialization and deserialization methods
  * for storing and retrieving configuration data.
  */
-class GlobalConfig : public Serializable {
-private:
-  // Array to hold device roles
-  DeviceRole roles[(size_t)DeviceRole::Count]{DeviceRole::Count};
-
-  // Variable to hold the device MAC address
-  MacAddress deviceMac{};
-
-  // Size of the serialized configuration
-  static constexpr size_t SERIALIZED_SIZE = sizeof(roles) + sizeof(deviceMac);
-
+class GlobalConfig : public Serializable
+{
 public:
   // Definition of the serialized configuration structure
-  struct SerializedConfig {
+  typedef uint8_t MacAddress[6];
+
+  enum class DeviceRole : uint8_t
+  {
+    Master,
+    Keyboard,
+    Count
+  };
+
+  // Size of the serialized configuration
+  static const size_t SERIALIZED_SIZE = sizeof(DeviceRole) * (size_t)DeviceRole::Count + sizeof(MacAddress);
+
+  struct SerializedConfig
+  {
     uint8_t data[SERIALIZED_SIZE];
     size_t size = SERIALIZED_SIZE;
   };
@@ -60,6 +63,13 @@ public:
   size_t packSerialized(uint8_t *output, size_t size) const override;
   size_t unpackSerialized(const uint8_t *input, size_t size) override;
   size_t getSerializedSize() const override;
+
+private:
+  // Array to hold device roles
+  DeviceRole roles[(size_t)DeviceRole::Count]{DeviceRole::Count};
+
+  // Variable to hold the device MAC address
+  MacAddress deviceMac{};
 };
 
 #endif
