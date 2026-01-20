@@ -49,7 +49,7 @@ public:
 
 private:
     LogMode mode = LogMode::Local;
-    std::string logNamespace;
+    char logNamespace[32];
 
     void logV(const char *logNamespace, LogLevel level, const char *format, va_list args);
     void storeEarlyLogMessage(const char *logNamespace, LogLevel level, const char *format, va_list args);
