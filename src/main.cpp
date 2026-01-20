@@ -12,15 +12,14 @@
 #include <submodules/Esp32Gpio.h>
 #include <submodules/EspNowTransport.h>
 
+static Logger logger("Main");
+
 static Esp32Gpio espGpio;
 static EspNow espNow;
-static ArduinoLogSink logSink;
 static PreferencesStorage prefStorage(CONFIG_MANAGER_NAMESPACE);
 
-TaskManager::Platform platform = {espGpio, espNow, logSink, prefStorage};
+TaskManager::Platform platform = {espGpio, espNow, prefStorage};
 static TaskManager taskManager(platform);
-
-static Logger logger("Main");
 
 static void keyPrintCallback(const Event &event)
 {
@@ -59,10 +58,10 @@ static void bitMapPrintCallback(const Event &event)
   }
 }
 
-
 void setup()
 {
   Serial.begin(115200);
+  static ArduinoLogSink logSink;
   delay(3000);
 
   Logger::setGlobalSink(&logSink);
@@ -72,7 +71,6 @@ void setup()
 
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
-
 
   EventRegistry::registerHandler(EventType::RawKey, keyPrintCallback);
   EventRegistry::registerHandler(EventType::RawBitmap, bitMapPrintCallback);

@@ -25,7 +25,6 @@ public:
   {
     IGpio &gpio;
     ITransport &transport;
-    ILogSink &logSink;
     IStorage &storage;
   };
 
@@ -33,7 +32,7 @@ public:
       : platform(platform),
         configManager(&platform.storage),
         eventBusTask(),
-        loggerTask(platform.logSink),
+        loggerTask(),
         keyScannerTask(configManager, platform.gpio),
         masterTask(platform.transport),
         slaveTask(platform.transport)
