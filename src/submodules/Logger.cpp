@@ -169,23 +169,23 @@ void Logger::logV(const char *logNamespace, LogLevel level, const char *format, 
     switch (mode)
     {
     case LogMode::Local:
-        LoggerCore::loggingReady
-            ? internalWrite(logNamespace, level, msg)         // Write directly
-            : storeEarlyLogMessage(logNamespace, level, msg); // Store early message
+        internalWrite(logNamespace, level, msg);
         return;
     case LogMode::Global:
-        if (LoggerCore::globalCallback)
-            LoggerCore::globalCallback(logNamespace, level, msg);
-        else
-            LoggerCore::loggingReady
-                ? internalWrite(logNamespace, level, msg)                               // Write directly       
-                : storeEarlyLogMessage(getModifiedNamespace(logNamespace), level, msg); // Store early message
+        LoggerCore::globalCallback
+            ? LoggerCore::globalCallback(logNamespace, level, msg)
+            : internalWrite(getModifiedNamespace(logNamespace), level, msg);
         return;
     }
 }
 
 void Logger::internalWrite(const char *logNamespace, Logger::LogLevel level, const char *msg)
 {
+    if (!LoggerCore::globalSink)
+    {
+        storeEarlyLogMessage(logNamespace, level, msg);
+        return;
+    }
     // Create buffer with log level prefix
     constexpr size_t BUFFER_SIZE = MAX_EARLY_LOG_MESSAGE_SIZE + MAX_NAMESPACE_LENGTH + sizeof(" : ") + 10;
     char buffer[BUFFER_SIZE];
