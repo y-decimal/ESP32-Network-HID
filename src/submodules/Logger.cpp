@@ -5,12 +5,13 @@
 
 static constexpr size_t MAX_EARLY_LOG_MESSAGES = 32;
 static constexpr size_t MAX_EARLY_LOG_MESSAGE_SIZE = 128;
+static constexpr size_t MAX_NAMESPACE_LENGTH = 32;
 
 namespace
 {
     struct EarlyLogMessage
     {
-        const char *logNamespace;
+        char logNamespace[MAX_NAMESPACE_LENGTH];
         Logger::LogLevel level;
         char message[MAX_EARLY_LOG_MESSAGE_SIZE];
     };
@@ -60,7 +61,7 @@ static const char *logLevelToString(Logger::LogLevel level)
 
 Logger::Logger(const char *logNamespace)
 {
-    strncpy(this->logNamespace, logNamespace, sizeof(this->logNamespace) - 1);
+    strncpy(this->logNamespace, logNamespace, MAX_NAMESPACE_LENGTH - 1);
     this->logNamespace[sizeof(this->logNamespace) - 1] = '\0';
 }
 
