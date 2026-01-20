@@ -59,6 +59,7 @@ static void bitMapPrintCallback(const Event &event)
 
 void setup()
 {
+  Logger::setNamespaceLevel("LoggerTask", Logger::LogLevel::warn);
   Logger::setDefaultLogLevel(Logger::LogLevel::info);
   logger.info("Starting setup...");
   Serial.begin(115200);
