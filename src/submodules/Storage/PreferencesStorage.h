@@ -87,6 +87,13 @@ public:
     prefs.end();
     return exists;
   }
+
+  bool clearAll() override {
+    prefs.begin(namespaceName, false);
+    bool result = prefs.clear();
+    prefs.end();
+    return result;
+  }
 };
 
 #endif
