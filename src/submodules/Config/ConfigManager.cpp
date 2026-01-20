@@ -54,6 +54,9 @@ bool ConfigManager::clearAllConfigs()
 {
   bool globalCleared = globalCfg.clearAll();
   bool keyCleared = keyScannerCfg.clearAll();
-
+  if (!globalCleared)
+    configLog.error("Failed to clear GlobalConfig");
+  if (!keyCleared)
+    configLog.error("Failed to clear KeyScannerConfig");
   return globalCleared && keyCleared;
 }
