@@ -18,9 +18,7 @@ MasterTask::MasterTask(ITransport &transport) : transportRef(&transport)
 
 MasterTask::~MasterTask()
 {
-  if (protocol)
-    delete protocol;
-  protocol = nullptr;
+  stop();
   instance = nullptr;
 }
 
@@ -45,6 +43,7 @@ void MasterTask::start(TaskParameters params)
 
   log.info("Starting MasterTask with stack size %u, priority %d, core affinity %d",
            params.stackSize, params.priority, params.coreAffinity);
+
   if (masterTaskHandle != nullptr)
   {
     log.warn("MasterTask is already running!");
@@ -76,12 +75,12 @@ void MasterTask::stop()
     return;
   }
 
-  vTaskDelete(masterTaskHandle);
-  masterTaskHandle = nullptr;
-
   if (protocol)
     delete protocol;
   protocol = nullptr;
+
+  vTaskDelete(masterTaskHandle);
+  masterTaskHandle = nullptr;
 }
 
 void MasterTask::restart(TaskParameters params)

@@ -65,6 +65,8 @@ bool EventBusTask::pushToQueue(const Event &event)
 
 void EventBusTask::start(TaskParameters params)
 {
+  log.setMode(Logger::LogMode::Global);
+
   localQueue = xQueueCreate(32, sizeof(Event));
   if (!localQueue)
   {
@@ -72,9 +74,8 @@ void EventBusTask::start(TaskParameters params)
     return;
   }
 
-  log.setMode(Logger::LogMode::Global);
-
-  log.info("Starting EventBusTask");
+  log.info("Starting EventBusTask with stack size %u, priority %d, core affinity %d",
+           params.stackSize, params.priority, params.coreAffinity);
   if (eventBusHandle != nullptr)
   {
     log.warn("EventBusTask already running");

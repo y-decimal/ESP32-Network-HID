@@ -14,21 +14,12 @@ SlaveTask::SlaveTask(ITransport &transport) : transportRef(&transport)
     delete instance;
   }
   instance = this;
-  localQueue = xQueueCreate(16, sizeof(Event));
 }
 
 SlaveTask::~SlaveTask()
 {
-  log.info("Destroying SlaveTask");
+  stop();
   instance = nullptr;
-  if (localQueue != nullptr)
-  {
-    vQueueDelete(localQueue);
-    localQueue = nullptr;
-  }
-  if (protocol)
-    delete protocol;
-  protocol = nullptr;
 }
 
 void SlaveTask::taskEntry(void *arg)
@@ -82,6 +73,13 @@ void SlaveTask::start(TaskParameters params)
 {
   log.setMode(Logger::LogMode::Global);
 
+  localQueue = xQueueCreate(32, sizeof(Event));
+  if (!localQueue)
+  {
+    log.error("Failed to create SlaveTask queue");
+    return;
+  }
+
   log.info("Starting SlaveTask with stack size %u, priority %d, core affinity %d",
            params.stackSize, params.priority, params.coreAffinity);
 
@@ -115,17 +113,16 @@ void SlaveTask::stop()
     return;
   }
 
-  if (localQueue != nullptr)
-  {
+  if (localQueue)
     vQueueDelete(localQueue);
-    localQueue = nullptr;
-  }
-  vTaskDelete(slaveTaskHandle);
-  slaveTaskHandle = nullptr;
+  localQueue = nullptr;
 
   if (protocol)
     delete protocol;
   protocol = nullptr;
+
+  vTaskDelete(slaveTaskHandle);
+  slaveTaskHandle = nullptr;
 }
 
 void SlaveTask::restart(TaskParameters params)

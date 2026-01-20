@@ -72,7 +72,6 @@ void LoggerTask::taskEntry(void *arg)
 
 void LoggerTask::start(TaskParameters params)
 {
-
     localQueue = xQueueCreate(32, sizeof(LogEvent));
     if(localQueue == nullptr)
     {
@@ -80,7 +79,8 @@ void LoggerTask::start(TaskParameters params)
         return;
     }
 
-    internalLogInstance.info("Starting LoggerTask");
+    internalLogInstance.info("Starting LoggerTask with stack size %u, priority %d, core affinity %d",
+                             params.stackSize, params.priority, params.coreAffinity);
 
     if (loggerHandle != nullptr)
     {
@@ -98,7 +98,7 @@ void LoggerTask::start(TaskParameters params)
         loggerHandle = nullptr;
         return;
     }
-    
+
     Logger::setLogCallback(callback); // Set callback after queue creation for safety
 }
 
