@@ -21,12 +21,12 @@ private:
   // Key matrix configuration parameters
   countType rows = 0;
   countType cols = 0;
-  pinType rowPins;
-  pinType colPins;
+  pinType rowPins{};
+  pinType colPins{};
 
   // Key scanning parameters
   uint8_t bitMapSize = 0;
-  uint16_t refreshRate = 1;
+  uint16_t refreshRate = 100;
   uint16_t bitMapSendFrequency = 5;
 
   // Configuration constraints
@@ -54,7 +54,7 @@ public:
 
   // Definition of the serialized configuration structure
   struct SerializedConfig {
-    uint8_t data[MAX_KEYSCANNER_CONFIG_SIZE];
+    uint8_t data[MAX_KEYSCANNER_CONFIG_SIZE]{0};
     size_t size = MAX_KEYSCANNER_CONFIG_SIZE;
   };
 
