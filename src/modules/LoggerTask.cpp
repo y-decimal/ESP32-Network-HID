@@ -1,86 +1,124 @@
-#include <system/TaskManager.h>
-#include <submodules/Logger.h>
+#include <modules/LoggerTask.h>
+#include <cstring>
 
-static constexpr const char *LOG_NAMESPACE = "LoggerTask";
+static Logger internalLogInstance(LOGGERTASK_NAMESPACE);
 
-static QueueHandle_t localLogQueueReference = nullptr;
+// Initialize static member variable
+LoggerTask *LoggerTask::instance = nullptr;
 
 struct LogEvent
 {
-    const char *logNsPointer;
+    char logNs[Logger::MAX_NAMESPACE_LENGTH];
     Logger::LogLevel level;
-    const char *logMsgPointer;
+    char logMsg[Logger::MAX_EARLY_LOG_MESSAGE_SIZE];
 };
 
-void callback(const char *logNamespace, Logger::LogLevel level, const char *message)
+LoggerTask::LoggerTask()
 {
-    if (!localLogQueueReference)
+    if (instance != nullptr)
     {
-        Logger::writeWithNamespace(LOG_NAMESPACE, Logger::LogLevel::warn, "Log queue not initialized");
+        internalLogInstance.warn("LoggerTask instance already exists, replacing");
+        delete instance;
+    }
+    instance = this;
+}
+
+LoggerTask::~LoggerTask()
+{
+    stop();
+    instance = nullptr;
+}
+
+void LoggerTask::callback(const char *logNamespace, Logger::LogLevel level, const char *message)
+{
+    if (!instance || !instance->localQueue)
+    {
+        internalLogInstance.warn("Log queue not initialized");
         return;
     }
 
-    LogEvent logEvent{logNamespace, level, message};
-    if (xQueueSend(localLogQueueReference, &logEvent, pdMS_TO_TICKS(15)) != pdPASS)
+    LogEvent logEvent{};
+    strncpy(logEvent.logNs, logNamespace, Logger::MAX_NAMESPACE_LENGTH - 1);
+    logEvent.logNs[Logger::MAX_NAMESPACE_LENGTH - 1] = '\0';
+    logEvent.level = level;
+    strncpy(logEvent.logMsg, message, Logger::MAX_EARLY_LOG_MESSAGE_SIZE - 1);
+    logEvent.logMsg[Logger::MAX_EARLY_LOG_MESSAGE_SIZE - 1] = '\0';
+
+    if (xQueueSend(instance->localQueue, &logEvent, 0) != pdPASS)
     {
-        Logger::writeWithNamespace(LOG_NAMESPACE, Logger::LogLevel::warn, "Failed to send log event to queue");
+        internalLogInstance.error("Failed to send log event to queue");
+    }
+    else 
+    {
+        internalLogInstance.debug("Log event queued: [%s] %s", logEvent.logNs, logEvent.logMsg);
     }
 }
 
-void TaskManager::loggerTask(void *arg)
+void LoggerTask::taskEntry(void *arg)
 {
-    localLogQueueReference = xQueueCreate(32, sizeof(LogEvent));
-    if (localLogQueueReference == nullptr)
-    {
-        // Failed to create log queue; terminate this task to avoid using a null queue handle.
-        Logger::writeWithNamespace(LOG_NAMESPACE, Logger::LogLevel::error, "Failed to create log queue");
-        vTaskDelete(nullptr);
-    }
-    Logger::setLogCallback(callback);
+    LoggerTask *instance = static_cast<LoggerTask *>(arg);
 
     for (;;)
     {
         LogEvent evt;
-        if (xQueueReceive(localLogQueueReference, &evt, portMAX_DELAY))
+        if (xQueueReceive(instance->localQueue, &evt, portMAX_DELAY))
         {
-            Logger::writeWithNamespace(evt.logNsPointer, evt.level, evt.logMsgPointer);
+            internalLogInstance.log(evt.logNs, evt.level, evt.logMsg); // Forward log to internal logger
         }
     }
 }
 
-void TaskManager::startLogger()
+void LoggerTask::start(TaskParameters params)
 {
-    if (loggerHandle != nullptr)
+    localQueue = xQueueCreate(32, sizeof(LogEvent));
+    if(localQueue == nullptr)
+    {
+        internalLogInstance.error("Failed to create LoggerTask queue");
         return;
+    }
 
+    internalLogInstance.info("Starting LoggerTask with stack size %u, priority %d, core affinity %d",
+                             params.stackSize, params.priority, params.coreAffinity);
+
+    if (loggerHandle != nullptr)
+    {
+        internalLogInstance.warn("LoggerTask already running");
+        return;
+    }
     BaseType_t result = xTaskCreatePinnedToCore(
-        loggerTask, "LoggerTask", STACK_LOGGER,
-        nullptr, PRIORITY_LOGGER, &loggerHandle,
-        CORE_LOGGER);
+        taskEntry, "LoggerTask", params.stackSize,
+        this, params.priority, &loggerHandle,
+        params.coreAffinity);
 
     if (result != pdPASS)
     {
+        internalLogInstance.error("Failed to create LoggerTask");
         loggerHandle = nullptr;
+        return;
     }
+
+    Logger::setLogCallback(callback); // Set callback after queue creation for safety
 }
 
-void TaskManager::stopLogger()
+void LoggerTask::stop()
 {
+    Logger::setLogCallback(nullptr); // Clear callback to stop sending logs
+    internalLogInstance.info("Stopping LoggerTask");
     if (loggerHandle == nullptr)
+    {
+        internalLogInstance.info("Stop called but LoggerTask is not running");
         return;
+    }
     vTaskDelete(loggerHandle);
     loggerHandle = nullptr;
-
-    if (localLogQueueReference != nullptr)
-    {
-        vQueueDelete(localLogQueueReference);
-        localLogQueueReference = nullptr;
-    }
 }
 
-void TaskManager::restartLogger()
+void LoggerTask::restart(TaskParameters params)
 {
+    internalLogInstance.info("Restarting LoggerTask");
     if (loggerHandle != nullptr)
-        stopLogger();
-    startLogger();
+    {
+        stop();
+    }
+    start(params);
 }

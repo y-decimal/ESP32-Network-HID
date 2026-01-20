@@ -1,8 +1,17 @@
 #include <submodules/Logger.h>
 #include <mutex>
 #include <cstdio>
+#include <cstring>
+
 namespace
 {
+    struct EarlyLogMessage
+    {
+        char logNamespace[Logger::MAX_NAMESPACE_LENGTH];
+        Logger::LogLevel level;
+        char message[Logger::MAX_EARLY_LOG_MESSAGE_SIZE];
+    };
+
     struct LoggerCore
     {
         static std::mutex mutex;
@@ -10,6 +19,9 @@ namespace
         static std::unordered_map<std::string, Logger::LogLevel> namespaceLevels;
         static Logger::globalLogCallback globalCallback;
         static Logger::LogLevel defaultLogLevel;
+        static EarlyLogMessage earlyMessages[Logger::MAX_EARLY_LOG_MESSAGES];
+        static size_t earlyMessageCount;
+        static bool loggingReady;
     };
 
     std::mutex LoggerCore::mutex{};
@@ -17,6 +29,9 @@ namespace
     std::unordered_map<std::string, Logger::LogLevel> LoggerCore::namespaceLevels{};
     Logger::globalLogCallback LoggerCore::globalCallback = nullptr;
     Logger::LogLevel LoggerCore::defaultLogLevel = Logger::LogLevel::info;
+    EarlyLogMessage LoggerCore::earlyMessages[Logger::MAX_EARLY_LOG_MESSAGES] = {};
+    size_t LoggerCore::earlyMessageCount = 0;
+    bool LoggerCore::loggingReady = false;
 }
 
 static const char *logLevelToString(Logger::LogLevel level)
@@ -33,6 +48,8 @@ static const char *logLevelToString(Logger::LogLevel level)
         return "INFO";
     case Logger::LogLevel::debug:
         return "DEBUG";
+    case Logger::LogLevel::system:
+        return "(SYSTEM)";
     default:
         return "UNKNOWN";
     }
@@ -40,13 +57,16 @@ static const char *logLevelToString(Logger::LogLevel level)
 
 Logger::Logger(const char *logNamespace)
 {
-    this->logNamespace.assign(logNamespace);
+    strncpy(this->logNamespace, logNamespace, MAX_NAMESPACE_LENGTH - 1);
+    this->logNamespace[sizeof(this->logNamespace) - 1] = '\0';
 }
 
 void Logger::setGlobalSink(ILogSink *globalSink)
 {
     std::lock_guard<std::mutex> lock(LoggerCore::mutex);
     LoggerCore::globalSink = globalSink;
+    LoggerCore::loggingReady = true;
+    flushEarlyLogMessages();
 }
 
 void Logger::setNamespaceLevel(const char *logNamespace, LogLevel level)
@@ -76,31 +96,6 @@ void Logger::setLogCallback(globalLogCallback callback)
     LoggerCore::globalCallback = std::move(callback);
 }
 
-void Logger::writeWithNamespaceV(const char *logNamespace, LogLevel level, const char *format, va_list args)
-{
-    std::lock_guard<std::mutex> lock(LoggerCore::mutex);
-    if (LoggerCore::globalSink == nullptr)
-        return;
-
-    // Format the message first
-    char messageBuffer[256];
-    vsnprintf(messageBuffer, sizeof(messageBuffer), format, args);
-
-    // Create final buffer with log level prefix
-    char buffer[512];
-    snprintf(buffer, sizeof(buffer), "%s : %s", logLevelToString(level), messageBuffer);
-
-    LoggerCore::globalSink->writeLog(logNamespace, buffer);
-}
-
-void Logger::writeWithNamespace(const char *logNamespace, LogLevel level, const char *format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    writeWithNamespaceV(logNamespace, level, format, args);
-    va_end(args);
-}
-
 void Logger::setMode(LogMode mode)
 {
     this->mode = mode;
@@ -108,70 +103,139 @@ void Logger::setMode(LogMode mode)
 
 void Logger::error(const char *format, ...)
 {
-    const char *logNs = this->logNamespace.c_str();
+    const char *logNs = this->logNamespace;
 
     if (getNamespaceLevel(logNs) < LogLevel::error)
         return;
 
     va_list args;
     va_start(args, format);
-    log(logNs, LogLevel::error, format, args);
+    logV(logNs, LogLevel::error, format, args);
     va_end(args);
 }
 
 void Logger::warn(const char *format, ...)
 {
-    const char *logNs = this->logNamespace.c_str();
+    const char *logNs = this->logNamespace;
 
     if (getNamespaceLevel(logNs) < LogLevel::warn)
         return;
 
     va_list args;
     va_start(args, format);
-    log(logNs, LogLevel::warn, format, args);
+    logV(logNs, LogLevel::warn, format, args);
     va_end(args);
 }
 
 void Logger::info(const char *format, ...)
 {
-    const char *logNs = this->logNamespace.c_str();
+    const char *logNs = this->logNamespace;
 
     if (getNamespaceLevel(logNs) < LogLevel::info)
         return;
 
     va_list args;
     va_start(args, format);
-    log(logNs, LogLevel::info, format, args);
+    logV(logNs, LogLevel::info, format, args);
     va_end(args);
 }
 
 void Logger::debug(const char *format, ...)
 {
-    const char *logNs = this->logNamespace.c_str();
+    const char *logNs = this->logNamespace;
 
     if (getNamespaceLevel(logNs) < LogLevel::debug)
         return;
 
     va_list args;
     va_start(args, format);
-    log(logNs, LogLevel::debug, format, args);
+    logV(logNs, LogLevel::debug, format, args);
     va_end(args);
 }
 
-void Logger::log(const char *logNamespace, LogLevel level, const char *format, va_list args)
+void Logger::log(const char *logNamespace, LogLevel level, const char *format, ...)
 {
+    va_list args;
+    va_start(args, format);
+    logV(logNamespace, level, format, args);
+    va_end(args);
+}
+
+void Logger::logV(const char *logNamespace, LogLevel level, const char *format, va_list args)
+{
+    char msg[MAX_EARLY_LOG_MESSAGE_SIZE];
+    vsnprintf(msg, sizeof(msg), format, args);
+
     switch (mode)
     {
     case LogMode::Local:
-        writeWithNamespaceV(logNamespace, level, format, args);
-        break;
+        internalWrite(logNamespace, level, msg);
+        return;
     case LogMode::Global:
-        // Format the message for global callback
-        char messageBuffer[256];
-        vsnprintf(messageBuffer, sizeof(messageBuffer), format, args);
-        std::lock_guard<std::mutex> lock(LoggerCore::mutex);
-        if (LoggerCore::globalCallback)
-            LoggerCore::globalCallback(logNamespace, level, messageBuffer);
-        break;
+        LoggerCore::globalCallback
+            ? LoggerCore::globalCallback(logNamespace, level, msg)
+            : internalWrite(getModifiedNamespace(logNamespace), level, msg);
+        return;
     }
+}
+
+void Logger::internalWrite(const char *logNamespace, Logger::LogLevel level, const char *msg)
+{
+    if (!LoggerCore::globalSink)
+    {
+        storeEarlyLogMessage(logNamespace, level, msg);
+        return;
+    }
+    // Create buffer with log level prefix
+    constexpr size_t BUFFER_SIZE = MAX_EARLY_LOG_MESSAGE_SIZE + MAX_NAMESPACE_LENGTH + sizeof(" : ") + 10;
+    char buffer[BUFFER_SIZE];
+    snprintf(buffer, sizeof(buffer), "%s : %s", logLevelToString(level), msg);
+
+    LoggerCore::globalSink->writeLog(logNamespace, buffer);
+}
+
+void Logger::storeEarlyLogMessage(const char *logNamespace, LogLevel level, const char *msg)
+{
+    if (LoggerCore::earlyMessageCount >= MAX_EARLY_LOG_MESSAGES)
+        return;
+
+    EarlyLogMessage earlyMsg;
+    strncpy(earlyMsg.logNamespace, logNamespace, MAX_NAMESPACE_LENGTH - 1);
+    earlyMsg.logNamespace[MAX_NAMESPACE_LENGTH - 1] = '\0';
+    earlyMsg.level = level;
+    strncpy(earlyMsg.message, msg, MAX_EARLY_LOG_MESSAGE_SIZE - 1);
+    earlyMsg.message[MAX_EARLY_LOG_MESSAGE_SIZE - 1] = '\0';
+    LoggerCore::earlyMessages[LoggerCore::earlyMessageCount] = earlyMsg;
+
+    LoggerCore::earlyMessageCount++;
+}
+
+void Logger::flushEarlyLogMessages()
+{
+    if (LoggerCore::earlyMessageCount == 0)
+        return;
+    internalWrite("LOG", LogLevel::system, "Flushing early log messages");
+    for (size_t i = 0; i < LoggerCore::earlyMessageCount; i++)
+    {
+        EarlyLogMessage msg = LoggerCore::earlyMessages[i];
+        internalWrite(msg.logNamespace, msg.level, msg.message);
+    }
+    internalWrite("LOG", LogLevel::system, "Finished flushing early log messages");
+    clearEarlyLogMessages();
+}
+
+void Logger::clearEarlyLogMessages()
+{
+    for (size_t i = 0; i < LoggerCore::earlyMessageCount; i++)
+    {
+        LoggerCore::earlyMessages[i] = EarlyLogMessage{};
+    }
+    LoggerCore::earlyMessageCount = 0;
+}
+
+inline const char *Logger::getModifiedNamespace(const char *originalNamespace)
+{
+    static char modifiedNamespace[MAX_NAMESPACE_LENGTH];
+    snprintf(modifiedNamespace, sizeof(modifiedNamespace), "%s (LOCAL)", originalNamespace);
+    return modifiedNamespace;
 }

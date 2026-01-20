@@ -4,6 +4,8 @@
 #include <cstring>
 #include <shared/EventTypes.h>
 #include <vector>
+#include <mutex>
+
 /**
  * @brief Central registry for event handlers.
  *
@@ -12,10 +14,12 @@
  * registered to respond to specific events, and multiple handlers
  * can be associated with each event type.
  */
-class EventRegistry {
+class EventRegistry
+{
 public:
   /// @brief Type definition for event handler callbacks.
   using EventCallback = void (*)(const Event &);
+  using PushCallback = bool (*)(const Event &);
 
   /**
    * @brief Register an event handler for a specific event type.
@@ -37,8 +41,28 @@ public:
    */
   static void clearHandlers(EventType type);
 
+  /**
+   * @brief Register a global push callback for events.
+   * @param cb The callback function to be invoked to push events.
+   */
+  static void registerPushCallback(PushCallback cb);
+
+  /**
+   * @brief Clear the registered global push callback.
+   */
+  static void clearPushCallback();
+
+  /**
+   * @brief Push an event using the registered push callback.
+   * @param event The event to be pushed.
+   * @return True if the event was successfully pushed, false otherwise.
+   */
+  static bool pushEvent(const Event &event);
+
 private:
   static std::vector<EventCallback> handlers[(size_t)EventType::COUNT];
+  static PushCallback pushCallback;
+  static std::mutex mutex;
 };
 
 #endif
