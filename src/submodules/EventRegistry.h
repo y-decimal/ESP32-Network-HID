@@ -4,6 +4,8 @@
 #include <cstring>
 #include <shared/EventTypes.h>
 #include <vector>
+#include <mutex>
+
 /**
  * @brief Central registry for event handlers.
  *

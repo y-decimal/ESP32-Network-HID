@@ -4,6 +4,7 @@
 // Initialize static member variables
 std::vector<EventRegistry::EventCallback> EventRegistry::handlers[(size_t)EventType::COUNT]{};
 EventRegistry::PushCallback EventRegistry::pushCallback = nullptr;
+std::mutex EventRegistry::mutex{};
 
 void EventRegistry::registerHandler(EventType type, EventCallback callback)
 {
