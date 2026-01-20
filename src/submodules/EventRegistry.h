@@ -22,8 +22,6 @@ public:
    * @brief Register an event handler for a specific event type.
    * @param type The type of event to register the handler for.
    * @param cb The callback function to be invoked when the event occurs.
-   * 
-   * Format: void callback(const Event &event);
    */
   static void registerHandler(EventType type, EventCallback cb);
 
@@ -31,8 +29,6 @@ public:
    * @brief Retrieve the list of registered handlers for a specific event type.
    * @param type The type of event to retrieve handlers for.
    * @return A vector of callback functions registered for the event type.
-   * 
-   * Format: std::vector<EventCallback> getHandler(EventType type);
    */
   static std::vector<EventCallback> getHandler(EventType type);
 
@@ -45,8 +41,6 @@ public:
   /**
    * @brief Register a global push callback for events.
    * @param cb The callback function to be invoked to push events.
-   * 
-   * Format: bool pushEvent(const Event &event);
    */
   static void registerPushCallback(PushCallback cb);
 
