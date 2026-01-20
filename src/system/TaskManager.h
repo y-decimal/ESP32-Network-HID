@@ -20,7 +20,8 @@
 
 static Logger taskLog("TaskManager");
 
-using DeviceRole = GlobalConfig::DeviceRole;
+using DeviceModule = GlobalConfig::DeviceModule;
+using DeviceMode = GlobalConfig::DeviceMode;
 
 class TaskManager
 {
@@ -30,6 +31,15 @@ public:
     IGpio &gpio;
     ITransport &transport;
     IStorage &storage;
+  };
+
+  enum TaskId : uint32_t
+  {
+    EVENT_BUS_TASK = 1 << 0,
+    LOGGER_TASK = 1 << 1,
+    KEYSCANNER_TASK = 1 << 2,
+    MASTER_TASK = 1 << 3,
+    SLAVE_TASK = 1 << 4
   };
 
   TaskManager(Platform &platform)
@@ -43,30 +53,7 @@ public:
   {
   }
 
-  void start()
-  {
-    loggerTask.start({STACK_LOGGER, PRIORITY_LOGGER, CORE_LOGGER});
-    eventBusTask.start({STACK_EVENTBUS, PRIORITY_EVENTBUS, CORE_EVENTBUS});
-
-    bool configLoaded = configManager.loadConfig();
-    if (!configLoaded)
-      taskLog.warn("Failed to load configuration, using defaults");
-    GlobalConfig::DeviceRole roles[(size_t)DeviceRole::Count];
-    configManager.getConfig<GlobalConfig>().getRoles(roles, (size_t)DeviceRole::Count);
-    for (size_t i = 0; i < (size_t)DeviceRole::Count; i++)
-    {
-      taskLog.info("Role %d: %d", i, static_cast<uint8_t>(roles[i]));
-    }
-    if (roles[0] == DeviceRole::Master)
-    {
-      masterTask.start({STACK_MASTER, PRIORITY_MASTER, CORE_MASTER});
-    }
-    if (roles[0] == DeviceRole::Keyboard)
-    {
-      slaveTask.start({STACK_SLAVE, PRIORITY_SLAVE, CORE_SLAVE});
-      keyScannerTask.start({STACK_KEYSCAN, PRIORITY_KEYSCAN, CORE_KEYSCAN});
-    }
-  }
+  void start();
 
 private:
   Platform &platform;
@@ -78,6 +65,15 @@ private:
   KeyScannerTask keyScannerTask;
   MasterTask masterTask;
   SlaveTask slaveTask;
+
+  // Bitmap of currently active tasks
+  uint32_t currentTasks = 0;
+
+  void startModules(uint32_t moduleBitmap);
+  void stopTaskByBit(uint32_t bit);
+  void restartTaskByBit(uint32_t bit);
+  void startTaskByBit(uint32_t bit);
+  uint32_t getAllRequiredTasks();
 };
 
 #endif
