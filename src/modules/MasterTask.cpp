@@ -9,7 +9,10 @@ MasterTask *MasterTask::instance = nullptr;
 MasterTask::MasterTask(ITransport &transport) : transportRef(&transport)
 {
   if (instance)
-    instance->~MasterTask();
+  {
+    log.warn("MasterTask instance already exists, replacing");
+    delete instance;
+  }
   instance = this;
 }
 
