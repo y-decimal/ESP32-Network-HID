@@ -48,6 +48,8 @@ static const char *logLevelToString(Logger::LogLevel level)
         return "INFO";
     case Logger::LogLevel::debug:
         return "DEBUG";
+    case Logger::LogLevel::system:
+        return "(SYSTEM)";
     default:
         return "UNKNOWN";
     }
@@ -210,12 +212,15 @@ void Logger::storeEarlyLogMessage(const char *logNamespace, LogLevel level, cons
 
 void Logger::flushEarlyLogMessages()
 {
-    internalWrite("LOG", LogLevel::info, "Flushing early log messages");
+    if (LoggerCore::earlyMessageCount == 0)
+        return;
+    internalWrite("LOG", LogLevel::system, "Flushing early log messages");
     for (size_t i = 0; i < LoggerCore::earlyMessageCount; i++)
     {
         EarlyLogMessage msg = LoggerCore::earlyMessages[i];
         internalWrite(msg.logNamespace, msg.level, msg.message);
     }
+    internalWrite("LOG", LogLevel::system, "Finished flushing early log messages");
     clearEarlyLogMessages();
 }
 

@@ -23,7 +23,8 @@ public:
         error,
         warn,
         info,
-        debug
+        debug,
+        system
     };
 
     static constexpr const size_t MAX_EARLY_LOG_MESSAGES = 32;
