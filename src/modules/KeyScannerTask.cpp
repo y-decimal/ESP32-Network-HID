@@ -37,6 +37,10 @@ void KeyScannerTask::keyEventCallback(uint16_t keyIndex, bool state)
     log.error("Failed to push key event to EventRegistry");
     event.cleanup(&event);
   }
+  else 
+  {
+    log.debug("Pushed key event: Key %d %s", keyIndex, state ? "pressed" : "released");
+  }
 }
 
 void KeyScannerTask::sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap)
@@ -55,6 +59,10 @@ void KeyScannerTask::sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap)
   {
     log.error("Failed to push bitmap event to EventRegistry");
     event.cleanup(&event);
+  }
+  else 
+  {
+    log.debug("Pushed bitmap event of size %d", bitMapSize);
   }
 }
 
@@ -83,8 +91,11 @@ void KeyScannerTask::taskEntry(void *arg)
   KeyScanner keyScanner =
       KeyScanner(gpio, rowPins.data(), colPins.data(),
                  localConfig.getRowsCount(), localConfig.getColCount());
+  log.debug("Initialized KeyScanner with %d rows and %d columns",
+            localConfig.getRowsCount(), localConfig.getColCount());
 
   keyScanner.registerOnKeyChangeCallback(keyEventCallback);
+  log.debug("Registered key event callback with KeyScanner");
 
   TickType_t previousWakeTime = xTaskGetTickCount();
   TickType_t refreshRateToTicks =
