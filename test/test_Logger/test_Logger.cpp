@@ -47,16 +47,16 @@ void test_Logger_globalLoggingNoCallback()
     logger.setMode(Logger::LogMode::Global);
 
     logger.debug("Global Debug message");
-    TEST_ASSERT_TRUE(fakeSink.verifyLastLog(nullptr)); // No log expected in global mode
+    TEST_ASSERT_TRUE(fakeSink.verifyLastLog("[GlobalNamespace] DEBUG : Global Debug message")); // Log falls back to local mode because no callback is set
 
     logger.info("Global Info message");
-    TEST_ASSERT_TRUE(fakeSink.verifyLastLog(nullptr)); // No log expected in global mode
+    TEST_ASSERT_TRUE(fakeSink.verifyLastLog("[GlobalNamespace] INFO : Global Info message")); // Log falls back to local mode because no callback is set
 
     logger.warn("Global Warn message");
-    TEST_ASSERT_TRUE(fakeSink.verifyLastLog(nullptr)); // No log expected in global mode
+    TEST_ASSERT_TRUE(fakeSink.verifyLastLog("[GlobalNamespace] WARN : Global Warn message")); // Log falls back to local mode because no callback is set
 
     logger.error("Global Error message");
-    TEST_ASSERT_TRUE(fakeSink.verifyLastLog(nullptr)); // No log expected in global mode
+    TEST_ASSERT_TRUE(fakeSink.verifyLastLog("[GlobalNamespace] ERROR : Global Error message")); // Log falls back to local mode because no callback is set
 
     fakeSink.clearLog();
 }
