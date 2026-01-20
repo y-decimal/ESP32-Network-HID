@@ -25,12 +25,27 @@ bool ConfigManager::loadConfig()
   if (!globalCfg.isDirty())
     globalLoaded = globalCfg.load();
   else
-    globalLoaded = true;
+  {
+    globalLoaded = false;
+    configLog.warn("GlobalConfig dirty, skipping load");
+  }
 
   if (!keyScannerCfg.isDirty())
     keyLoaded = keyScannerCfg.load();
   else
-    keyLoaded = true;
+  {
+    keyLoaded = false;
+    configLog.warn("KeyScannerConfig dirty, skipping load");
+  }
+
+  if (!globalLoaded)
+    configLog.error("Failed to load GlobalConfig");
+  if (!keyLoaded)
+    configLog.error("Failed to load KeyScannerConfig");
+
+  configLog.info("Configuration load status: GlobalConfig=%s, KeyScannerConfig=%s",
+                 globalLoaded ? "success" : "failure",
+                 keyLoaded ? "success" : "failure");
 
   return globalLoaded && keyLoaded;
 }
