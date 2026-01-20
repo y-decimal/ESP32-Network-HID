@@ -71,15 +71,6 @@ public:
   }
 
   /**
-   * @brief Clear the dirty flag after saving.
-   */
-  void clearDirty()
-  {
-    std::lock_guard<std::mutex> lock(mtx);
-    genericStorage.clearDirty();
-  }
-
-  /**
    * @brief Load data from storage.
    * @return True if loading was successful and data is valid, false otherwise.
    */
