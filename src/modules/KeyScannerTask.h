@@ -3,7 +3,7 @@
 
 #include <interfaces/ITask.h>
 #include <submodules/KeyScanner.h>
-#include <submodules/ConfigManager/ConfigManager.h>
+#include <submodules/Config/ConfigManager.h>
 #include <submodules/EventRegistry.h>
 #include <queue.h>
 

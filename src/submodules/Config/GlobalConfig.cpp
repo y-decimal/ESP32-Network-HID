@@ -1,30 +1,44 @@
-#include <submodules/ConfigManager/GlobalConfig.h>
+#include <submodules/Config/GlobalConfig.h>
 
-void GlobalConfig::setRoles(DeviceRole *roleArray, size_t arrSize) {
+void GlobalConfig::setDeviceModules(DeviceModule *moduleArray, size_t arrSize)
+{
 
   // Prevent overflow
-  if (arrSize > (size_t)DeviceRole::Count)
+  if (arrSize > (size_t)DeviceModule::Count)
     return;
 
   // Copy roles into internal array
-  memcpy(roles, roleArray, arrSize);
+  memcpy(modules, moduleArray, arrSize);
 }
 
-void GlobalConfig::setMac(MacAddress mac) {
+void GlobalConfig::setDeviceMode(DeviceMode mode)
+{
+  this->mode = mode;
+}
+
+void GlobalConfig::setMac(MacAddress mac)
+{
   // Copy MAC address into internal variable
   memcpy(deviceMac, mac, 6);
 }
 
-void GlobalConfig::getRoles(DeviceRole *out, size_t size) {
+void GlobalConfig::getDeviceModules(DeviceModule *out, size_t size)
+{
   // Prevent overflow
-  if (size < sizeof(roles))
+  if (size < sizeof(modules))
     return;
 
   // Copy roles into output array
-  memcpy(out, roles, sizeof(roles));
+  memcpy(out, modules, sizeof(modules));
 }
 
-void GlobalConfig::getMac(uint8_t *out, size_t size) {
+GlobalConfig::DeviceMode GlobalConfig::getDeviceMode()
+{
+  return mode;
+}
+
+void GlobalConfig::getMac(uint8_t *out, size_t size)
+{
   // Prevent overflow
   if (size < sizeof(deviceMac))
     return;
@@ -34,7 +48,8 @@ void GlobalConfig::getMac(uint8_t *out, size_t size) {
 }
 
 // Implementation of Serializable interface methods
-size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const {
+size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const
+{
 
   // Check if provided buffer is large enough
   size_t ownSize = getSerializedSize();
@@ -49,9 +64,15 @@ size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const {
   size_t totalWrite = 0;
   size_t objSize = 0;
 
-  // Serialize roles
-  objSize = sizeof(roles);
-  memcpy(buffer, roles, objSize);
+  // Serialize modules
+  objSize = sizeof(modules);
+  memcpy(buffer, modules, objSize);
+  index += objSize;
+  totalWrite += objSize;
+
+  // Serialize mode
+  objSize = sizeof(mode);
+  memcpy(buffer + index, &mode, objSize);
   index += objSize;
   totalWrite += objSize;
 
@@ -66,7 +87,8 @@ size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const {
   return totalWrite;
 }
 
-size_t GlobalConfig::unpackSerialized(const uint8_t *input, size_t size) {
+size_t GlobalConfig::unpackSerialized(const uint8_t *input, size_t size)
+{
 
   // Check if provided data size is valid
   size_t ownSize = getSerializedSize();
@@ -78,9 +100,15 @@ size_t GlobalConfig::unpackSerialized(const uint8_t *input, size_t size) {
   size_t totalWrite = 0;
   size_t objSize = 0;
 
-  // Deserialize roles
-  objSize = sizeof(roles);
-  memcpy(roles, input, objSize);
+  // Deserialize modules
+  objSize = sizeof(modules);
+  memcpy(modules, input, objSize);
+  index += objSize;
+  totalWrite += objSize;
+
+  // Deserialize mode
+  objSize = sizeof(mode);
+  memcpy(&mode, input + index, objSize);
   index += objSize;
   totalWrite += objSize;
 
@@ -92,7 +120,8 @@ size_t GlobalConfig::unpackSerialized(const uint8_t *input, size_t size) {
   return totalWrite;
 }
 
-size_t GlobalConfig::getSerializedSize() const {
+size_t GlobalConfig::getSerializedSize() const
+{
   // Return the total size needed for serialization
-  return sizeof(roles) + sizeof(deviceMac);
+  return sizeof(modules) + sizeof(mode) + sizeof(deviceMac);
 }

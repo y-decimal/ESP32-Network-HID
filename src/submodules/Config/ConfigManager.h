@@ -2,14 +2,17 @@
 #define CONFIGMANAGER_H
 
 #include <interfaces/IStorage.h>
-#include <submodules/ConfigManager/GlobalConfig.h>
-#include <submodules/ConfigManager/KeyScannerConfig.h>
+#include <submodules/Config/GlobalConfig.h>
+#include <submodules/Config/KeyScannerConfig.h>
 #include <submodules/Storage/TGenericStorage.h>
+#include <submodules/Logger.h>
 
 // Storage keys for configuration manager (max 15 chars for ESP32 Preferences)
 #define CONFIG_MANAGER_NAMESPACE "CfgMgr"
 #define GLOBAL_CONFIG_KEY "global"
 #define KEYSCANNER_CONFIG_KEY "keyScan"
+
+static Logger configLog(CONFIG_MANAGER_NAMESPACE);
 
 /**
  * @brief Configuration Manager for handling different configuration types.
@@ -63,6 +66,12 @@ public:
    * @return True if load was successful, false otherwise.
    */
   bool loadConfig();
+
+  /**
+   * @brief Clear all configurations from storage.
+   * @return True if clear was successful, false otherwise.
+   */
+  bool clearAllConfigs();
 };
 
 // Template specializations
@@ -81,6 +90,10 @@ inline GlobalConfig ConfigManager::getConfig<GlobalConfig>() const
   {
     config.unpackSerialized(serialized.data, serialized.size);
   }
+  else 
+  {
+    configLog.warn("GlobalConfig is empty, using defaults");
+  }
   return config;
 }
 
@@ -98,6 +111,10 @@ inline KeyScannerConfig ConfigManager::getConfig<KeyScannerConfig>() const
   {
     config.unpackSerialized(serialized.data, serialized.size);
   }
+  else 
+  {
+    configLog.warn("KeyScannerConfig is empty, using defaults");
+  }
   return config;
 }
 
@@ -109,11 +126,10 @@ template <>
 inline void ConfigManager::setConfig<GlobalConfig>(const GlobalConfig &cfg)
 {
   GlobalConfig::SerializedConfig serialized;
-  serialized.size =
-      cfg.packSerialized(serialized.data, sizeof(serialized.data));
+  serialized.size = cfg.packSerialized(serialized.data, sizeof(serialized.data));
   if (serialized.size == 0)
   {
-    printf("ERROR: Failed to serialize GlobalConfig\n");
+    configLog.error("Failed to serialize GlobalConfig");
     return;
   }
   globalCfg.set(serialized);
@@ -128,11 +144,10 @@ inline void
 ConfigManager::setConfig<KeyScannerConfig>(const KeyScannerConfig &cfg)
 {
   KeyScannerConfig::SerializedConfig serialized;
-  serialized.size =
-      cfg.packSerialized(serialized.data, sizeof(serialized.data));
+  serialized.size = cfg.packSerialized(serialized.data, sizeof(serialized.data));
   if (serialized.size == 0)
   {
-    printf("ERROR: Failed to serialize KeyScannerConfig\n");
+    configLog.error("Failed to serialize KeyScannerConfig");
     return;
   }
   keyScannerCfg.set(serialized);

@@ -17,27 +17,32 @@
 #define NONEXISTENT_KEY "nonexistent_key"
 #define MULTI_KEY "multi_key"
 
-namespace {
+namespace
+{
 #ifndef UNITY_NATIVE
-PreferencesStorage testStorage(NAMESPACE);
+  PreferencesStorage testStorage(NAMESPACE);
 #else
-FakeStorage testStorage;
+  FakeStorage testStorage;
 #endif
 } // namespace
 
-void setUp() {
+void setUp()
+{
   // No setup needed with FakeStorage
 }
 
-void tearDown() {
+void tearDown()
+{
   testStorage.remove(TEST_KEY);
   testStorage.remove(LOAD_KEY);
   testStorage.remove(NONEXISTENT_KEY);
   testStorage.remove(MULTI_KEY);
 }
 
-void test_GenericStorage_initialization() {
-  struct TestData {
+void test_GenericStorage_initialization()
+{
+  struct TestData
+  {
     int value;
     char name[10];
   };
@@ -46,8 +51,10 @@ void test_GenericStorage_initialization() {
   TEST_ASSERT_FALSE(storage.isDirty());
 }
 
-void test_GenericStorage_set_marks_dirty() {
-  struct TestData {
+void test_GenericStorage_set_marks_dirty()
+{
+  struct TestData
+  {
     int value;
   };
 
@@ -59,8 +66,10 @@ void test_GenericStorage_set_marks_dirty() {
   TEST_ASSERT_EQUAL(42, storage.get().value);
 }
 
-void test_GenericStorage_save_clears_dirty() {
-  struct TestData {
+void test_GenericStorage_save_clears_dirty()
+{
+  struct TestData
+  {
     int value;
   };
 
@@ -75,8 +84,10 @@ void test_GenericStorage_save_clears_dirty() {
   TEST_ASSERT_FALSE(storage.isDirty());
 }
 
-void test_GenericStorage_load_restores_data() {
-  struct TestData {
+void test_GenericStorage_load_restores_data()
+{
+  struct TestData
+  {
     int value;
     char text[5];
   };
@@ -96,8 +107,10 @@ void test_GenericStorage_load_restores_data() {
   TEST_ASSERT_FALSE(storage2.isDirty());
 }
 
-void test_GenericStorage_load_fails_on_nonexistent_key() {
-  struct TestData {
+void test_GenericStorage_load_fails_on_nonexistent_key()
+{
+  struct TestData
+  {
     int value;
   };
 
@@ -107,23 +120,10 @@ void test_GenericStorage_load_fails_on_nonexistent_key() {
   TEST_ASSERT_FALSE(loaded);
 }
 
-void test_GenericStorage_clearDirty() {
-  struct TestData {
-    int value;
-  };
-
-  GenericStorage<TestData> storage(TEST_KEY, &testStorage);
-  TestData data = {42};
-
-  storage.set(data);
-  TEST_ASSERT_TRUE(storage.isDirty());
-
-  storage.clearDirty();
-  TEST_ASSERT_FALSE(storage.isDirty());
-}
-
-void test_GenericStorage_multiple_saves() {
-  struct TestData {
+void test_GenericStorage_multiple_saves()
+{
+  struct TestData
+  {
     int value;
   };
 
@@ -143,28 +143,31 @@ void test_GenericStorage_multiple_saves() {
   TEST_ASSERT_EQUAL(200, storage2.get().value);
 }
 
-void run_GenericStorage_tests() {
+void run_GenericStorage_tests()
+{
   RUN_TEST(test_GenericStorage_initialization);
   RUN_TEST(test_GenericStorage_set_marks_dirty);
   RUN_TEST(test_GenericStorage_save_clears_dirty);
   RUN_TEST(test_GenericStorage_load_restores_data);
   RUN_TEST(test_GenericStorage_load_fails_on_nonexistent_key);
-  RUN_TEST(test_GenericStorage_clearDirty);
   RUN_TEST(test_GenericStorage_multiple_saves);
 }
 
 #ifndef UNITY_NATIVE
-void setup() {
+void setup()
+{
   delay(1000); // Wait for Preferences to be ready
 #else
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 #endif
   UNITY_BEGIN();
   run_GenericStorage_tests();
   UNITY_END();
 }
 
-void loop() {
+void loop()
+{
   // No loop needed
 }
 

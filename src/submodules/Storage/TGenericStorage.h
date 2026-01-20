@@ -12,7 +12,9 @@
  * to the underlying storage operations.
  * @tparam DATA The type of data to be stored. Must support serialization.
  */
-template <typename DATA> class ThreadSafeGenericStorage {
+template <typename DATA>
+class ThreadSafeGenericStorage
+{
 private:
   // Underlying GenericStorage instance
   GenericStorage<DATA> genericStorage;
@@ -42,7 +44,8 @@ public:
    * @brief Retrieve the stored data.
    * @return The stored data of type DATA.
    */
-  DATA get() const {
+  DATA get() const
+  {
     std::lock_guard<std::mutex> lock(mtx);
     return genericStorage.get();
   }
@@ -51,7 +54,8 @@ public:
    * @brief Set new data to be stored.
    * @param in The data to be stored.
    */
-  void set(const DATA &in) {
+  void set(const DATA &in)
+  {
     std::lock_guard<std::mutex> lock(mtx);
     genericStorage.set(in);
   }
@@ -60,24 +64,18 @@ public:
    * @brief Check if the data has been modified since the last save.
    * @return True if the data is dirty, false otherwise.
    */
-  bool isDirty() const {
+  bool isDirty() const
+  {
     std::lock_guard<std::mutex> lock(mtx);
     return genericStorage.isDirty();
-  }
-
-  /**
-   * @brief Clear the dirty flag after saving.
-   */
-  void clearDirty() {
-    std::lock_guard<std::mutex> lock(mtx);
-    genericStorage.clearDirty();
   }
 
   /**
    * @brief Load data from storage.
    * @return True if loading was successful and data is valid, false otherwise.
    */
-  bool load() {
+  bool load()
+  {
     std::lock_guard<std::mutex> lock(mtx);
     return genericStorage.load();
   }
@@ -86,9 +84,20 @@ public:
    * @brief Save data to storage.
    * @return True if saving was successful, false otherwise.
    */
-  bool save() {
+  bool save()
+  {
     std::lock_guard<std::mutex> lock(mtx);
     return genericStorage.save();
+  }
+
+  /**
+   * @brief Clear all data from storage.
+   * @return True if clear was successful, false otherwise.
+   */
+  bool clearAll()
+  {
+    std::lock_guard<std::mutex> lock(mtx);
+    return genericStorage.clearAll();
   }
 };
 

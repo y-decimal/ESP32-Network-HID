@@ -44,6 +44,12 @@ public:
    */
   virtual bool exists(const std::string &key) = 0;
 
+  /**
+   * @brief Clear all data from storage.
+   * @return True if clear was successful, false otherwise.
+   */
+  virtual bool clearAll() = 0;
+
   // Virtual destructor
   virtual ~IStorage() = default;
 };

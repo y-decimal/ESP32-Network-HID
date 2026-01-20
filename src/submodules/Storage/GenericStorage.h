@@ -34,6 +34,17 @@ private:
   IStorage *storage;
   const std::string key;
 
+  /**
+   * @brief Clear the dirty flag after saving.
+   */
+  void clearDirty() { dirty = false; }
+
+  /**
+   * @brief Check if data exists in storage.
+   * @return True if data exists for this key, false otherwise.
+   */
+  bool exists() const { return storage->exists(key); }
+
 public:
   /**
    * @brief Constructor for GenericStorage.
@@ -73,11 +84,6 @@ public:
   bool isDirty() const { return dirty; }
 
   /**
-   * @brief Clear the dirty flag after saving.
-   */
-  void clearDirty() { dirty = false; }
-
-  /**
    * @brief Load data from storage.
    * @return True if loading was successful and data is valid, false otherwise.
    */
@@ -109,6 +115,9 @@ public:
    */
   bool save()
   {
+    if (!dirty && exists())
+      return true; // No changes to save
+
     // Calculate and set checksum
     dataBlock.checksum = calcCheckSum_8Bit(dataBlock.data);
 
@@ -120,6 +129,15 @@ public:
 
     dirty = false;
     return written;
+  }
+
+  /**
+   * @brief Clear all data from storage.
+   * @return True if clear was successful, false otherwise.
+   */
+  bool clearAll()
+  {
+    return storage->clearAll();
   }
 };
 

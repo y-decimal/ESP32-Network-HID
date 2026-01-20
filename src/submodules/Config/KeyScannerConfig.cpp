@@ -1,4 +1,4 @@
-#include <submodules/ConfigManager/KeyScannerConfig.h>
+#include <submodules/Config/KeyScannerConfig.h>
 
 void KeyScannerConfig::setPins(uint8_t *rowPinData, uint8_t rowSize,
                                uint8_t *colPinData, uint8_t colSize) {
