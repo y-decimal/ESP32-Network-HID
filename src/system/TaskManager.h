@@ -18,6 +18,8 @@
 #include <interfaces/ILogSink.h>
 #include <interfaces/IStorage.h>
 
+static Logger log("TaskManager");
+
 class TaskManager
 {
 public:
@@ -46,12 +48,12 @@ public:
 
     bool configLoaded = configManager.loadConfig();
     if (!configLoaded)
-      mainLog.warn("Failed to load configuration, using defaults");
+      log.warn("Failed to load configuration, using defaults");
     DeviceRole roles[(size_t)DeviceRole::Count];
     configManager.getConfig<GlobalConfig>().getRoles(roles, (size_t)DeviceRole::Count);
     for (size_t i = 0; i < (size_t)DeviceRole::Count; i++)
     {
-      mainLog.info("Role %d: %d", i, static_cast<uint8_t>(roles[i]));
+      log.info("Role %d: %d", i, static_cast<uint8_t>(roles[i]));
     }
     if (roles[0] == DeviceRole::Master)
     {
@@ -67,8 +69,6 @@ public:
 private:
   Platform &platform;
   ConfigManager configManager;
-
-  Logger mainLog = Logger("TaskManager");
 
   // Task classes are stored here
   EventBusTask eventBusTask;
