@@ -28,8 +28,12 @@ static void setHostConfig();
 
 void setup()
 {
+  Logger::setDefaultLogLevel(Logger::LogLevel::warn);
+  Logger::setNamespaceLevel("Main", Logger::LogLevel::info);
   Logger::setNamespaceLevel(LOGGERTASK_NAMESPACE, Logger::LogLevel::warn);
-  Logger::setDefaultLogLevel(Logger::LogLevel::info);
+  Logger::setNamespaceLevel(MASTERTASK_NAMESPACE, Logger::LogLevel::info);
+  Logger::setNamespaceLevel(SLAVETASK_NAMESPACE, Logger::LogLevel::info);
+  Logger::setNamespaceLevel("TransportProtocol.cpp", Logger::LogLevel::info);
 
   // setHostConfig();
   // setKeyboardConfig();
