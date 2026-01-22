@@ -60,15 +60,23 @@ void TransportProtocol::requestConfig(uint8_t id)
     transport.sendData(CONFIG_REQUEST, &emptyPacket, sizeof(emptyPacket), mac.data());
 }
 
-void TransportProtocol::pushConfig(uint8_t id, const ConfigManager *config)
+void TransportProtocol::sendConfig(uint8_t id, const ConfigManager *config)
 {
-    log.info("Pushing config to ID %d", id);
-    size_t len = sizeof(ConfigManager);
-    uint8_t *buffer = (uint8_t *)malloc(len);
-    memcpy(buffer, config, len);
+    log.info("Sending config to ID %d", id);
+
+    size_t requiredSize = config->getSerializedSize();
+    uint8_t *buffer = (uint8_t *)malloc(requiredSize);
+    size_t len = config->packSerialized(buffer, requiredSize);
+    if (len == 0 || len != requiredSize)
+    {
+        log.error("Failed to serialize config for sending to ID %d: expected %zu, got %zu", id, requiredSize, len);
+        free(buffer);
+        return;
+    }
 
     mac_t mac = {};
     getMacById(id, mac.data());
+
     transport.sendData(CONFIG, buffer, len, mac.data());
     free(buffer);
 }
@@ -90,7 +98,22 @@ uint8_t TransportProtocol::getSelfId() const
 
 void TransportProtocol::getMacById(uint8_t id, uint8_t *out) const
 {
-    memcpy(out, peerDevices.at(id).data(), sizeof(mac_t));
+    if (id >= peerDevices.size())
+    {
+        log.error("Invalid ID %d (max: %d)", id, peerDevices.size() - 1);
+        memcpy(out, NULLMAC, sizeof(mac_t));
+        return;
+    }
+
+    const mac_t &mac = peerDevices[id];
+
+    // Check if MAC is NULL
+    if (memcmp(mac.data(), NULLMAC, sizeof(mac_t)) == 0)
+    {
+        log.error("ID %d has NULL MAC address", id);
+    }
+
+    memcpy(out, mac.data(), sizeof(mac_t));
 }
 
 uint8_t TransportProtocol::getIdByMac(const uint8_t *mac) const
@@ -257,12 +280,30 @@ void TransportProtocol::handleConfigData(const uint8_t *data, size_t len, const 
     {
         peerDevices.push_back({});
         memcpy(peerDevices.back().data(), mac, sizeof(mac_t));
+        log.info("Added new device from config data with ID %d", getIdByMac(mac));
     }
-    if (configCallback && len >= sizeof(ConfigManager))
+
+    // Basic sanity check - must have at least 2 size_t fields
+    if (len < 2 * sizeof(size_t))
+    {
+        log.error("Received config data too small from ID %d (got %zu bytes)",
+                  getIdByMac(mac), len);
+        return;
+    }
+
+    if (configCallback)
     {
         ConfigManager config;
-        memcpy(&config, data, sizeof(ConfigManager));
+        size_t unpacked = config.unpackSerialized(data, len);
+        if (unpacked == 0 || unpacked != len)
+        {
+            log.error("Failed to unpack config from ID %d (unpacked %zu of %zu bytes)",
+                      getIdByMac(mac), unpacked, len);
+            return;
+        }
         configCallback(config, getIdByMac(mac));
+        log.info("Triggered config callback for ID %d", getIdByMac(mac));
     }
+
     log.info("Received config from ID %d", getIdByMac(mac));
 }
