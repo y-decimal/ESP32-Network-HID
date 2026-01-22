@@ -23,24 +23,31 @@ void KeyScannerConfig::setRefreshRate(uint16_t rate)
 void KeyScannerConfig::setBitmapSendFrequency(uint16_t frequency)
 {
   if (frequency < MIN_BITMAP_REFRESH_RATE ||
-      frequency > MAX_BITMAP_REFRESH_RATE)
+      frequency > MAX_BITMAP_REFRESH_RATE) {
     // frequency is now the bitmap frequency in Hz
     // Limited to a range of 1-500 Hz to ensure reasonable bitmap rates
+    keyCfglog.warn("Bitmap send frequency %d Hz is out of bounds (%d-%d Hz)",
+             frequency, MIN_BITMAP_REFRESH_RATE, MAX_BITMAP_REFRESH_RATE);
     return;
+  }
   bitMapSendRate = frequency;
 }
 
 void KeyScannerConfig::setLocalToHidMap(uint8_t *mapData, size_t mapSize)
 {
-  if (mapSize > MAX_KEY_COUNT)
+  if (mapSize > MAX_KEY_COUNT) {
+    keyCfglog.warn("Local to HID map size %d exceeds maximum of %d", mapSize, MAX_KEY_COUNT);
     return;
+  }
   localToHidMap.assign(mapData, mapData + mapSize);
 }
 
 void KeyScannerConfig::updateHIDCodeForIndex(uint8_t localKeyIndex, uint8_t hidCode)
 {
-  if (localKeyIndex >= localToHidMap.size())
+  if (localKeyIndex >= localToHidMap.size()) {
+    keyCfglog.warn("Attempted to update HID code for out-of-bounds index %d", localKeyIndex);
     return;
+  }
   localToHidMap[localKeyIndex] = hidCode;
 }
 
