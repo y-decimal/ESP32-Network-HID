@@ -30,7 +30,7 @@ public:
     void sendKeyEvent(const RawKeyEvent &keyEvent);
     void sendBitmapEvent(const RawBitmapEvent &bitmapEvent);
     void requestConfig(uint8_t id);
-    void pushConfig(uint8_t id, const ConfigManager *config);
+    void sendConfig(uint8_t id, const ConfigManager *config);
     void sendPairingRequest(const uint8_t *data = nullptr, size_t dataLen = 0);
 
     uint8_t getSelfId() const;
@@ -72,7 +72,7 @@ private:
 
     std::function<void(const RawKeyEvent &keyEvent, uint8_t senderId)> keyEventCallback;
     std::function<void(const RawBitmapEvent &bitmapEvent, uint8_t senderId)> bitmapEventCallback;
-    std::function<void(ConfigManager &config, uint8_t senderId)> configCallback;
+    std::function<void(const ConfigManager &config, uint8_t senderId)> configCallback;
     std::function<void(uint8_t)> pairingRequestCallback;
     std::function<void(uint8_t)> pairingConfirmationCallback;
     std::function<void(uint8_t)> configRequestCallback;

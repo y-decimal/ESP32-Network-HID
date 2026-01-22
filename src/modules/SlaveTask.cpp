@@ -190,5 +190,5 @@ void SlaveTask::configReceiveCallback(const ConfigManager &config, uint8_t sende
 void SlaveTask::configRequestCallback(uint8_t senderId)
 {
   log.info("Config Request received. Sending config to master ID %d", senderId);
-  instance->protocol->pushConfig(senderId, &instance->configManager);
+  instance->protocol->sendConfig(senderId, &instance->configManager);
 }
