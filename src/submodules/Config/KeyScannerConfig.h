@@ -30,12 +30,16 @@ private:
   uint16_t refreshRate = 100;
   uint16_t bitMapSendRate = 5;
 
+  // Local index to HID code mapping
+  std::vector<uint8_t> localToHidMap{};
+
   // Configuration constraints
-  static constexpr uint16_t MIN_REFRESH_RATE = 1;
-  static constexpr uint16_t MAX_REFRESH_RATE = 1000;
-  static constexpr uint16_t MIN_BITMAP_REFRESH_RATE = 1;
-  static constexpr uint16_t MAX_BITMAP_REFRESH_RATE = 500;
-  static constexpr size_t MAX_PIN_COUNT = 20;
+  static constexpr const uint16_t MIN_REFRESH_RATE = 1;
+  static constexpr const uint16_t MAX_REFRESH_RATE = 1000;
+  static constexpr const uint16_t MIN_BITMAP_REFRESH_RATE = 1;
+  static constexpr const uint16_t MAX_BITMAP_REFRESH_RATE = 500;
+  static constexpr const size_t MAX_PIN_COUNT = 20;
+  static constexpr const size_t MAX_KEY_COUNT = 128;
 
   // Maximum size for serialized configuration
   static constexpr size_t MAX_KEYSCANNER_CONFIG_SIZE =
@@ -52,6 +56,7 @@ public:
     uint8_t *colPins;
     uint16_t refreshRate;
     uint16_t bitmapSendRate;
+    uint8_t *localToHidMap;
   };
 
   // Definition of the serialized configuration structure
