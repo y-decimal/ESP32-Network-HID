@@ -5,6 +5,8 @@ static Logger log(MASTERTASK_NAMESPACE);
 
 // Initialize static member variable
 MasterTask *MasterTask::instance = nullptr;
+HidMapper MasterTask::hidMapper;
+std::vector<uint8_t> MasterTask::oldBitmap = {0};
 
 MasterTask::MasterTask(ITransport &transport) : transportRef(&transport)
 {
@@ -14,6 +16,8 @@ MasterTask::MasterTask(ITransport &transport) : transportRef(&transport)
     delete instance;
   }
   instance = this;
+
+  oldBitmap.resize(hidMapper.getBitmapSize());
 }
 
 MasterTask::~MasterTask()
@@ -95,26 +99,62 @@ void MasterTask::restart(TaskParameters params)
 void MasterTask::pairReceiveCallback(uint8_t sourceId)
 {
   log.info("Received pairing request from device ID %u", sourceId);
+  instance->protocol->requestConfig(sourceId);
 };
 
 void MasterTask::keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderId)
 {
-  Event event = {};
-  event.type = EventType::IdKey;
-  event.idKeyEvt.raw = keyEvent;
-  event.idKeyEvt.sourceId = senderId;
-  event.cleanup = cleanupIdentifiableKeyEvent;
-  EventRegistry::pushEvent(event);
-  log.debug("Pushed key event from device ID %u to EventRegistry", senderId);
+  
+
+  instance->hidMapper.mapIndexToHidBitmap(keyEvent.keyIndex, keyEvent.state, senderId);
+  log.debug("Pushed key event from device ID %u to HidMapper", senderId);
+
+  std::vector<uint8_t> currentBitmap{0};
+  currentBitmap.resize(hidMapper.getBitmapSize());
+  hidMapper.copyBitmap(currentBitmap.data(), currentBitmap.size());
+  if (memcmp(oldBitmap.data(), currentBitmap.data(), currentBitmap.size()) != 0)
+  {
+    // Push HID Event
+    log.info("Hid Map changed, pushing HidEvent");
+  }
+  else
+  {
+    unsigned long oldValue = 0;
+    unsigned long newValue = 0;
+    for (int i = 0; i < oldBitmap.size(); i++)
+    {
+      oldValue += oldBitmap[i];
+      newValue += currentBitmap[i];
+    }
+    log.info("No change to Hid Map - old value: %d new value: %d", oldValue, newValue);
+  }
+  oldBitmap = currentBitmap;
 };
 
 void MasterTask::bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_t senderId)
 {
-  Event event = {};
-  event.type = EventType::IdBitmap;
-  event.idBitmapEvt.raw = bitmapEvent;
-  event.idBitmapEvt.sourceId = senderId;
-  event.cleanup = cleanupIdentifiableBitmapEvent;
-  EventRegistry::pushEvent(event);
-  log.debug("Pushed bitmap event from device ID %u to EventRegistry", senderId);
+  instance->hidMapper.mapBitmapToHidBitmap(bitmapEvent.bitMapData, bitmapEvent.bitmapSize, senderId);
+  log.debug("Pushed bitmap event from device ID %u to HidMapper", senderId);
+
+  std::vector<uint8_t> currentBitmap{0};
+  currentBitmap.resize(hidMapper.getBitmapSize());
+  hidMapper.copyBitmap(currentBitmap.data(), currentBitmap.size());
+  if (memcmp(oldBitmap.data(), currentBitmap.data(), currentBitmap.size()) != 0)
+  {
+    // Push HID Event
+    log.info("Hid Map changed, pushing HidEvent");
+  }
+  else
+    log.debug("No change to Hid Map");
+
+  oldBitmap = currentBitmap;
 };
+
+void MasterTask::configReceiveCallback(const ConfigManager &config, uint8_t senderId)
+{
+  std::vector<uint8_t> map = config.getConfig<KeyScannerConfig>().getLocalToHidMap();
+
+  hidMapper.insertMap(map.data(), map.size(), senderId);
+
+  log.info("Received Map from device %d", senderId);
+}
