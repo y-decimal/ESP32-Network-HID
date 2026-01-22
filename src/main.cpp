@@ -82,16 +82,16 @@ static void bitMapPrintCallback(const Event &event)
   else
     bitMapEvent = event.rawBitmapEvt;
 
-  if (memcmp(lastBitmap.data(), bitMapEvent.bitMapData, bitMapEvent.bitMapSize) != 0)
+  if (memcmp(lastBitmap.data(), bitMapEvent.bitMapData, bitMapEvent.bitmapSize) != 0)
   {
-    std::string debugStr = "Bitmap change: Size " + std::to_string(bitMapEvent.bitMapSize) + " Data:";
-    for (size_t i = 0; i < bitMapEvent.bitMapSize; i++)
+    std::string debugStr = "Bitmap change: Size " + std::to_string(bitMapEvent.bitmapSize) + " Data:";
+    for (size_t i = 0; i < bitMapEvent.bitmapSize; i++)
     {
       debugStr += " " + std::to_string(bitMapEvent.bitMapData[i]);
     }
     logger.info("%s", debugStr.c_str());
 
-    lastBitmap.assign(bitMapEvent.bitMapData, bitMapEvent.bitMapData + bitMapEvent.bitMapSize);
+    lastBitmap.assign(bitMapEvent.bitMapData, bitMapEvent.bitMapData + bitMapEvent.bitmapSize);
   }
 }
 

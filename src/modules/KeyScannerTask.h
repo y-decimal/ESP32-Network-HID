@@ -26,7 +26,7 @@ private:
 
     static void taskEntry(void *param);
     static void keyEventCallback(uint16_t keyIndex, bool state);
-    static void sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap);
+    static void sendBitMapEvent(uint8_t bitmapSize, uint8_t *bitMap);
 };
 
 #endif

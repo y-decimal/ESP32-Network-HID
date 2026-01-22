@@ -37,11 +37,11 @@ void TransportProtocol::sendKeyEvent(const RawKeyEvent &keyEvent)
 
 void TransportProtocol::sendBitmapEvent(const RawBitmapEvent &bitmapEvent)
 {
-    // Serialize as: [bitMapSize (1 byte)][bitMapData (N bytes)]
-    size_t len = 1 + bitmapEvent.bitMapSize;
+    // Serialize as: [bitmapSize (1 byte)][bitMapData (N bytes)]
+    size_t len = 1 + bitmapEvent.bitmapSize;
     uint8_t *buffer = (uint8_t *)malloc(len);
-    buffer[0] = bitmapEvent.bitMapSize;
-    memcpy(buffer + 1, bitmapEvent.bitMapData, bitmapEvent.bitMapSize);
+    buffer[0] = bitmapEvent.bitmapSize;
+    memcpy(buffer + 1, bitmapEvent.bitMapData, bitmapEvent.bitmapSize);
     transport.sendData(KEY_BITMAP, buffer, len, masterMac.data());
     free(buffer);
 }
@@ -127,15 +127,15 @@ void TransportProtocol::onBitmapEvent(std::function<void(const RawBitmapEvent &b
                                                  peerDevices.push_back({});
                                                  memcpy(peerDevices.back().data(), mac, sizeof(mac_t));
                                              }
-                                             // Deserialize: [bitMapSize (1 byte)][bitMapData (N bytes)]
+                                             // Deserialize: [bitmapSize (1 byte)][bitMapData (N bytes)]
                                              if (bitmapEventCallback && len >= 1)
                                              {
                                                  RawBitmapEvent bitmapEvent;
-                                                 bitmapEvent.bitMapSize = data[0];
-                                                 if (len >= 1 + bitmapEvent.bitMapSize)
+                                                 bitmapEvent.bitmapSize = data[0];
+                                                 if (len >= 1 + bitmapEvent.bitmapSize)
                                                  {
-                                                     bitmapEvent.bitMapData = (uint8_t *)malloc(bitmapEvent.bitMapSize);
-                                                     memcpy(bitmapEvent.bitMapData, data + 1, bitmapEvent.bitMapSize);
+                                                     bitmapEvent.bitMapData = (uint8_t *)malloc(bitmapEvent.bitmapSize);
+                                                     memcpy(bitmapEvent.bitMapData, data + 1, bitmapEvent.bitmapSize);
                                                      bitmapEventCallback(bitmapEvent, getIdByMac(mac));
                                                  }
                                              }

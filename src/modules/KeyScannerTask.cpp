@@ -43,12 +43,12 @@ void KeyScannerTask::keyEventCallback(uint16_t keyIndex, bool state)
   }
 }
 
-void KeyScannerTask::sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap)
+void KeyScannerTask::sendBitMapEvent(uint8_t bitmapSize, uint8_t *bitMap)
 {
   RawBitmapEvent rBitmapEvent{};
-  rBitmapEvent.bitMapSize = bitMapSize;
-  rBitmapEvent.bitMapData = static_cast<uint8_t *>(malloc(bitMapSize));
-  memcpy(rBitmapEvent.bitMapData, bitMap, bitMapSize);
+  rBitmapEvent.bitmapSize = bitmapSize;
+  rBitmapEvent.bitMapData = static_cast<uint8_t *>(malloc(bitmapSize));
+  memcpy(rBitmapEvent.bitMapData, bitMap, bitmapSize);
 
   Event event{};
   event.type = EventType::RawBitmap;
@@ -62,7 +62,7 @@ void KeyScannerTask::sendBitMapEvent(uint8_t bitMapSize, uint8_t *bitMap)
   }
   else
   {
-    log.debug("Pushed bitmap event of size %d", bitMapSize);
+    log.debug("Pushed bitmap event of size %d", bitmapSize);
   }
 }
 
@@ -101,7 +101,7 @@ void KeyScannerTask::taskEntry(void *arg)
   localBitmap.assign(localConfig.getBitmapSize(), 0);
 
   const uint32_t keyScanInterval = 1000000 / localConfig.getRefreshRate();
-  const uint32_t bitmapSendInterval = 1000000 / localConfig.getBitMapSendInterval();
+  const uint32_t bitmapSendInterval = 1000000 / localConfig.getBitmapSendRate();
 
   uint64_t lastScanTime = esp_timer_get_time();
   uint64_t lastBitmapTime = lastScanTime;
@@ -121,8 +121,8 @@ void KeyScannerTask::taskEntry(void *arg)
       if (time - lastBitmapTime >= bitmapSendInterval - 1)
       {
         keyScanner.copyPublishedBitmap(localBitmap.data(), localBitmap.size());
-        uint8_t bitMapSize = static_cast<uint8_t>(keyScanner.getBitMapSize());
-        sendBitMapEvent(bitMapSize, localBitmap.data());
+        uint8_t bitmapSize = static_cast<uint8_t>(keyScanner.getBitMapSize());
+        sendBitMapEvent(bitmapSize, localBitmap.data());
         lastBitmapTime = time;
         log.debug("Bitmap sent");
       }

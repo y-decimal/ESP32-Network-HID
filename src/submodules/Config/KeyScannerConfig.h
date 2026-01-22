@@ -16,7 +16,8 @@ using countType = uint8_t;
  * frequency. It also implements serialization and deserialization methods
  * for storing and retrieving configuration data.
  */
-class KeyScannerConfig : public Serializable {
+class KeyScannerConfig : public Serializable
+{
 private:
   // Key matrix configuration parameters
   countType rows = 0;
@@ -25,9 +26,9 @@ private:
   pinType colPins{};
 
   // Key scanning parameters
-  uint8_t bitMapSize = 0;
+  uint8_t bitmapSize = 0;
   uint16_t refreshRate = 100;
-  uint16_t bitMapSendFrequency = 5;
+  uint16_t bitMapSendRate = 5;
 
   // Configuration constraints
   static constexpr uint16_t MIN_REFRESH_RATE = 1;
@@ -38,22 +39,24 @@ private:
 
   // Maximum size for serialized configuration
   static constexpr size_t MAX_KEYSCANNER_CONFIG_SIZE =
-      sizeof(rows) + sizeof(cols) + sizeof(bitMapSize) + MAX_PIN_COUNT * 2 +
-      sizeof(refreshRate) + sizeof(bitMapSendFrequency);
+      sizeof(rows) + sizeof(cols) + sizeof(bitmapSize) + MAX_PIN_COUNT * 2 +
+      sizeof(refreshRate) + sizeof(bitMapSendRate);
 
 public:
   // Definition of the configuration structure
-  struct KeyCfgParams {
+  struct KeyCfgParams
+  {
     countType rows;
     countType cols;
     uint8_t *rowPins;
     uint8_t *colPins;
     uint16_t refreshRate;
-    uint16_t bitMapSendInterval;
+    uint16_t bitmapSendRate;
   };
 
   // Definition of the serialized configuration structure
-  struct SerializedConfig {
+  struct SerializedConfig
+  {
     uint8_t data[MAX_KEYSCANNER_CONFIG_SIZE]{0};
     size_t size = MAX_KEYSCANNER_CONFIG_SIZE;
   };
@@ -77,7 +80,7 @@ public:
   /**
    * Set bitmap send frequency in Hz.
    * The actual loop interval is calculated as: loopsPerBitmap = refreshRate /
-   * bitMapSendInterval
+   * bitmapSendRate
    * @param frequency Bitmap frequency in Hz (1-500)
    */
   void setBitmapSendFrequency(uint16_t frequency);
@@ -116,7 +119,7 @@ public:
    * @brief Get the bitmap size.
    * @return Bitmap size.
    */
-  uint8_t getBitmapSize() const { return bitMapSize; }
+  uint8_t getBitmapSize() const { return bitmapSize; }
 
   /**
    * @brief Get the refresh rate.
@@ -125,10 +128,10 @@ public:
   uint16_t getRefreshRate() const { return refreshRate; }
 
   /**
-   * @brief Get the bitmap send interval.
-   * @return Bitmap send interval in Hz.
+   * @brief Get the bitmap send rate.
+   * @return Bitmap send rate in Hz.
    */
-  uint16_t getBitMapSendInterval() const { return bitMapSendFrequency; }
+  uint16_t getBitmapSendRate() const { return bitMapSendRate; }
 
   // Implementation of Serializable interface methods
   size_t packSerialized(uint8_t *output, size_t size) const override;

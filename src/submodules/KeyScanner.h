@@ -17,7 +17,8 @@
  * maintains the current state of the keys, and allows registration
  * of callback functions to handle key state changes.
  */
-class KeyScanner {
+class KeyScanner
+{
 private:
   // Reference to the GPIO interface for pin operations. Interface allows for
   // hardware independent implementation.
@@ -30,7 +31,7 @@ private:
   size_t colCount;
 
   // Size of the bitmap representing key states in bytes.
-  size_t bitMapSize;
+  size_t bitmapSize;
 
   // Buffers for storing key states. Used for double buffering to avoid
   // read/write conflicts.
@@ -73,7 +74,8 @@ public:
    * @param callback The callback function taking keyIndex and pressed state.
    */
   void registerOnKeyChangeCallback(
-      const std::function<void(uint16_t keyIndex, bool pressed)> &callback) {
+      const std::function<void(uint16_t keyIndex, bool pressed)> &callback)
+  {
     onKeyChange = callback;
   }
 
@@ -94,7 +96,7 @@ public:
    * @brief Gets the size of the key state bitmap in bytes.
    * @return Size of the bitmap in bytes.
    */
-  const size_t getBitMapSize() const { return bitMapSize; }
+  const size_t getBitMapSize() const { return bitmapSize; }
 
   /**
    * @brief Scans the key matrix and updates key states.
