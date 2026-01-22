@@ -39,9 +39,7 @@ public:
 
     void onKeyEvent(std::function<void(const RawKeyEvent &keyEvent, uint8_t senderId)> callback);
     void onBitmapEvent(std::function<void(const RawBitmapEvent &bitmapEvent, uint8_t senderId)> callback);
-    void onConfigReceived(std::function<void(ConfigManager &config, uint8_t senderId)> callback);
-
-    void clearCallbacks();
+    void onConfigReceived(std::function<void(const ConfigManager &config, uint8_t senderId)> callback);
 
     /**
      * @brief Allows registering custom hooks for received pairing requests.
@@ -50,7 +48,7 @@ public:
      * @param sourceId The runtime ID assigned to the source upon pairing, can be used to address packets or
      * with getMacById(uint8_t id) to retrieve the mac of the device
      */
-    void onPairingRequest(std::function<void(const uint8_t *data, uint8_t sourceId)> callback);
+    void onPairingRequest(std::function<void(uint8_t sourceId)> callback);
 
     /**
      * @brief Allows registering custom hooks for received pairing confirmations.
@@ -58,7 +56,11 @@ public:
      * @param sourceId The runtime ID assigned to the source upon pairing, can be used to address packets or
      * with getMacById(uint8_t id) to retrieve the mac of the device
      */
-    void onPairingConfirmation(std::function<void(const uint8_t *data, uint8_t sourceId)> callback);
+    void onPairingConfirmation(std::function<void(uint8_t sourceId)> callback);
+
+    void onConfigRequest(std::function<void(uint8_t sourceId)> callback);
+
+    void clearCallbacks();
 
 private:
     typedef std::array<uint8_t, 6> mac_t;
@@ -71,8 +73,9 @@ private:
     std::function<void(const RawKeyEvent &keyEvent, uint8_t senderId)> keyEventCallback;
     std::function<void(const RawBitmapEvent &bitmapEvent, uint8_t senderId)> bitmapEventCallback;
     std::function<void(ConfigManager &config, uint8_t senderId)> configCallback;
-    std::function<void(const uint8_t *, uint8_t)> pairingRequestCallback;
-    std::function<void(const uint8_t *, uint8_t)> pairingConfirmationCallback;
+    std::function<void(uint8_t)> pairingRequestCallback;
+    std::function<void(uint8_t)> pairingConfirmationCallback;
+    std::function<void(uint8_t)> configRequestCallback;
 
     void handlePairingRequest(const uint8_t *data, size_t dataLen, const uint8_t *mac);
     void handlePairingConfirmation(const uint8_t *data, size_t dataLen, const uint8_t *mac);
