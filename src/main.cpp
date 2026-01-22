@@ -61,6 +61,11 @@ void loop() {}
 
 static void keyPrintCallback(const Event &event)
 {
+  if (event.type != EventType::RawKey) {
+    logger.warn("Received wrong event type");
+    return;
+  }
+
   RawKeyEvent keyEvent;
   if (event.type == EventType::IdKey)
     keyEvent = event.idKeyEvt.raw;
