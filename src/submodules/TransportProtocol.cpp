@@ -142,7 +142,7 @@ void TransportProtocol::onBitmapEvent(std::function<void(const RawBitmapEvent &b
                                          });
 }
 
-void TransportProtocol::onConfigReceived(std::function<void(ConfigManager &config, uint8_t senderId)> callback)
+void TransportProtocol::onConfigReceived(std::function<void(const ConfigManager &config, uint8_t senderId)> callback)
 {
     configCallback = callback;
     transport.registerPacketTypeCallback(CONFIG,
@@ -162,12 +162,29 @@ void TransportProtocol::onConfigReceived(std::function<void(ConfigManager &confi
                                          });
 }
 
-void TransportProtocol::onPairingRequest(std::function<void(const uint8_t *data, uint8_t sourceId)> callback)
+void TransportProtocol::onConfigRequest(std::function<void(uint8_t sourceId)> callback)
+{
+    configRequestCallback = callback;
+    transport.registerPacketTypeCallback(CONFIG_REQUEST,
+                                         [this](uint8_t type, const uint8_t *data, size_t len, const uint8_t *mac)
+                                         {
+                                             if (getIdByMac(mac) == 0xFF)
+                                             {
+                                                 peerDevices.push_back({});
+                                                 memcpy(peerDevices.back().data(), mac, sizeof(mac_t));
+                                             }
+                                             if (configRequestCallback) {
+                                                configRequestCallback(getIdByMac(mac));
+                                             }
+                                         });
+}
+
+void TransportProtocol::onPairingRequest(std::function<void(uint8_t sourceId)> callback)
 {
     pairingRequestCallback = callback;
 }
 
-void TransportProtocol::onPairingConfirmation(std::function<void(const uint8_t *data, uint8_t sourceId)> callback)
+void TransportProtocol::onPairingConfirmation(std::function<void(uint8_t sourceId)> callback)
 {
     pairingConfirmationCallback = callback;
 }
@@ -182,7 +199,7 @@ void TransportProtocol::handlePairingRequest(const uint8_t *data, size_t dataLen
     this->transport.sendData(PAIRING_CONFIRMATION, data, dataLen, mac);
     if (pairingRequestCallback)
     {
-        pairingRequestCallback(data, getIdByMac(mac));
+        pairingRequestCallback(getIdByMac(mac));
     }
 }
 
@@ -196,7 +213,7 @@ void TransportProtocol::handlePairingConfirmation(const uint8_t *data, size_t da
     }
     if (pairingConfirmationCallback)
     {
-        pairingConfirmationCallback(data, getIdByMac(mac));
+        pairingConfirmationCallback(getIdByMac(mac));
     }
 }
 
