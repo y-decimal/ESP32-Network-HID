@@ -6,7 +6,7 @@ static Logger log(SLAVETASK_NAMESPACE);
 // Initialize static member variable
 SlaveTask *SlaveTask::instance = nullptr;
 
-SlaveTask::SlaveTask(ITransport &transport) : transportRef(&transport)
+SlaveTask::SlaveTask(ITransport &transport, ConfigManager &config) : transportRef(&transport), configManager(config)
 {
   if (instance != nullptr)
   {
@@ -184,4 +184,10 @@ void SlaveTask::configReceiveCallback(const ConfigManager &config, uint8_t sende
   }
   log.info("Received configuration update from master ID %u", senderId);
   return; // Todo: implement config handling
+}
+
+void SlaveTask::configRequestCallback(uint8_t senderId)
+{
+  log.info("Config Request received. Sending config to master ID %d", senderId);
+  instance->protocol->pushConfig(senderId, &instance->configManager);
 }
