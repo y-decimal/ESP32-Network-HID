@@ -105,8 +105,6 @@ void MasterTask::pairReceiveCallback(uint8_t sourceId)
 
 void MasterTask::keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderId)
 {
-  
-
   instance->hidMapper.mapIndexToHidBitmap(keyEvent.keyIndex, keyEvent.state, senderId);
   log.debug("Pushed key event from device ID %u to HidMapper", senderId);
 
@@ -117,6 +115,25 @@ void MasterTask::keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderI
   {
     // Push HID Event
     log.info("Hid Map changed, pushing HidEvent");
+    HidBitmapEvent hidBitmapEvt{};
+    hidBitmapEvt.bitmapSize = static_cast<uint8_t>(currentBitmap.size());
+    hidBitmapEvt.bitMapData = static_cast<uint8_t *>(malloc(currentBitmap.size()));
+    memcpy(hidBitmapEvt.bitMapData, currentBitmap.data(), currentBitmap.size());
+
+    Event hidEvent{};
+    hidEvent.type = EventType::HidBitmap;
+    hidEvent.hidBitmapEvt = hidBitmapEvt;
+    hidEvent.cleanup = cleanupHidBitmapEvent;
+
+    if (!EventRegistry::pushEvent(hidEvent))
+    {
+      log.error("Failed to push HID bitmap event to EventRegistry");
+      hidEvent.cleanup(&hidEvent);
+    }
+    else
+    {
+      log.info("Pushed HID bitmap event of size %d", hidBitmapEvt.bitmapSize);
+    }
   }
   else
   {
@@ -144,6 +161,25 @@ void MasterTask::bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_
   {
     // Push HID Event
     log.info("Hid Map changed, pushing HidEvent");
+    HidBitmapEvent hidBitmapEvt{};
+    hidBitmapEvt.bitmapSize = static_cast<uint8_t>(currentBitmap.size());
+    hidBitmapEvt.bitMapData = static_cast<uint8_t *>(malloc(currentBitmap.size()));
+    memcpy(hidBitmapEvt.bitMapData, currentBitmap.data(), currentBitmap.size());
+
+    Event hidEvent{};
+    hidEvent.type = EventType::HidBitmap;
+    hidEvent.hidBitmapEvt = hidBitmapEvt;
+    hidEvent.cleanup = cleanupHidBitmapEvent;
+
+    if (!EventRegistry::pushEvent(hidEvent))
+    {
+      log.error("Failed to push HID bitmap event to EventRegistry");
+      hidEvent.cleanup(&hidEvent);
+    }
+    else
+    {
+      log.info("Pushed HID bitmap event of size %d", hidBitmapEvt.bitmapSize);
+    }
   }
   else
     log.debug("No change to Hid Map");
