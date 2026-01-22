@@ -1,17 +1,36 @@
 #include <submodules/HidMapper.h>
+#include <submodules/Logger.h>
+static Logger log(__FILENAME__);
 
 HidMapper::HidMapper() {};
 
 void HidMapper::insertMap(const uint8_t *map, size_t mapSize, uint8_t mapId)
 {
+    log.debug("Inserted map of size %d with ID %d", mapSize, mapId);
     std::vector<uint8_t> buffer;
     buffer.assign(map, map + mapSize);
     localToHidMaps[mapId] = buffer;
 }
 
-void HidMapper::mapToHidBitmap(const uint8_t *bitmap, size_t bitmapSize, uint8_t mapId)
+void HidMapper::mapBitmapToHidBitmap(const uint8_t *bitmap, size_t bitmapSize, uint8_t mapId)
 {
     // Implement mapping a bitmap to the hidBitmap via map at localToHidMaps[map]
+}
+
+void HidMapper::mapIndexToHidBitmap(uint8_t index, bool bitState, uint8_t mapId)
+{
+    if (localToHidMaps.find(mapId) == localToHidMaps.end()) {
+        log.warn("Could not map Index, no map found");
+        return;
+    }
+
+    if (index > localToHidMaps[mapId].size()) {
+        log.warn("Could not map Index, index not inside map");
+        return;
+    }
+
+    uint8_t mappedBitmapIndex = localToHidMaps[mapId][index];
+    updateHidBit(bitState, mappedBitmapIndex);
 }
 
 void HidMapper::updateHidBit(bool bitState, uint8_t bitmapBitIndex)
