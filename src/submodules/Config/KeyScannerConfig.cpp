@@ -114,6 +114,13 @@ size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const
   // Serialize bitMapSendFrequency
   objSize = sizeof(bitMapSendRate);
   memcpy(buffer + index, &bitMapSendRate, objSize);
+  index += objSize;
+  totalWrite += objSize;
+
+  // Serialize localToHidMap
+  objSize = rowCount * colCount;
+  memcpy(buffer + index, localToHidMap.data(), objSize);
+  index += objSize;
   totalWrite += objSize;
 
   // Copy serialized data to output buffer
@@ -155,7 +162,7 @@ size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size)
   // Now validate the full size including pin data
   size_t expectedSize = sizeof(rowCount) + sizeof(colCount) + sizeof(bitmapSize) +
                         rowCount + colCount + sizeof(refreshRate) +
-                        sizeof(bitMapSendRate);
+                        sizeof(bitMapSendRate) + (rowCount * colCount);
   if (size < expectedSize)
     return 0;
 
@@ -182,6 +189,14 @@ size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size)
   // Deserialize bitMapSendFrequency
   objSize = sizeof(bitMapSendRate);
   memcpy(&bitMapSendRate, input + index, objSize);
+  index += objSize;
+  totalWrite += objSize;
+
+  // Deserialize localToHidMap
+  objSize = rowCount * colCount;
+  localToHidMap.resize(objSize);
+  memcpy(localToHidMap.data(), input + index, objSize);
+  index += objSize;
   totalWrite += objSize;
 
   return totalWrite;
@@ -191,7 +206,7 @@ size_t KeyScannerConfig::getSerializedSize() const
 {
   // Return the total size needed for serialization
   return sizeof(rowCount) + sizeof(colCount) + sizeof(bitmapSize) + rowCount + colCount +
-         sizeof(refreshRate) + sizeof(bitMapSendRate);
+         sizeof(refreshRate) + sizeof(bitMapSendRate) + (rowCount * colCount);
 }
 
 uint8_t KeyScannerConfig::getHIDCodeForIndex(uint8_t localKeyIndex) const
