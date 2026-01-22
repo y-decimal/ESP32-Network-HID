@@ -49,8 +49,6 @@ void setup()
 
   EventRegistry::registerHandler(EventType::RawKey, keyPrintCallback);
   EventRegistry::registerHandler(EventType::RawBitmap, bitMapPrintCallback);
-  EventRegistry::registerHandler(EventType::IdKey, keyPrintCallback);
-  EventRegistry::registerHandler(EventType::IdBitmap, bitMapPrintCallback);
 
   taskManager.start();
 
@@ -95,10 +93,7 @@ static void bitMapPrintCallback(const Event &event)
   static std::vector<uint8_t> lastBitmap = {0};
 
   RawBitmapEvent bitMapEvent;
-  if (event.type == EventType::IdBitmap)
     bitMapEvent = event.idBitmapEvt.raw;
-  else
-    bitMapEvent = event.rawBitmapEvt;
 
   if (memcmp(lastBitmap.data(), bitMapEvent.bitMapData, bitMapEvent.bitmapSize) != 0)
   {
