@@ -44,7 +44,7 @@ private:
   // Maximum size for serialized configuration
   static constexpr const size_t MAX_KEYSCANNER_CONFIG_SIZE =
       sizeof(rowCount) + sizeof(colCount) + sizeof(bitmapSize) + MAX_PIN_COUNT * 2 +
-      sizeof(refreshRate) + sizeof(bitMapSendRate) + ((MAX_KEY_COUNT + 1) / 8);
+      sizeof(refreshRate) + sizeof(bitMapSendRate) + MAX_KEY_COUNT;
 
 public:
   // Definition of the configuration structure
