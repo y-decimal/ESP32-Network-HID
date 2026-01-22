@@ -29,7 +29,7 @@ private:
 
     static void taskEntry(void *arg);
     static void eventBusCallback(const Event &evt);
-    static void pairConfirmCallback(const uint8_t *data, uint8_t sourceId);
+    static void pairConfirmCallback(uint8_t sourceId);
     static void configReceiveCallback(const ConfigManager &config, uint8_t senderId);
 };
 

@@ -24,7 +24,7 @@ private:
     static MasterTask *instance;
 
     static void taskEntry(void *arg);
-    static void pairReceiveCallback(const uint8_t *data, uint8_t sourceId);
+    static void pairReceiveCallback(uint8_t sourceId);
     static void keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderId);
     static void bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_t senderId);
 };

@@ -160,7 +160,7 @@ void SlaveTask::eventBusCallback(const Event &evt)
   }
 }
 
-void SlaveTask::pairConfirmCallback(const uint8_t *data, uint8_t sourceId)
+void SlaveTask::pairConfirmCallback(uint8_t sourceId)
 {
   if (SlaveTask::instance == nullptr)
   {

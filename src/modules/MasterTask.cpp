@@ -92,7 +92,7 @@ void MasterTask::restart(TaskParameters params)
   start(params);
 }
 
-void MasterTask::pairReceiveCallback(const uint8_t *data, uint8_t sourceId)
+void MasterTask::pairReceiveCallback(uint8_t sourceId)
 {
   log.info("Received pairing request from device ID %u", sourceId);
 };
