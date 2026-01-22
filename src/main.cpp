@@ -140,7 +140,7 @@ static void setKeyboardConfig()
   keyCfgParams.rowPins = rowPins;
   keyCfgParams.colPins = colPins;
   keyCfgParams.refreshRate = 500;
-  keyCfgParams.bitmapSendRate = 5;
+  keyCfgParams.bitmapSendRate = 1;
   keyCfgParams.localToHidMap = localToHidMap;
   keyScannerConfig.setConfig(keyCfgParams);
 
