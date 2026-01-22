@@ -69,7 +69,20 @@ static void keyPrintCallback(const Event &event)
 
   uint8_t keyIndex = keyEvent.keyIndex;
   bool state = keyEvent.state;
-  logger.info("Key event: Key %d %s", keyIndex, state ? "pressed" : "released");
+
+  ConfigManager &localCfgCopy = taskManager.getConfigManagerCopy();
+  if (&localCfgCopy != nullptr)
+  {
+    uint8_t hidCode = localCfgCopy
+                          .getConfig<KeyScannerConfig>()
+                          .getHIDCodeForIndex(keyIndex);
+    logger.info("Key event: Key Index %d HID Code 0x%02X %s",
+                keyIndex, hidCode, state ? "pressed" : "released");
+  }
+  else
+  {
+    logger.info("Key event: Key %d %s", keyIndex, state ? "pressed" : "released");
+  }
 }
 
 static void bitMapPrintCallback(const Event &event)
