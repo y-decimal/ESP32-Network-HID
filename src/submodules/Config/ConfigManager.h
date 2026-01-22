@@ -2,6 +2,7 @@
 #define CONFIGMANAGER_H
 
 #include <interfaces/IStorage.h>
+#include <interfaces/ISerializableStructs.h>
 #include <submodules/Config/GlobalConfig.h>
 #include <submodules/Config/KeyScannerConfig.h>
 #include <submodules/Storage/TGenericStorage.h>
@@ -22,7 +23,7 @@ static Logger configLog(CONFIG_MANAGER_NAMESPACE);
  * KeyScannerConfig. It utilizes a thread-safe generic storage mechanism to
  * ensure safe access to configuration data.
  */
-class ConfigManager
+class ConfigManager : public Serializable
 {
 private:
   // Reference to the storage interface
@@ -32,6 +33,14 @@ private:
   ThreadSafeGenericStorage<KeyScannerConfig::SerializedConfig> keyScannerCfg;
 
 public:
+
+  struct SerializedConfig
+  {
+    uint8_t data[sizeof(GlobalConfig::SerializedConfig) +
+                 sizeof(KeyScannerConfig::SerializedConfig)]{0};
+    size_t size = sizeof(data);
+  };
+
   /**
    * @brief Constructor for ConfigManager.
    * @param storage Reference to an IStorage implementation for data operations.
@@ -72,6 +81,11 @@ public:
    * @return True if clear was successful, false otherwise.
    */
   bool clearAllConfigs();
+
+  // Serializable interface implementation
+  size_t packSerialized(uint8_t *output, size_t size) const override;
+  size_t unpackSerialized(const uint8_t *input, size_t size) override;
+  size_t getSerializedSize() const override;
 };
 
 // Template specializations
