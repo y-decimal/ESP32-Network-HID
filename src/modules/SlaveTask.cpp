@@ -32,6 +32,7 @@ void SlaveTask::taskEntry(void *arg)
 
   task->protocol->onPairingConfirmation(pairConfirmCallback);
   task->protocol->onConfigReceived(configReceiveCallback);
+  task->protocol->onConfigRequest(configRequestCallback);
   log.debug("Registered TransportProtocol callbacks");
 
   TickType_t previousWakeTime = xTaskGetTickCount();

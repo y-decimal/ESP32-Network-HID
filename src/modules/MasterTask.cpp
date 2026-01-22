@@ -33,6 +33,7 @@ void MasterTask::taskEntry(void *arg)
   task->protocol->onKeyEvent(keyReceiveCallback);
   task->protocol->onBitmapEvent(bitmapReceiveCallback);
   task->protocol->onPairingRequest(pairReceiveCallback);
+  task->protocol->onConfigReceived(configReceiveCallback);
   log.debug("Registered TransportProtocol callbacks");
 
   for (;;)
