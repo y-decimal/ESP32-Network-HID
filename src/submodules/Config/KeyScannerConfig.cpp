@@ -1,7 +1,7 @@
 #include <submodules/Config/KeyScannerConfig.h>
 #include <submodules/Logger.h>
 
-static Logger keyCfglog("KeyScannerConfig");
+static Logger log("KeyScannerConfig");
 
 void KeyScannerConfig::setPins(uint8_t *rowPinData, uint8_t rowSize,
                                uint8_t *colPinData, uint8_t colSize)
@@ -26,7 +26,7 @@ void KeyScannerConfig::setBitmapSendFrequency(uint16_t frequency)
       frequency > MAX_BITMAP_REFRESH_RATE) {
     // frequency is now the bitmap frequency in Hz
     // Limited to a range of 1-500 Hz to ensure reasonable bitmap rates
-    keyCfglog.warn("Bitmap send frequency %d Hz is out of bounds (%d-%d Hz)",
+    log.warn("Bitmap send frequency %d Hz is out of bounds (%d-%d Hz)",
              frequency, MIN_BITMAP_REFRESH_RATE, MAX_BITMAP_REFRESH_RATE);
     return;
   }
@@ -36,7 +36,7 @@ void KeyScannerConfig::setBitmapSendFrequency(uint16_t frequency)
 void KeyScannerConfig::setLocalToHidMap(uint8_t *mapData, size_t mapSize)
 {
   if (mapSize > MAX_KEY_COUNT) {
-    keyCfglog.warn("Local to HID map size %d exceeds maximum of %d", mapSize, MAX_KEY_COUNT);
+    log.warn("Local to HID map size %d exceeds maximum of %d", mapSize, MAX_KEY_COUNT);
     return;
   }
   localToHidMap.assign(mapData, mapData + mapSize);
@@ -45,7 +45,7 @@ void KeyScannerConfig::setLocalToHidMap(uint8_t *mapData, size_t mapSize)
 void KeyScannerConfig::updateHIDCodeForIndex(uint8_t localKeyIndex, uint8_t hidCode)
 {
   if (localKeyIndex >= localToHidMap.size()) {
-    keyCfglog.warn("Attempted to update HID code for out-of-bounds index %d", localKeyIndex);
+    log.warn("Attempted to update HID code for out-of-bounds index %d", localKeyIndex);
     return;
   }
   localToHidMap[localKeyIndex] = hidCode;
@@ -197,7 +197,7 @@ size_t KeyScannerConfig::getSerializedSize() const
 uint8_t KeyScannerConfig::getHIDCodeForIndex(uint8_t localKeyIndex) const
 {
   if (localKeyIndex >= localToHidMap.size()) {
-    keyCfglog.warn("Requested HID code for out-of-bounds index %d", localKeyIndex);
+    log.warn("Requested HID code for out-of-bounds index %d", localKeyIndex);
     return 0;
   }
   return localToHidMap[localKeyIndex];
