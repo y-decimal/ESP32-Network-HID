@@ -16,44 +16,52 @@ using countType = uint8_t;
  * frequency. It also implements serialization and deserialization methods
  * for storing and retrieving configuration data.
  */
-class KeyScannerConfig : public Serializable {
+class KeyScannerConfig : public Serializable
+{
 private:
   // Key matrix configuration parameters
-  countType rows = 0;
-  countType cols = 0;
+  countType rowCount = 0;
+  countType colCount = 0;
   pinType rowPins{};
   pinType colPins{};
 
   // Key scanning parameters
-  uint8_t bitMapSize = 0;
+  uint8_t bitmapSize = 0;
   uint16_t refreshRate = 100;
-  uint16_t bitMapSendFrequency = 5;
+  uint16_t bitMapSendRate = 5;
+
+  // Local index to HID code mapping
+  std::vector<uint8_t> localToHidMap{};
 
   // Configuration constraints
-  static constexpr uint16_t MIN_REFRESH_RATE = 1;
-  static constexpr uint16_t MAX_REFRESH_RATE = 1000;
-  static constexpr uint16_t MIN_BITMAP_REFRESH_RATE = 1;
-  static constexpr uint16_t MAX_BITMAP_REFRESH_RATE = 500;
-  static constexpr size_t MAX_PIN_COUNT = 20;
+  static constexpr const uint16_t MIN_REFRESH_RATE = 1;
+  static constexpr const uint16_t MAX_REFRESH_RATE = 1000;
+  static constexpr const uint16_t MIN_BITMAP_REFRESH_RATE = 1;
+  static constexpr const uint16_t MAX_BITMAP_REFRESH_RATE = 500;
+  static constexpr const size_t MAX_PIN_COUNT = 20;
+  static constexpr const size_t MAX_KEY_COUNT = 128;
 
   // Maximum size for serialized configuration
-  static constexpr size_t MAX_KEYSCANNER_CONFIG_SIZE =
-      sizeof(rows) + sizeof(cols) + sizeof(bitMapSize) + MAX_PIN_COUNT * 2 +
-      sizeof(refreshRate) + sizeof(bitMapSendFrequency);
+  static constexpr const size_t MAX_KEYSCANNER_CONFIG_SIZE =
+      sizeof(rowCount) + sizeof(colCount) + sizeof(bitmapSize) + MAX_PIN_COUNT * 2 +
+      sizeof(refreshRate) + sizeof(bitMapSendRate) + MAX_KEY_COUNT;
 
 public:
   // Definition of the configuration structure
-  struct KeyCfgParams {
-    countType rows;
-    countType cols;
+  struct KeyCfgParams
+  {
+    countType rowCount;
+    countType colCount;
     uint8_t *rowPins;
     uint8_t *colPins;
     uint16_t refreshRate;
-    uint16_t bitMapSendInterval;
+    uint16_t bitmapSendRate;
+    uint8_t *localToHidMap;   // Size should be rowCount * colCount
   };
 
   // Definition of the serialized configuration structure
-  struct SerializedConfig {
+  struct SerializedConfig
+  {
     uint8_t data[MAX_KEYSCANNER_CONFIG_SIZE]{0};
     size_t size = MAX_KEYSCANNER_CONFIG_SIZE;
   };
@@ -77,10 +85,24 @@ public:
   /**
    * Set bitmap send frequency in Hz.
    * The actual loop interval is calculated as: loopsPerBitmap = refreshRate /
-   * bitMapSendInterval
+   * bitmapSendRate
    * @param frequency Bitmap frequency in Hz (1-500)
    */
   void setBitmapSendFrequency(uint16_t frequency);
+
+  /**
+   * @brief Set the local to HID mapping.
+   * @param mapData Array of local to HID mapping data.
+   * @param mapSize Size of the mapping data array.
+   */
+  void setLocalToHidMap(uint8_t *mapData, size_t mapSize);
+
+  /**
+   * @brief Update the HID code for a specific local key index.
+   * @param localKeyIndex Local key index to update.
+   * @param hidCode New HID code to set.
+   */
+  void updateHIDCodeForIndex(uint8_t localKeyIndex, uint8_t hidCode);
 
   /**
    * @brief Set the entire key scanner configuration.
@@ -101,22 +123,22 @@ public:
   pinType getColPins() const { return colPins; }
 
   /**
-   * @brief Get the number of rows.
-   * @return Number of rows.
+   * @brief Get the number of rowCount.
+   * @return Number of rowCount.
    */
-  countType getRowsCount() const { return rows; }
+  countType getRowsCount() const { return rowCount; }
 
   /**
    * @brief Get the number of columns.
    * @return Number of columns.
    */
-  countType getColCount() const { return cols; }
+  countType getColCount() const { return colCount; }
 
   /**
    * @brief Get the bitmap size.
    * @return Bitmap size.
    */
-  uint8_t getBitmapSize() const { return bitMapSize; }
+  uint8_t getBitmapSize() const { return bitmapSize; }
 
   /**
    * @brief Get the refresh rate.
@@ -125,10 +147,18 @@ public:
   uint16_t getRefreshRate() const { return refreshRate; }
 
   /**
-   * @brief Get the bitmap send interval.
-   * @return Bitmap send interval in Hz.
+   * @brief Get the bitmap send rate.
+   * @return Bitmap send rate in Hz.
    */
-  uint16_t getBitMapSendInterval() const { return bitMapSendFrequency; }
+  uint16_t getBitmapSendRate() const { return bitMapSendRate; }
+
+  /**
+   * @brief Get the local to HID mapping.
+   * @return Vector of local to HID mapping data.
+   */
+  std::vector<uint8_t> getLocalToHidMap() const { return localToHidMap; }
+
+  uint8_t getHIDCodeForIndex(uint8_t localKeyIndex) const;
 
   // Implementation of Serializable interface methods
   size_t packSerialized(uint8_t *output, size_t size) const override;

@@ -27,7 +27,7 @@ struct IdentifiableKeyEvent
 
 struct RawBitmapEvent
 {
-  uint8_t bitMapSize;
+  uint8_t bitmapSize;
   uint8_t *bitMapData;
 };
 

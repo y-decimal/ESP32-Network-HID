@@ -1,45 +1,12 @@
-#ifndef TEST_GENERICSTORAGE_H
-#define TEST_GENERICSTORAGE_H
+#ifndef TESTGENERICSTORAGE_H
+#define TESTGENERICSTORAGE_H
 
-#ifndef UNITY_NATIVE
-#include <Arduino.h>
-#include <submodules/Storage/PreferencesStorage.h>
-#else
-#include "../FakeStorage.h"
-#endif
-
-#include <submodules/Storage/GenericStorage.h>
 #include <unity.h>
+#include <submodules/Storage/GenericStorage.h>
+#include "StorageTestCommon.h"
 
-#define NAMESPACE "GenStorTest"
-#define TEST_KEY "test_key"
-#define LOAD_KEY "load_key"
-#define NONEXISTENT_KEY "nonexistent_key"
-#define MULTI_KEY "multi_key"
 
-namespace
-{
-#ifndef UNITY_NATIVE
-  PreferencesStorage testStorage(NAMESPACE);
-#else
-  FakeStorage testStorage;
-#endif
-} // namespace
-
-void setUp()
-{
-  // No setup needed with FakeStorage
-}
-
-void tearDown()
-{
-  testStorage.remove(TEST_KEY);
-  testStorage.remove(LOAD_KEY);
-  testStorage.remove(NONEXISTENT_KEY);
-  testStorage.remove(MULTI_KEY);
-}
-
-void test_GenericStorage_initialization()
+void GenericStorage_initialization()
 {
   struct TestData
   {
@@ -51,7 +18,7 @@ void test_GenericStorage_initialization()
   TEST_ASSERT_FALSE(storage.isDirty());
 }
 
-void test_GenericStorage_set_marks_dirty()
+void GenericStorage_set_marks_dirty()
 {
   struct TestData
   {
@@ -66,7 +33,7 @@ void test_GenericStorage_set_marks_dirty()
   TEST_ASSERT_EQUAL(42, storage.get().value);
 }
 
-void test_GenericStorage_save_clears_dirty()
+void GenericStorage_save_clears_dirty()
 {
   struct TestData
   {
@@ -84,7 +51,7 @@ void test_GenericStorage_save_clears_dirty()
   TEST_ASSERT_FALSE(storage.isDirty());
 }
 
-void test_GenericStorage_load_restores_data()
+void GenericStorage_load_restores_data()
 {
   struct TestData
   {
@@ -107,7 +74,7 @@ void test_GenericStorage_load_restores_data()
   TEST_ASSERT_FALSE(storage2.isDirty());
 }
 
-void test_GenericStorage_load_fails_on_nonexistent_key()
+void GenericStorage_load_fails_on_nonexistent_key()
 {
   struct TestData
   {
@@ -120,7 +87,7 @@ void test_GenericStorage_load_fails_on_nonexistent_key()
   TEST_ASSERT_FALSE(loaded);
 }
 
-void test_GenericStorage_multiple_saves()
+void GenericStorage_multiple_saves()
 {
   struct TestData
   {
@@ -145,30 +112,13 @@ void test_GenericStorage_multiple_saves()
 
 void run_GenericStorage_tests()
 {
-  RUN_TEST(test_GenericStorage_initialization);
-  RUN_TEST(test_GenericStorage_set_marks_dirty);
-  RUN_TEST(test_GenericStorage_save_clears_dirty);
-  RUN_TEST(test_GenericStorage_load_restores_data);
-  RUN_TEST(test_GenericStorage_load_fails_on_nonexistent_key);
-  RUN_TEST(test_GenericStorage_multiple_saves);
+  RUN_TEST(GenericStorage_initialization);
+  RUN_TEST(GenericStorage_set_marks_dirty);
+  RUN_TEST(GenericStorage_save_clears_dirty);
+  RUN_TEST(GenericStorage_load_restores_data);
+  RUN_TEST(GenericStorage_load_fails_on_nonexistent_key);
+  RUN_TEST(GenericStorage_multiple_saves);
 }
 
-#ifndef UNITY_NATIVE
-void setup()
-{
-  delay(1000); // Wait for Preferences to be ready
-#else
-int main(int argc, char **argv)
-{
-#endif
-  UNITY_BEGIN();
-  run_GenericStorage_tests();
-  UNITY_END();
-}
-
-void loop()
-{
-  // No loop needed
-}
 
 #endif
