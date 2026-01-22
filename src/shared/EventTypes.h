@@ -3,30 +3,58 @@
 #include <cstdlib>
 #include <stdint.h>
 
-enum class EventType : uint8_t { Key, BitMap, ConfigUpdate, COUNT };
+enum class EventType : uint8_t
+{
+  RawKey,
+  RawBitmap,
+  IdKey,
+  IdBitmap,
+  ConfigUpdate,
+  COUNT
+};
 
-struct KeyEvent {
+struct RawKeyEvent
+{
   uint16_t keyIndex;
   bool state;
 };
 
-struct BitMapEvent {
-  uint8_t bitMapSize;
+struct IdentifiableKeyEvent
+{
+  RawKeyEvent raw;
+  uint8_t sourceId;
+};
+
+struct RawBitmapEvent
+{
+  uint8_t bitmapSize;
   uint8_t *bitMapData;
 };
 
-struct Event {
+struct IdentifiableBitMapEvent
+{
+  RawBitmapEvent raw;
+  uint8_t sourceId;
+};
+
+struct Event
+{
   EventType type;
 
   void (*cleanup)(Event *);
 
-  union {
-    KeyEvent key;
-    BitMapEvent bitMap;
+  union
+  {
+    RawKeyEvent rawKeyEvt;
+    RawBitmapEvent rawBitmapEvt;
+    IdentifiableKeyEvent idKeyEvt;
+    IdentifiableBitMapEvent idBitmapEvt;
   };
 };
 
-inline void cleanupKeyEvent(Event *event) { return; }
-inline void cleanupBitmapEvent(Event *event) { free(event->bitMap.bitMapData); }
+inline void cleanupRawKeyEvent(Event *event) { return; }
+inline void cleanupRawBitmapEvent(Event *event) { free(event->rawBitmapEvt.bitMapData); }
+inline void cleanupIdentifiableKeyEvent(Event *event) { return; }
+inline void cleanupIdentifiableBitmapEvent(Event *event) { free(event->idBitmapEvt.raw.bitMapData); }
 
 #endif

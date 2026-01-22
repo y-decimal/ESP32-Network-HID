@@ -4,10 +4,25 @@
 #include <cstring>
 #include <interfaces/IStorage.h>
 #include <shared/GlobalHelpers.h>
+#include <submodules/Storage/NullStorage.h>
 
-template <typename DATA> class GenericStorage {
+/**
+ * @brief Generic storage class for managing data persistence.
+ *
+ * The GenericStorage class provides a templated interface for storing
+ * and retrieving data of any type that supports serialization.
+ * It handles checksum calculation for data integrity verification
+ * and interacts with a provided IStorage implementation for actual
+ * read/write operations.
+ * @tparam DATA The type of data to be stored. Must support serialization.
+ */
+template <typename DATA>
+class GenericStorage
+{
 private:
-  struct DataBlock {
+  // Internal structure to hold data and its checksum
+  struct DataBlock
+  {
     DATA data;
     uint8_t checksum;
   };
@@ -15,33 +30,75 @@ private:
   DataBlock dataBlock;
   bool dirty = false;
 
-  IStorage &storage;
+  // Reference to the storage interface for hardware independent operations
+  IStorage *storage;
   const std::string key;
 
-public:
-  GenericStorage(IStorage &storage, const char *key)
-      : storage(storage), key(key) {}
+  /**
+   * @brief Clear the dirty flag after saving.
+   */
+  void clearDirty() { dirty = false; }
 
+  /**
+   * @brief Check if data exists in storage.
+   * @return True if data exists for this key, false otherwise.
+   */
+  bool exists() const { return storage->exists(key); }
+
+public:
+  /**
+   * @brief Constructor for GenericStorage.
+   * @param key The key under which the data will be stored.
+   * @param storage Reference to an IStorage implementation for data operations.
+   */
+  GenericStorage(const char *key, IStorage *storage = nullptr)
+      : key(key), storage(storage)
+  {
+    if (!storage)
+    {
+      static NullStorage nullStorage;
+      storage = &nullStorage;
+    }
+  }
+
+  /**
+   * @brief Retrieve the stored data.
+   * @return The stored data of type DATA.
+   */
   DATA get() const { return dataBlock.data; }
 
-  void set(const DATA &in) {
+  /**
+   * @brief Set new data to be stored.
+   * @param in The data to be stored.
+   */
+  void set(const DATA &in)
+  {
     dataBlock.data = in;
     dirty = true;
   }
 
+  /**
+   * @brief Check if the data has been modified since the last save.
+   * @return True if the data is dirty, false otherwise.
+   */
   bool isDirty() const { return dirty; }
 
-  void clearDirty() { dirty = false; }
-
-  bool load() {
-
+  /**
+   * @brief Load data from storage.
+   * @return True if loading was successful and data is valid, false otherwise.
+   */
+  bool load()
+  {
     DataBlock dataBuffer;
-    bool read = storage.load(key, reinterpret_cast<uint8_t *>(&dataBuffer),
-                             sizeof(DataBlock));
+
+    // Read data from storage
+    bool read = storage->load(key, reinterpret_cast<uint8_t *>(&dataBuffer),
+                              sizeof(DataBlock));
 
     if (!read)
       return false;
 
+    // Verify checksum
     uint8_t chkSumBuffer = calcCheckSum_8Bit(dataBuffer.data);
     if (chkSumBuffer != dataBuffer.checksum)
       return false;
@@ -52,15 +109,35 @@ public:
     return true;
   }
 
-  bool save() {
+  /**
+   * @brief Save data to storage.
+   * @return True if saving was successful, false otherwise.
+   */
+  bool save()
+  {
+    if (!dirty && exists())
+      return true; // No changes to save
+
+    // Calculate and set checksum
     dataBlock.checksum = calcCheckSum_8Bit(dataBlock.data);
-    bool written = storage.save(key, reinterpret_cast<uint8_t *>(&dataBlock),
-                                sizeof(DataBlock));
+
+    // Write data to storage
+    bool written = storage->save(key, reinterpret_cast<uint8_t *>(&dataBlock),
+                                 sizeof(DataBlock));
     if (!written)
       return false;
 
     dirty = false;
     return written;
+  }
+
+  /**
+   * @brief Clear all data from storage.
+   * @return True if clear was successful, false otherwise.
+   */
+  bool clearAll()
+  {
+    return storage->clearAll();
   }
 };
 

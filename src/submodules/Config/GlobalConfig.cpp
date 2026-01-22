@@ -1,0 +1,127 @@
+#include <submodules/Config/GlobalConfig.h>
+
+void GlobalConfig::setDeviceModules(DeviceModule *moduleArray, size_t arrSize)
+{
+
+  // Prevent overflow
+  if (arrSize > (size_t)DeviceModule::Count)
+    return;
+
+  // Copy roles into internal array
+  memcpy(modules, moduleArray, arrSize);
+}
+
+void GlobalConfig::setDeviceMode(DeviceMode mode)
+{
+  this->mode = mode;
+}
+
+void GlobalConfig::setMac(MacAddress mac)
+{
+  // Copy MAC address into internal variable
+  memcpy(deviceMac, mac, 6);
+}
+
+void GlobalConfig::getDeviceModules(DeviceModule *out, size_t size)
+{
+  // Prevent overflow
+  if (size < sizeof(modules))
+    return;
+
+  // Copy roles into output array
+  memcpy(out, modules, sizeof(modules));
+}
+
+GlobalConfig::DeviceMode GlobalConfig::getDeviceMode()
+{
+  return mode;
+}
+
+void GlobalConfig::getMac(uint8_t *out, size_t size)
+{
+  // Prevent overflow
+  if (size < sizeof(deviceMac))
+    return;
+
+  // Copy MAC address into output array
+  memcpy(out, deviceMac, sizeof(deviceMac));
+}
+
+// Implementation of Serializable interface methods
+size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const
+{
+
+  // Check if provided buffer is large enough
+  size_t ownSize = getSerializedSize();
+  if (size < ownSize)
+    return 0;
+
+  // Temporary buffer to hold serialized data
+  uint8_t buffer[ownSize] = {};
+
+  // Helper variables for serialization
+  size_t index = 0;
+  size_t totalWrite = 0;
+  size_t objSize = 0;
+
+  // Serialize modules
+  objSize = sizeof(modules);
+  memcpy(buffer, modules, objSize);
+  index += objSize;
+  totalWrite += objSize;
+
+  // Serialize mode
+  objSize = sizeof(mode);
+  memcpy(buffer + index, &mode, objSize);
+  index += objSize;
+  totalWrite += objSize;
+
+  // Serialize MAC address
+  objSize = sizeof(deviceMac);
+  memcpy(buffer + index, deviceMac, objSize);
+  totalWrite += objSize;
+
+  // Copy serialized data to output buffer
+  memcpy(output, buffer, totalWrite);
+
+  return totalWrite;
+}
+
+size_t GlobalConfig::unpackSerialized(const uint8_t *input, size_t size)
+{
+
+  // Check if provided data size is valid
+  size_t ownSize = getSerializedSize();
+  if (size > ownSize)
+    return 0;
+
+  // Helper variables for deserialization
+  size_t index = 0;
+  size_t totalWrite = 0;
+  size_t objSize = 0;
+
+  // Deserialize modules
+  objSize = sizeof(modules);
+  memcpy(modules, input, objSize);
+  index += objSize;
+  totalWrite += objSize;
+
+  // Deserialize mode
+  objSize = sizeof(mode);
+  memcpy(&mode, input + index, objSize);
+  index += objSize;
+  totalWrite += objSize;
+
+  // Deserialize MAC address
+  objSize = sizeof(deviceMac);
+  memcpy(deviceMac, input + index, objSize);
+  totalWrite += objSize;
+
+  return totalWrite;
+}
+
+size_t GlobalConfig::getSerializedSize() const
+{
+  // Return the total size needed for serialization
+  return sizeof(modules) + sizeof(mode) + sizeof(deviceMac);
+}

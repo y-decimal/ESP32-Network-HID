@@ -1,47 +1,19 @@
-#ifndef TEST_CONFIGMANAGER_H
-#define TEST_CONFIGMANAGER_H
+#ifndef CONFIGMANAGERTEST_H
+#define CONFIGMANAGERTEST_H
 
-#ifndef UNITY_NATIVE
-#include <Arduino.h>
-#include <submodules/Storage/PreferencesStorage.h>
-#else
-#include "../FakeStorage.h"
-#endif
-
-#include <submodules/ConfigManager/ConfigManager.cpp>
-#include <submodules/ConfigManager/ConfigManager.h>
-#include <submodules/ConfigManager/GlobalConfig.cpp>
-#include <submodules/ConfigManager/GlobalConfig.h>
-#include <submodules/ConfigManager/KeyScannerConfig.cpp>
-#include <submodules/ConfigManager/KeyScannerConfig.h>
 #include <unity.h>
+#include <submodules/Config/ConfigManager.h>
+#include <interfaces/IStorage.h>
 
-#define NAMESPACE "CfgMgrTest"
-
-namespace {
-#ifndef UNITY_NATIVE
-PreferencesStorage testStorage(NAMESPACE);
-#else
-FakeStorage testStorage;
-#endif
-} // namespace
-
-void setUp() {
-  // No setup needed with FakeStorage
-}
-
-void tearDown() {
-  testStorage.remove("globalCfg");
-  testStorage.remove("keyScannerCfg");
-}
+extern IStorage &testStorage;
 
 void test_ConfigManager_initialization() {
-  ConfigManager manager(testStorage);
+  ConfigManager manager(&testStorage);
   TEST_ASSERT_TRUE(true); // Basic initialization test
 }
 
 void test_ConfigManager_getConfig_GlobalConfig_defaults() {
-  ConfigManager manager(testStorage);
+  ConfigManager manager(&testStorage);
   GlobalConfig config = manager.getConfig<GlobalConfig>();
 
   // Test that we get a valid config with defaults
@@ -51,7 +23,7 @@ void test_ConfigManager_getConfig_GlobalConfig_defaults() {
 }
 
 void test_ConfigManager_getConfig_KeyScannerConfig_defaults() {
-  ConfigManager manager(testStorage);
+  ConfigManager manager(&testStorage);
   KeyScannerConfig config = manager.getConfig<KeyScannerConfig>();
 
   // Test that we get a valid config with defaults
@@ -59,9 +31,9 @@ void test_ConfigManager_getConfig_KeyScannerConfig_defaults() {
 }
 
 void test_ConfigManager_setConfig_GlobalConfig() {
-  ConfigManager manager(testStorage);
+  ConfigManager manager(&testStorage);
   GlobalConfig config;
-  MacAddress testMac = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
+  GlobalConfig::MacAddress testMac = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
   config.setMac(testMac);
 
   manager.setConfig(config);
@@ -73,7 +45,7 @@ void test_ConfigManager_setConfig_GlobalConfig() {
 }
 
 void test_ConfigManager_setConfig_KeyScannerConfig() {
-  ConfigManager manager(testStorage);
+  ConfigManager manager(&testStorage);
   KeyScannerConfig config;
   config.setRefreshRate(100);
 
@@ -84,9 +56,9 @@ void test_ConfigManager_setConfig_KeyScannerConfig() {
 }
 
 void test_ConfigManager_saveConfig() {
-  ConfigManager manager(testStorage);
+  ConfigManager manager(&testStorage);
   GlobalConfig config;
-  MacAddress testMac = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
+  GlobalConfig::MacAddress testMac = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
   config.setMac(testMac);
 
   manager.setConfig(config);
@@ -96,9 +68,9 @@ void test_ConfigManager_saveConfig() {
 }
 
 void test_ConfigManager_loadConfig() {
-  ConfigManager manager1(testStorage);
+  ConfigManager manager1(&testStorage);
   GlobalConfig config;
-  MacAddress testMac = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66};
+  GlobalConfig::MacAddress testMac = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66};
   config.setMac(testMac);
   KeyScannerConfig scannerConfig;
   scannerConfig.setRefreshRate(150);
@@ -108,7 +80,7 @@ void test_ConfigManager_loadConfig() {
   bool saved = manager1.saveConfig();
   TEST_ASSERT_TRUE(saved);
 
-  ConfigManager manager2(testStorage);
+  ConfigManager manager2(&testStorage);
   bool loaded = manager2.loadConfig();
 
   TEST_ASSERT_TRUE(loaded);
@@ -119,10 +91,10 @@ void test_ConfigManager_loadConfig() {
 }
 
 void test_ConfigManager_save_and_load_multiple_configs() {
-  ConfigManager manager1(testStorage);
+  ConfigManager manager1(&testStorage);
 
   GlobalConfig globalCfg;
-  MacAddress testMac = {0x10, 0x20, 0x30, 0x40, 0x50, 0x60};
+  GlobalConfig::MacAddress testMac = {0x10, 0x20, 0x30, 0x40, 0x50, 0x60};
   globalCfg.setMac(testMac);
   manager1.setConfig(globalCfg);
 
@@ -132,7 +104,7 @@ void test_ConfigManager_save_and_load_multiple_configs() {
 
   manager1.saveConfig();
 
-  ConfigManager manager2(testStorage);
+  ConfigManager manager2(&testStorage);
   manager2.loadConfig();
 
   GlobalConfig retrievedGlobal = manager2.getConfig<GlobalConfig>();
@@ -145,21 +117,21 @@ void test_ConfigManager_save_and_load_multiple_configs() {
 }
 
 void test_ConfigManager_overwrite_config() {
-  ConfigManager manager(testStorage);
+  ConfigManager manager(&testStorage);
 
   GlobalConfig config1;
-  MacAddress mac1 = {0x01, 0x01, 0x01, 0x01, 0x01, 0x01};
+  GlobalConfig::MacAddress mac1 = {0x01, 0x01, 0x01, 0x01, 0x01, 0x01};
   config1.setMac(mac1);
   manager.setConfig(config1);
   manager.saveConfig();
 
   GlobalConfig config2;
-  MacAddress mac2 = {0x02, 0x02, 0x02, 0x02, 0x02, 0x02};
+  GlobalConfig::MacAddress mac2 = {0x02, 0x02, 0x02, 0x02, 0x02, 0x02};
   config2.setMac(mac2);
   manager.setConfig(config2);
   manager.saveConfig();
 
-  ConfigManager manager2(testStorage);
+  ConfigManager manager2(&testStorage);
   manager2.loadConfig();
   GlobalConfig retrieved = manager2.getConfig<GlobalConfig>();
 
@@ -180,19 +152,6 @@ void run_ConfigManager_tests() {
   RUN_TEST(test_ConfigManager_overwrite_config);
 }
 
-#ifndef UNITY_NATIVE
-void setup() {
-  delay(1000); // Wait for Preferences to be ready
-#else
-int main(int argc, char **argv) {
-#endif
-  UNITY_BEGIN();
-  run_ConfigManager_tests();
-  UNITY_END();
-}
 
-void loop() {
-  // No loop needed
-}
 
 #endif

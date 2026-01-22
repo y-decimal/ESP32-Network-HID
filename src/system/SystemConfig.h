@@ -5,25 +5,29 @@
 #include <stdint.h>
 #include <task.h>
 
-// Task Manager Task Config
-static constexpr uint32_t STACK_TASKMANAGER = 4096;
-static constexpr UBaseType_t PRIORITY_TASKMANAGER = 5;
-static constexpr BaseType_t CORE_TASKMANAGER = 0;
-static constexpr TickType_t PERIOD_TASKMANAGER = pdMS_TO_TICKS(500);
-
-// Priority Event Task Config
-static constexpr uint32_t STACK_PRIORITYEVENT = 4096;
-static constexpr UBaseType_t PRIORITY_PRIORITYEVENT = 5;
-static constexpr BaseType_t CORE_PRIORITYEVENT = 1;
-
-// Event Task Config
-static constexpr uint32_t STACK_EVENT = 4096;
-static constexpr UBaseType_t PRIORITY_EVENT = 1;
-static constexpr BaseType_t CORE_EVENT = 0;
+// Event Bus Task Config
+static constexpr uint32_t STACK_EVENTBUS = 4096;
+static constexpr UBaseType_t PRIORITY_EVENTBUS = 5;
+static constexpr BaseType_t CORE_EVENTBUS = 1;
 
 // KeyScanner Task Config
 static constexpr uint32_t STACK_KEYSCAN = 4096;
 static constexpr UBaseType_t PRIORITY_KEYSCAN = 5;
 static constexpr BaseType_t CORE_KEYSCAN = 1;
+
+// Slave Task Config
+static constexpr uint32_t STACK_SLAVE = 4096;
+static constexpr UBaseType_t PRIORITY_SLAVE = 5;
+static constexpr BaseType_t CORE_SLAVE = 0;
+
+// Master Task Config
+static constexpr uint32_t STACK_MASTER = 4096;
+static constexpr UBaseType_t PRIORITY_MASTER = 5;
+static constexpr BaseType_t CORE_MASTER = 0;
+
+// Logger Task Config
+static constexpr uint32_t STACK_LOGGER = 4096;
+static constexpr UBaseType_t PRIORITY_LOGGER = 3;
+static constexpr BaseType_t CORE_LOGGER = 0;
 
 #endif

@@ -1,0 +1,81 @@
+#ifndef TRANSPORTPROTOCOL_H
+#define TRANSPORTPROTOCOL_H
+
+#include <shared/EventTypes.h>
+#include <submodules/Config/ConfigManager.h>
+#include <interfaces/ITransport.h>
+#include <functional>
+#include <vector>
+#include <array>
+#include <unordered_map>
+
+enum class PacketType : uint8_t
+{
+    KeyEvent,
+    KeyBitmap,
+    Config,
+    ConfigRequest,
+    PairingRequest,
+    PairingConfirmation,
+    Count
+};
+
+class TransportProtocol
+{
+public:
+    static const uint8_t MASTER_ID = 0;
+
+    TransportProtocol(ITransport &espNow);
+
+    void sendKeyEvent(const RawKeyEvent &keyEvent);
+    void sendBitmapEvent(const RawBitmapEvent &bitmapEvent);
+    void requestConfig(uint8_t id);
+    void pushConfig(uint8_t id, const ConfigManager *config);
+    void sendPairingRequest(const uint8_t *data = nullptr, size_t dataLen = 0);
+
+    uint8_t getSelfId() const;
+    void getMacById(uint8_t id, uint8_t *out) const;
+    uint8_t getIdByMac(const uint8_t *mac) const;
+
+    void onKeyEvent(std::function<void(const RawKeyEvent &keyEvent, uint8_t senderId)> callback);
+    void onBitmapEvent(std::function<void(const RawBitmapEvent &bitmapEvent, uint8_t senderId)> callback);
+    void onConfigReceived(std::function<void(ConfigManager &config, uint8_t senderId)> callback);
+
+    void clearCallbacks();
+
+    /**
+     * @brief Allows registering custom hooks for received pairing requests.
+     * @param data A pointer to the contents of the pairing request.
+     * Only valid for the duration of the callback
+     * @param sourceId The runtime ID assigned to the source upon pairing, can be used to address packets or
+     * with getMacById(uint8_t id) to retrieve the mac of the device
+     */
+    void onPairingRequest(std::function<void(const uint8_t *data, uint8_t sourceId)> callback);
+
+    /**
+     * @brief Allows registering custom hooks for received pairing confirmations.
+     * @param data A pointer to the contents of the pairing confirmation. Only valid for the duration of the callback
+     * @param sourceId The runtime ID assigned to the source upon pairing, can be used to address packets or
+     * with getMacById(uint8_t id) to retrieve the mac of the device
+     */
+    void onPairingConfirmation(std::function<void(const uint8_t *data, uint8_t sourceId)> callback);
+
+private:
+    typedef std::array<uint8_t, 6> mac_t;
+
+    ITransport &transport;
+
+    std::vector<mac_t> peerDevices = {}; // List of active communication partners at runtime
+    mac_t masterMac = {};
+
+    std::function<void(const RawKeyEvent &keyEvent, uint8_t senderId)> keyEventCallback;
+    std::function<void(const RawBitmapEvent &bitmapEvent, uint8_t senderId)> bitmapEventCallback;
+    std::function<void(ConfigManager &config, uint8_t senderId)> configCallback;
+    std::function<void(const uint8_t *, uint8_t)> pairingRequestCallback;
+    std::function<void(const uint8_t *, uint8_t)> pairingConfirmationCallback;
+
+    void handlePairingRequest(const uint8_t *data, size_t dataLen, const uint8_t *mac);
+    void handlePairingConfirmation(const uint8_t *data, size_t dataLen, const uint8_t *mac);
+};
+
+#endif
