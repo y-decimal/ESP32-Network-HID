@@ -152,6 +152,14 @@ public:
    */
   uint16_t getBitmapSendRate() const { return bitMapSendRate; }
 
+  /**
+   * @brief Get the local to HID mapping.
+   * @return Vector of local to HID mapping data.
+   */
+  std::vector<uint8_t> getLocalToHidMap() const { return localToHidMap; }
+
+  uint8_t getHIDCodeForIndex(uint8_t localKeyIndex) const;
+
   // Implementation of Serializable interface methods
   size_t packSerialized(uint8_t *output, size_t size) const override;
   size_t unpackSerialized(const uint8_t *input, size_t size) override;
