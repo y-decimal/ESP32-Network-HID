@@ -79,6 +79,9 @@ private:
 
     void handlePairingRequest(const uint8_t *data, size_t dataLen, const uint8_t *mac);
     void handlePairingConfirmation(const uint8_t *data, size_t dataLen, const uint8_t *mac);
+    void handleConfigData(const uint8_t *data, size_t dataLen, const uint8_t *mac);
+    void handleKeyEventData(const uint8_t *data, size_t dataLen, const uint8_t *mac);
+    void handleBitmapEventData(const uint8_t *data, size_t dataLen, const uint8_t *mac);
 };
 
 #endif
