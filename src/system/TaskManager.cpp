@@ -8,6 +8,11 @@ void TaskManager::start()
     startModules(getAllRequiredTasks());
 }
 
+ConfigManager &TaskManager::getConfigManagerCopy()
+{
+    return configManager;
+}
+
 void TaskManager::startModules(uint32_t moduleBitmap)
 {
     uint32_t toStop = currentTasks & ~moduleBitmap;

@@ -54,6 +54,7 @@ public:
   }
 
   void start();
+  ConfigManager &getConfigManagerCopy();
 
 private:
   Platform &platform;
