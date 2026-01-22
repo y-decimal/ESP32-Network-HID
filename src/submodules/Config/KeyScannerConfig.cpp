@@ -1,7 +1,7 @@
 #include <submodules/Config/KeyScannerConfig.h>
 #include <submodules/Logger.h>
 
-Logger keyCfglog("KeyScannerConfig");
+static Logger keyCfglog("KeyScannerConfig");
 
 void KeyScannerConfig::setPins(uint8_t *rowPinData, uint8_t rowSize,
                                uint8_t *colPinData, uint8_t colSize)
