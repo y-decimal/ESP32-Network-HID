@@ -14,6 +14,9 @@ private:
   uint8_t hidBitmap[32]{0}; // 32 Bytes = 256 bits for HID report
 
   std::unordered_map<uint8_t, std::vector<uint8_t>> localToHidMaps;
+  
+  void setBit(uint8_t bitmapBitIndex);
+  void clearBit(uint8_t bitmapBitIndex);
 
 public:
   HidMapper();
