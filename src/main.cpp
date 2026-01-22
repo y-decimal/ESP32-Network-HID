@@ -23,6 +23,8 @@ static TaskManager taskManager(platform);
 
 static void keyPrintCallback(const Event &event);
 static void bitMapPrintCallback(const Event &event);
+static void hidPrintCallback(const Event &event);
+
 static void setKeyboardConfig();
 static void setHostConfig();
 
@@ -53,6 +55,7 @@ void setup()
 
   EventRegistry::registerHandler(EventType::RawKey, keyPrintCallback);
   EventRegistry::registerHandler(EventType::RawBitmap, bitMapPrintCallback);
+  EventRegistry::registerHandler(EventType::HidBitmap, hidPrintCallback);
 
   taskManager.start();
 
@@ -63,16 +66,14 @@ void loop() {}
 
 static void keyPrintCallback(const Event &event)
 {
-  if (event.type != EventType::RawKey) {
+  if (event.type != EventType::RawKey)
+  {
     logger.warn("Received wrong event type");
     return;
   }
 
   RawKeyEvent keyEvent;
-  if (event.type == EventType::IdKey)
-    keyEvent = event.idKeyEvt.raw;
-  else
-    keyEvent = event.rawKeyEvt;
+  keyEvent = event.rawKeyEvt;
 
   uint8_t keyIndex = keyEvent.keyIndex;
   bool state = keyEvent.state;
@@ -97,7 +98,7 @@ static void bitMapPrintCallback(const Event &event)
   static std::vector<uint8_t> lastBitmap = {0};
 
   RawBitmapEvent bitMapEvent;
-    bitMapEvent = event.idBitmapEvt.raw;
+  bitMapEvent = event.rawBitmapEvt;
 
   if (memcmp(lastBitmap.data(), bitMapEvent.bitMapData, bitMapEvent.bitmapSize) != 0)
   {
@@ -110,6 +111,19 @@ static void bitMapPrintCallback(const Event &event)
 
     lastBitmap.assign(bitMapEvent.bitMapData, bitMapEvent.bitMapData + bitMapEvent.bitmapSize);
   }
+}
+
+static void hidPrintCallback(const Event &event)
+{
+  HidBitmapEvent hidEvent;
+  hidEvent = event.hidBitmapEvt;
+
+  std::string debugStr = "HID Bitmap: Size " + std::to_string(hidEvent.bitmapSize) + " Data:";
+  for (size_t i = 0; i < hidEvent.bitmapSize; i++)
+  {
+    debugStr += " " + std::to_string(hidEvent.bitMapData[i]);
+  }
+  logger.info("%s", debugStr.c_str());
 }
 
 static void setKeyboardConfig()
