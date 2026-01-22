@@ -22,7 +22,7 @@ public:
 
   void mapToHidBitmap(const uint8_t *bitmap, size_t bitmapSize, uint8_t mapId);
 
-  void updateHidBit(bool bitState, uint8_t bitmapPos);
+  void updateHidBit(bool bitState, uint8_t bitmapBitIndex);
 
   size_t copyBitmap(uint8_t *dest, size_t destSize) const;
 };
