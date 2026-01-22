@@ -81,25 +81,25 @@ bool KeyScanner::wasKeyPressed(uint8_t row, uint8_t col)
          0;
 }
 
-inline void KeyScanner::swapBuffers()
+void KeyScanner::swapBuffers()
 {
   // Swap the working and published buffer pointers
   std::swap(workingBuffer, publishedBuffer);
 }
 
-inline uint8_t KeyScanner::getBitMask(uint8_t row, uint8_t col)
+uint8_t KeyScanner::getBitMask(uint8_t row, uint8_t col)
 {
   // Return the bitmask for the specific key position
   return (1 << (getBitIndex(row, col) % 8));
 }
 
-inline uint16_t KeyScanner::getBitIndex(uint8_t row, uint8_t col)
+uint16_t KeyScanner::getBitIndex(uint8_t row, uint8_t col)
 {
   // Calculate the linear bit index for the key at (row, col)
   return (row * colCount + col);
 }
 
-inline uint8_t KeyScanner::getByteIndex(uint8_t row, uint8_t col)
+uint8_t KeyScanner::getByteIndex(uint8_t row, uint8_t col)
 {
   // Calculate the byte index in the buffer for the key at (row, col)
   return getBitIndex(row, col) / 8;

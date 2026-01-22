@@ -15,7 +15,6 @@ void tearDown(void)
 #ifndef UNITY_NATIVE
 void setup()
 {
-    delay(2000);
 #else
 int main(int argc, char **argv)
 {

@@ -5,9 +5,13 @@
 #include <submodules/KeyScanner.h>
 #include <interfaces/IGpio.h>
 
+#ifndef UNITY_NATIVE
+#include <submodules/Esp32Gpio.h>
+static Esp32Gpio gpio;
+#else
 #include "../../FakeGpio.h"
-
 static FakeGpio gpio;
+#endif
 
 class TestKeyScanner
 {
