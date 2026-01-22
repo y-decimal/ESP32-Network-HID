@@ -39,7 +39,7 @@ void KeyScannerTask::keyEventCallback(uint16_t keyIndex, bool state)
   }
   else
   {
-    log.debug("Pushed key event: Key %d %s", keyIndex, state ? "pressed" : "released");
+    log.info("Pushed key event: Key %d %s", keyIndex, state ? "pressed" : "released");
   }
 }
 
