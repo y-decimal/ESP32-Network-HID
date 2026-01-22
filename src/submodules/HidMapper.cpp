@@ -19,12 +19,14 @@ void HidMapper::mapBitmapToHidBitmap(const uint8_t *bitmap, size_t bitmapSize, u
 
 void HidMapper::mapIndexToHidBitmap(uint8_t index, bool bitState, uint8_t mapId)
 {
-    if (localToHidMaps.find(mapId) == localToHidMaps.end()) {
+    if (!doesMapExist(mapId))
+    {
         log.warn("Could not map Index, no map found");
         return;
     }
 
-    if (index > localToHidMaps[mapId].size()) {
+    if (index > localToHidMaps[mapId].size())
+    {
         log.warn("Could not map Index, index not inside map");
         return;
     }
@@ -59,4 +61,9 @@ void HidMapper::clearBit(uint8_t bitmapBitIndex)
     uint8_t byteIndex = bitmapBitIndex / 8;
     uint8_t bitIndex = bitmapBitIndex % 8;
     hidBitmap[byteIndex] &= ~(1 << bitIndex);
+}
+
+bool HidMapper::doesMapExist(uint8_t mapId) const
+{
+    return localToHidMaps.find(mapId) != localToHidMaps.end();
 }

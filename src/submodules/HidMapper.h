@@ -29,6 +29,7 @@ public:
 
   size_t getBitmapSize() { return 32; }
   size_t copyBitmap(uint8_t *dest, size_t destSize) const;
+  bool doesMapExist(uint8_t mapId) const;
 };
 
 #endif
