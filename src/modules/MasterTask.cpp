@@ -105,6 +105,13 @@ void MasterTask::pairReceiveCallback(uint8_t sourceId)
 
 void MasterTask::keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderId)
 {
+  if (instance->hidMapper.doesMapExist(senderId) == false)
+  {
+    instance->protocol->requestConfig(senderId);
+    log.warn("No HID map for device ID %u, requested config", senderId);
+    return;
+  }
+
   instance->hidMapper.mapIndexToHidBitmap(keyEvent.keyIndex, keyEvent.state, senderId);
   log.debug("Pushed key event from device ID %u to HidMapper", senderId);
 
@@ -136,21 +143,19 @@ void MasterTask::keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderI
     }
   }
   else
-  {
-    unsigned long oldValue = 0;
-    unsigned long newValue = 0;
-    for (int i = 0; i < oldBitmap.size(); i++)
-    {
-      oldValue += oldBitmap[i];
-      newValue += currentBitmap[i];
-    }
-    log.info("No change to Hid Map - old value: %d new value: %d", oldValue, newValue);
-  }
+    log.info("No change to Hid Map");
   oldBitmap = currentBitmap;
 };
 
 void MasterTask::bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_t senderId)
 {
+  if (instance->hidMapper.doesMapExist(senderId) == false)
+  {
+    instance->protocol->requestConfig(senderId);
+    log.warn("No HID map for device ID %u, requested config", senderId);
+    return;
+  }
+
   instance->hidMapper.mapBitmapToHidBitmap(bitmapEvent.bitMapData, bitmapEvent.bitmapSize, senderId);
   log.debug("Pushed bitmap event from device ID %u to HidMapper", senderId);
 
