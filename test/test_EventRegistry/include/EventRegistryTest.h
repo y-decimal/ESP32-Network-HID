@@ -1,39 +1,40 @@
-#ifndef UNITY_NATIVE
-#include <Arduino.h>
-#endif
-#include <unity.h>
+#ifndef EVENTREGISTRYTEST_H
+#define EVENTREGISTRYTEST_H
 
-#include <shared/EventTypes.h>
-#include <submodules/EventRegistry.cpp>
+#include <unity.h>
 #include <submodules/EventRegistry.h>
+#include <shared/EventTypes.h>
 
 // Test callbacks
 static int callback1_count = 0;
 static int callback2_count = 0;
 static Event last_event;
 
-void test_callback_1(const Event &event) {
-  callback1_count++;
-  last_event = event;
+void test_callback_1(const Event &event)
+{
+    callback1_count++;
+    last_event = event;
 }
 
-void test_callback_2(const Event &event) {
-  callback2_count++;
-  last_event = event;
+void test_callback_2(const Event &event)
+{
+    callback2_count++;
+    last_event = event;
 }
 
-void setUp(void) {
-  // Reset counters before each test
-  callback1_count = 0;
-  callback2_count = 0;
-  last_event = Event{};
+void clearEventRegistry()
+{
+    for (size_t i = 0; i < (size_t)EventType::COUNT; ++i)
+    {
+        EventRegistry::clearHandlers(static_cast<EventType>(i));
+    }
 }
 
-void tearDown(void) {
-  for (size_t i = 0; i < (size_t)EventType::COUNT; ++i) {
-    EventRegistry::clearHandlers(static_cast<EventType>(i));
-  }
-  // Clean up after each test
+void resetCallbackCounters()
+{
+    callback1_count = 0;
+    callback2_count = 0;
+    last_event = Event{};
 }
 
 void test_register_single_handler(void) {
@@ -97,22 +98,16 @@ void test_multiple_handlers_execution(void) {
   TEST_ASSERT_EQUAL(1, callback2_count);
 }
 
-#ifndef UNITY_NATIVE
-void setup() {
-  delay(2000);
-#else
-int main(int argc, char **argv) {
-#endif
-  UNITY_BEGIN();
-  RUN_TEST(test_register_single_handler);
-  RUN_TEST(test_register_multiple_handlers_same_type);
-  RUN_TEST(test_register_handlers_different_types);
-  RUN_TEST(test_get_handler_empty);
-  RUN_TEST(test_handlers_are_callable);
-  RUN_TEST(test_multiple_handlers_execution);
-  UNITY_END();
+void run_EventRegistry_tests()
+{
+    RUN_TEST(test_register_single_handler);
+    RUN_TEST(test_register_multiple_handlers_same_type);
+    RUN_TEST(test_register_handlers_different_types);
+    RUN_TEST(test_get_handler_empty);
+    RUN_TEST(test_handlers_are_callable);
+    RUN_TEST(test_multiple_handlers_execution);
 }
 
-void loop() {
-  // Nothing to do here
-}
+
+
+#endif

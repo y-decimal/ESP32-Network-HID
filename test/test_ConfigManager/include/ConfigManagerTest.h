@@ -1,41 +1,11 @@
-#ifndef TEST_CONFIGMANAGER_H
-#define TEST_CONFIGMANAGER_H
+#ifndef CONFIGMANAGERTEST_H
+#define CONFIGMANAGERTEST_H
 
-#ifndef UNITY_NATIVE
-#include <Arduino.h>
-#include <submodules/Storage/PreferencesStorage.h>
-#else
-#include "../FakeStorage.h"
-#endif
-
-#include <submodules/Config/ConfigManager.cpp>
-#include <submodules/Config/ConfigManager.h>
-#include <submodules/Config/GlobalConfig.cpp>
-#include <submodules/Config/GlobalConfig.h>
-#include <submodules/Config/KeyScannerConfig.cpp>
-#include <submodules/Config/KeyScannerConfig.h>
-#include <submodules/Logger.h>
-#include <submodules/Logger.cpp>
 #include <unity.h>
+#include <submodules/Config/ConfigManager.h>
+#include <interfaces/IStorage.h>
 
-#define NAMESPACE "CfgMgrTest"
-
-namespace {
-#ifndef UNITY_NATIVE
-PreferencesStorage testStorage(NAMESPACE);
-#else
-FakeStorage testStorage;
-#endif
-} // namespace
-
-void setUp() {
-  // No setup needed with FakeStorage
-}
-
-void tearDown() {
-  testStorage.remove(CONFIG_MANAGER_NAMESPACE "/" GLOBAL_CONFIG_KEY);
-  testStorage.remove(CONFIG_MANAGER_NAMESPACE "/" KEYSCANNER_CONFIG_KEY);
-}
+extern IStorage &testStorage;
 
 void test_ConfigManager_initialization() {
   ConfigManager manager(&testStorage);
@@ -182,19 +152,6 @@ void run_ConfigManager_tests() {
   RUN_TEST(test_ConfigManager_overwrite_config);
 }
 
-#ifndef UNITY_NATIVE
-void setup() {
-  delay(1000); // Wait for Preferences to be ready
-#else
-int main(int argc, char **argv) {
-#endif
-  UNITY_BEGIN();
-  run_ConfigManager_tests();
-  UNITY_END();
-}
 
-void loop() {
-  // No loop needed
-}
 
 #endif

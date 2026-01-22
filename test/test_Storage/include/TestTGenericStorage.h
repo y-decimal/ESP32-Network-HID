@@ -5,7 +5,7 @@
 #include <unity.h>
 #include "StorageTestCommon.h"
 
-void test_ThreadSafeGenericStorage_initialization()
+void TGenericStorage_initialize()
 {
   struct TestData
   {
@@ -17,7 +17,7 @@ void test_ThreadSafeGenericStorage_initialization()
   TEST_ASSERT_FALSE(storage.isDirty());
 }
 
-void test_ThreadSafeGenericStorage_set_marks_dirty()
+void TGenericStorage_set_marks_dirty()
 {
   struct TestData
   {
@@ -32,7 +32,7 @@ void test_ThreadSafeGenericStorage_set_marks_dirty()
   TEST_ASSERT_EQUAL(42, storage.get().value);
 }
 
-void test_ThreadSafeGenericStorage_save_clears_dirty()
+void TGenericStorage_save_clears_dirty()
 {
   struct TestData
   {
@@ -50,7 +50,7 @@ void test_ThreadSafeGenericStorage_save_clears_dirty()
   TEST_ASSERT_FALSE(storage.isDirty());
 }
 
-void test_ThreadSafeGenericStorage_load_restores_data()
+void TGenericStorage_load_restores_data()
 {
   struct TestData
   {
@@ -73,7 +73,7 @@ void test_ThreadSafeGenericStorage_load_restores_data()
   TEST_ASSERT_FALSE(storage2.isDirty());
 }
 
-void test_ThreadSafeGenericStorage_load_fails_on_nonexistent_key()
+void TGenericStorage_load_fails_on_nonexistent_key()
 {
   struct TestData
   {
@@ -86,7 +86,7 @@ void test_ThreadSafeGenericStorage_load_fails_on_nonexistent_key()
   TEST_ASSERT_FALSE(loaded);
 }
 
-void test_ThreadSafeGenericStorage_multiple_saves()
+void TGenericStorage_multiple_saves()
 {
   struct TestData
   {
@@ -109,14 +109,14 @@ void test_ThreadSafeGenericStorage_multiple_saves()
   TEST_ASSERT_EQUAL(200, storage2.get().value);
 }
 
-void run_ThreadSafeGenericStorage_tests()
+void run_TGenericStorage_tests()
 {
-  RUN_TEST(test_ThreadSafeGenericStorage_initialization);
-  RUN_TEST(test_ThreadSafeGenericStorage_set_marks_dirty);
-  RUN_TEST(test_ThreadSafeGenericStorage_save_clears_dirty);
-  RUN_TEST(test_ThreadSafeGenericStorage_load_restores_data);
-  RUN_TEST(test_ThreadSafeGenericStorage_load_fails_on_nonexistent_key);
-  RUN_TEST(test_ThreadSafeGenericStorage_multiple_saves);
+  RUN_TEST(TGenericStorage_initialize);
+  RUN_TEST(TGenericStorage_set_marks_dirty);
+  RUN_TEST(TGenericStorage_save_clears_dirty);
+  RUN_TEST(TGenericStorage_load_restores_data);
+  RUN_TEST(TGenericStorage_load_fails_on_nonexistent_key);
+  RUN_TEST(TGenericStorage_multiple_saves);
 }
 
 #endif

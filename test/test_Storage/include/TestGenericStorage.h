@@ -6,7 +6,7 @@
 #include "StorageTestCommon.h"
 
 
-void test_GenericStorage_initialization()
+void GenericStorage_initialization()
 {
   struct TestData
   {
@@ -18,7 +18,7 @@ void test_GenericStorage_initialization()
   TEST_ASSERT_FALSE(storage.isDirty());
 }
 
-void test_GenericStorage_set_marks_dirty()
+void GenericStorage_set_marks_dirty()
 {
   struct TestData
   {
@@ -33,7 +33,7 @@ void test_GenericStorage_set_marks_dirty()
   TEST_ASSERT_EQUAL(42, storage.get().value);
 }
 
-void test_GenericStorage_save_clears_dirty()
+void GenericStorage_save_clears_dirty()
 {
   struct TestData
   {
@@ -51,7 +51,7 @@ void test_GenericStorage_save_clears_dirty()
   TEST_ASSERT_FALSE(storage.isDirty());
 }
 
-void test_GenericStorage_load_restores_data()
+void GenericStorage_load_restores_data()
 {
   struct TestData
   {
@@ -74,7 +74,7 @@ void test_GenericStorage_load_restores_data()
   TEST_ASSERT_FALSE(storage2.isDirty());
 }
 
-void test_GenericStorage_load_fails_on_nonexistent_key()
+void GenericStorage_load_fails_on_nonexistent_key()
 {
   struct TestData
   {
@@ -87,7 +87,7 @@ void test_GenericStorage_load_fails_on_nonexistent_key()
   TEST_ASSERT_FALSE(loaded);
 }
 
-void test_GenericStorage_multiple_saves()
+void GenericStorage_multiple_saves()
 {
   struct TestData
   {
@@ -112,12 +112,12 @@ void test_GenericStorage_multiple_saves()
 
 void run_GenericStorage_tests()
 {
-  RUN_TEST(test_GenericStorage_initialization);
-  RUN_TEST(test_GenericStorage_set_marks_dirty);
-  RUN_TEST(test_GenericStorage_save_clears_dirty);
-  RUN_TEST(test_GenericStorage_load_restores_data);
-  RUN_TEST(test_GenericStorage_load_fails_on_nonexistent_key);
-  RUN_TEST(test_GenericStorage_multiple_saves);
+  RUN_TEST(GenericStorage_initialization);
+  RUN_TEST(GenericStorage_set_marks_dirty);
+  RUN_TEST(GenericStorage_save_clears_dirty);
+  RUN_TEST(GenericStorage_load_restores_data);
+  RUN_TEST(GenericStorage_load_fails_on_nonexistent_key);
+  RUN_TEST(GenericStorage_multiple_saves);
 }
 
 

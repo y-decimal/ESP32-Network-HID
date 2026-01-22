@@ -1,17 +1,10 @@
-#include "../FakeLogSink.h"
+#ifndef LOGGERTEST_H
+#define LOGGERTEST_H
+
 #include <submodules/Logger.h>
-#include <submodules/Logger.cpp>
+#include <interfaces/ILogSink.h>
+#include "../../FakeLogSink.h"
 #include <unity.h>
-
-void setUp()
-{
-    // No setup needed
-}
-
-void tearDown()
-{
-    // No teardown needed
-}
 
 void test_Logger_localLogging()
 {
@@ -101,21 +94,10 @@ void test_Logger_globalLoggingWithCallback()
     fakeSink.clearLog();
 }
 
-#ifndef UNITY_NATIVE
-void setup()
-{
-#else
-int main(int argc, char **argv)
-{
-#endif
-    UNITY_BEGIN();
+void run_Logger_tests() {
     RUN_TEST(test_Logger_localLogging);
     RUN_TEST(test_Logger_globalLoggingNoCallback);
     RUN_TEST(test_Logger_globalLoggingWithCallback);
-    UNITY_END();
 }
 
-void loop()
-{
-    // No loop needed
-}
+#endif

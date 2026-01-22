@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 {
 #endif
     UNITY_BEGIN();
-    run_ThreadSafeGenericStorage_tests();
+    run_TGenericStorage_tests();
     run_GenericStorage_tests();
     UNITY_END();
 }
