@@ -18,8 +18,6 @@
 #include <interfaces/ILogSink.h>
 #include <interfaces/IStorage.h>
 
-static Logger taskLog("TaskManager");
-
 using DeviceModule = GlobalConfig::DeviceModule;
 using DeviceMode = GlobalConfig::DeviceMode;
 
