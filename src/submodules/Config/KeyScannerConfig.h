@@ -56,7 +56,7 @@ public:
     uint8_t *colPins;
     uint16_t refreshRate;
     uint16_t bitmapSendRate;
-    uint8_t *localToHidMap;
+    uint8_t *localToHidMap;   // Size should be rowCount * colCount
   };
 
   // Definition of the serialized configuration structure
@@ -89,6 +89,20 @@ public:
    * @param frequency Bitmap frequency in Hz (1-500)
    */
   void setBitmapSendFrequency(uint16_t frequency);
+
+  /**
+   * @brief Set the local to HID mapping.
+   * @param mapData Array of local to HID mapping data.
+   * @param mapSize Size of the mapping data array.
+   */
+  void setLocalToHidMap(uint8_t *mapData, size_t mapSize);
+
+  /**
+   * @brief Update the HID code for a specific local key index.
+   * @param localKeyIndex Local key index to update.
+   * @param hidCode New HID code to set.
+   */
+  void updateHIDCodeForIndex(uint8_t localKeyIndex, uint8_t hidCode);
 
   /**
    * @brief Set the entire key scanner configuration.

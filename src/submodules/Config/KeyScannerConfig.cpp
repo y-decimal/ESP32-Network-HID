@@ -27,11 +27,26 @@ void KeyScannerConfig::setBitmapSendFrequency(uint16_t frequency)
   bitMapSendRate = frequency;
 }
 
+void KeyScannerConfig::setLocalToHidMap(uint8_t *mapData, size_t mapSize)
+{
+  if (mapSize > MAX_KEY_COUNT)
+    return;
+  localToHidMap.assign(mapData, mapData + mapSize);
+}
+
+void KeyScannerConfig::updateHIDCodeForIndex(uint8_t localKeyIndex, uint8_t hidCode)
+{
+  if (localKeyIndex >= localToHidMap.size())
+    return;
+  localToHidMap[localKeyIndex] = hidCode;
+}
+
 void KeyScannerConfig::setConfig(KeyCfgParams config)
 {
   setPins(config.rowPins, config.rowCount, config.colPins, config.colCount);
   setRefreshRate(config.refreshRate);
   setBitmapSendFrequency(config.bitmapSendRate);
+  setLocalToHidMap(config.localToHidMap, (config.rowCount * config.colCount));
 }
 
 size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const
