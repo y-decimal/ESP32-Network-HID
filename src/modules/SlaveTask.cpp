@@ -6,7 +6,7 @@ static Logger log(SLAVETASK_NAMESPACE);
 // Initialize static member variable
 SlaveTask *SlaveTask::instance = nullptr;
 
-SlaveTask::SlaveTask(ITransport &transport) : transportRef(&transport)
+SlaveTask::SlaveTask(ITransport &transport, ConfigManager &config) : transportRef(&transport), configManager(config)
 {
   if (instance != nullptr)
   {
@@ -32,6 +32,7 @@ void SlaveTask::taskEntry(void *arg)
 
   task->protocol->onPairingConfirmation(pairConfirmCallback);
   task->protocol->onConfigReceived(configReceiveCallback);
+  task->protocol->onConfigRequest(configRequestCallback);
   log.debug("Registered TransportProtocol callbacks");
 
   TickType_t previousWakeTime = xTaskGetTickCount();
@@ -160,7 +161,7 @@ void SlaveTask::eventBusCallback(const Event &evt)
   }
 }
 
-void SlaveTask::pairConfirmCallback(const uint8_t *data, uint8_t sourceId)
+void SlaveTask::pairConfirmCallback(uint8_t sourceId)
 {
   if (SlaveTask::instance == nullptr)
   {
@@ -184,4 +185,10 @@ void SlaveTask::configReceiveCallback(const ConfigManager &config, uint8_t sende
   }
   log.info("Received configuration update from master ID %u", senderId);
   return; // Todo: implement config handling
+}
+
+void SlaveTask::configRequestCallback(uint8_t senderId)
+{
+  log.info("Config Request received. Sending config to master ID %d", senderId);
+  instance->protocol->sendConfig(senderId, &instance->configManager);
 }

@@ -46,7 +46,7 @@ public:
         loggerTask(),
         eventBusTask(),
         masterTask(platform.transport),
-        slaveTask(platform.transport),
+        slaveTask(platform.transport, configManager),
         keyScannerTask(configManager, platform.gpio)
   {
   }

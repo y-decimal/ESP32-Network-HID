@@ -60,3 +60,95 @@ bool ConfigManager::clearAllConfigs()
     configLog.error("Failed to clear KeyScannerConfig");
   return globalCleared && keyCleared;
 }
+
+size_t ConfigManager::packSerialized(uint8_t *output, size_t size) const
+{
+  size_t requiredSize = getSerializedSize();
+  if (size < requiredSize)
+  {
+    configLog.error("Insufficient buffer size for serialization: required %zu, provided %zu", requiredSize, size);
+    return 0;
+  }
+
+  size_t offset = 0;
+  uint8_t buffer[requiredSize] = {};
+
+  // Serialize GlobalConfig
+  GlobalConfig::SerializedConfig globalSerialized = globalCfg.get();
+  memcpy(output + offset, &globalSerialized.size, sizeof(globalSerialized.size));
+  offset += sizeof(globalSerialized.size);
+  memcpy(output + offset, globalSerialized.data, globalSerialized.size);
+  offset += globalSerialized.size;
+
+  // Serialize KeyScannerConfig
+  KeyScannerConfig::SerializedConfig keySerialized = keyScannerCfg.get();
+  memcpy(output + offset, &keySerialized.size, sizeof(keySerialized.size));
+  offset += sizeof(keySerialized.size);
+  memcpy(output + offset, keySerialized.data, keySerialized.size);
+  offset += keySerialized.size;
+
+  return offset;
+}
+
+size_t ConfigManager::unpackSerialized(const uint8_t *input, size_t size)
+{
+  size_t offset = 0;
+
+  // Deserialize GlobalConfig
+  if (offset + sizeof(size_t) > size)
+  {
+    configLog.error("Insufficient data for GlobalConfig size");
+    return 0;
+  }
+  
+  size_t globalSize = 0;
+  memcpy(&globalSize, input + offset, sizeof(globalSize));
+  offset += sizeof(globalSize);
+
+  if (offset + globalSize > size)
+  {
+    configLog.error("Insufficient data for GlobalConfig data");
+    return 0;
+  }
+
+  GlobalConfig::SerializedConfig globalSerialized;
+  globalSerialized.size = globalSize;
+  memcpy(globalSerialized.data, input + offset, globalSize);
+  offset += globalSize;
+  globalCfg.set(globalSerialized);
+
+  // Deserialize KeyScannerConfig
+  if (offset + sizeof(size_t) > size)
+  {
+    configLog.error("Insufficient data for KeyScannerConfig size");
+    return 0;
+  }
+
+  size_t keySize = 0;
+  memcpy(&keySize, input + offset, sizeof(keySize));
+  offset += sizeof(keySize);
+
+  if (offset + keySize > size)
+  {
+    configLog.error("Insufficient data for KeyScannerConfig data");
+    return 0;
+  }
+
+  KeyScannerConfig::SerializedConfig keySerialized;
+  keySerialized.size = keySize;
+  memcpy(keySerialized.data, input + offset, keySize);
+  offset += keySize;
+  keyScannerCfg.set(keySerialized);
+
+  return offset;
+}
+
+size_t ConfigManager::getSerializedSize() const
+{
+  // Calculate actual size: 2 size_t fields + actual data from each config
+  GlobalConfig::SerializedConfig globalSerialized = globalCfg.get();
+  KeyScannerConfig::SerializedConfig keySerialized = keyScannerCfg.get();
+  
+  return sizeof(size_t) + globalSerialized.size + 
+         sizeof(size_t) + keySerialized.size;
+}

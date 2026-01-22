@@ -7,8 +7,7 @@ enum class EventType : uint8_t
 {
   RawKey,
   RawBitmap,
-  IdKey,
-  IdBitmap,
+  HidBitmap,
   ConfigUpdate,
   COUNT
 };
@@ -19,22 +18,16 @@ struct RawKeyEvent
   bool state;
 };
 
-struct IdentifiableKeyEvent
-{
-  RawKeyEvent raw;
-  uint8_t sourceId;
-};
-
 struct RawBitmapEvent
 {
   uint8_t bitmapSize;
   uint8_t *bitMapData;
 };
 
-struct IdentifiableBitMapEvent
+struct HidBitmapEvent
 {
-  RawBitmapEvent raw;
-  uint8_t sourceId;
+  uint8_t bitmapSize;
+  uint8_t *bitMapData;
 };
 
 struct Event
@@ -47,14 +40,12 @@ struct Event
   {
     RawKeyEvent rawKeyEvt;
     RawBitmapEvent rawBitmapEvt;
-    IdentifiableKeyEvent idKeyEvt;
-    IdentifiableBitMapEvent idBitmapEvt;
+    HidBitmapEvent hidBitmapEvt;
   };
 };
 
 inline void cleanupRawKeyEvent(Event *event) { return; }
 inline void cleanupRawBitmapEvent(Event *event) { free(event->rawBitmapEvt.bitMapData); }
-inline void cleanupIdentifiableKeyEvent(Event *event) { return; }
-inline void cleanupIdentifiableBitmapEvent(Event *event) { free(event->idBitmapEvt.raw.bitMapData); }
+inline void cleanupHidBitmapEvent(Event *event) { free(event->hidBitmapEvt.bitMapData); }
 
 #endif
