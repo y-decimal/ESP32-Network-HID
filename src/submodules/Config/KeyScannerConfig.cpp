@@ -4,10 +4,10 @@ void KeyScannerConfig::setPins(uint8_t *rowPinData, uint8_t rowSize,
                                uint8_t *colPinData, uint8_t colSize)
 {
   rowPins.assign(rowPinData, rowPinData + rowSize);
-  rows = rowSize;
+  rowCount = rowSize;
   colPins.assign(colPinData, colPinData + colSize);
-  cols = colSize;
-  bitmapSize = (rows * cols + 7) / 8;
+  colCount = colSize;
+  bitmapSize = (rowCount * colCount + 7) / 8;
 }
 
 void KeyScannerConfig::setRefreshRate(uint16_t rate)
@@ -29,7 +29,7 @@ void KeyScannerConfig::setBitmapSendFrequency(uint16_t frequency)
 
 void KeyScannerConfig::setConfig(KeyCfgParams config)
 {
-  setPins(config.rowPins, config.rows, config.colPins, config.cols);
+  setPins(config.rowPins, config.rowCount, config.colPins, config.colCount);
   setRefreshRate(config.refreshRate);
   setBitmapSendFrequency(config.bitmapSendRate);
 }
@@ -50,15 +50,15 @@ size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const
   size_t totalWrite = 0;
   size_t objSize = 0;
 
-  // Serialize rows
-  objSize = sizeof(rows);
-  memcpy(buffer, &rows, objSize);
+  // Serialize rowCount
+  objSize = sizeof(rowCount);
+  memcpy(buffer, &rowCount, objSize);
   index += objSize;
   totalWrite += objSize;
 
-  // Serialize cols
-  objSize = sizeof(cols);
-  memcpy(buffer + index, &cols, objSize);
+  // Serialize colCount
+  objSize = sizeof(colCount);
+  memcpy(buffer + index, &colCount, objSize);
   index += objSize;
   totalWrite += objSize;
 
@@ -69,13 +69,13 @@ size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const
   totalWrite += objSize;
 
   // Serialize rowPins
-  objSize = rows;
+  objSize = rowCount;
   memcpy(buffer + index, rowPins.data(), objSize);
   index += objSize;
   totalWrite += objSize;
 
   // Serialize colPins
-  objSize = cols;
+  objSize = colCount;
   memcpy(buffer + index, colPins.data(), objSize);
   index += objSize;
   totalWrite += objSize;
@@ -99,9 +99,9 @@ size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const
 
 size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size)
 {
-  // Don't check against getSerializedSize() since we don't know rows/cols yet
+  // Don't check against getSerializedSize() since we don't know rowCount/colCount yet
   // Just do basic size validation
-  if (size < sizeof(rows) + sizeof(cols) + sizeof(bitmapSize))
+  if (size < sizeof(rowCount) + sizeof(colCount) + sizeof(bitmapSize))
     return 0;
 
   // Helper variables for deserialization
@@ -109,15 +109,15 @@ size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size)
   size_t totalWrite = 0;
   size_t objSize = 0;
 
-  // Deserialize rows
-  objSize = sizeof(rows);
-  memcpy(&rows, input, objSize);
+  // Deserialize rowCount
+  objSize = sizeof(rowCount);
+  memcpy(&rowCount, input, objSize);
   index += objSize;
   totalWrite += objSize;
 
-  // Deserialize cols
-  objSize = sizeof(cols);
-  memcpy(&cols, input + index, objSize);
+  // Deserialize colCount
+  objSize = sizeof(colCount);
+  memcpy(&colCount, input + index, objSize);
   index += objSize;
   totalWrite += objSize;
 
@@ -128,24 +128,24 @@ size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size)
   totalWrite += objSize;
 
   // Now validate the full size including pin data
-  size_t expectedSize = sizeof(rows) + sizeof(cols) + sizeof(bitmapSize) +
-                        rows + cols + sizeof(refreshRate) +
+  size_t expectedSize = sizeof(rowCount) + sizeof(colCount) + sizeof(bitmapSize) +
+                        rowCount + colCount + sizeof(refreshRate) +
                         sizeof(bitMapSendRate);
   if (size < expectedSize)
     return 0;
 
   // Resize vectors BEFORE copying data into them
-  rowPins.resize(rows);
-  objSize = rows;
+  rowPins.resize(rowCount);
+  objSize = rowCount;
   memcpy(rowPins.data(), input + index, objSize);
-  index += rows;
+  index += rowCount;
   totalWrite += objSize;
 
   // Resize vectors BEFORE copying data into them
-  colPins.resize(cols);
-  objSize = cols;
+  colPins.resize(colCount);
+  objSize = colCount;
   memcpy(colPins.data(), input + index, objSize);
-  index += cols;
+  index += colCount;
   totalWrite += objSize;
 
   // Deserialize refreshRate
@@ -165,6 +165,6 @@ size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size)
 size_t KeyScannerConfig::getSerializedSize() const
 {
   // Return the total size needed for serialization
-  return sizeof(rows) + sizeof(cols) + sizeof(bitmapSize) + rows + cols +
+  return sizeof(rowCount) + sizeof(colCount) + sizeof(bitmapSize) + rowCount + colCount +
          sizeof(refreshRate) + sizeof(bitMapSendRate);
 }

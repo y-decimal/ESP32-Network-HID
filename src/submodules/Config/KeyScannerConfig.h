@@ -20,8 +20,8 @@ class KeyScannerConfig : public Serializable
 {
 private:
   // Key matrix configuration parameters
-  countType rows = 0;
-  countType cols = 0;
+  countType rowCount = 0;
+  countType colCount = 0;
   pinType rowPins{};
   pinType colPins{};
 
@@ -42,16 +42,16 @@ private:
   static constexpr const size_t MAX_KEY_COUNT = 128;
 
   // Maximum size for serialized configuration
-  static constexpr size_t MAX_KEYSCANNER_CONFIG_SIZE =
-      sizeof(rows) + sizeof(cols) + sizeof(bitmapSize) + MAX_PIN_COUNT * 2 +
-      sizeof(refreshRate) + sizeof(bitMapSendRate);
+  static constexpr const size_t MAX_KEYSCANNER_CONFIG_SIZE =
+      sizeof(rowCount) + sizeof(colCount) + sizeof(bitmapSize) + MAX_PIN_COUNT * 2 +
+      sizeof(refreshRate) + sizeof(bitMapSendRate) + ((MAX_KEY_COUNT + 1) / 8);
 
 public:
   // Definition of the configuration structure
   struct KeyCfgParams
   {
-    countType rows;
-    countType cols;
+    countType rowCount;
+    countType colCount;
     uint8_t *rowPins;
     uint8_t *colPins;
     uint16_t refreshRate;
@@ -109,16 +109,16 @@ public:
   pinType getColPins() const { return colPins; }
 
   /**
-   * @brief Get the number of rows.
-   * @return Number of rows.
+   * @brief Get the number of rowCount.
+   * @return Number of rowCount.
    */
-  countType getRowsCount() const { return rows; }
+  countType getRowsCount() const { return rowCount; }
 
   /**
    * @brief Get the number of columns.
    * @return Number of columns.
    */
-  countType getColCount() const { return cols; }
+  countType getColCount() const { return colCount; }
 
   /**
    * @brief Get the bitmap size.
