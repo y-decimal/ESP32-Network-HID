@@ -3,6 +3,7 @@
 
 #include <interfaces/ISerializable.h>
 #include <interfaces/IConfig.h>
+#include <submodules/Storage/NullStorage.h>
 #include <submodules/Logger.h>
 #include <unordered_map>
 #include <typeindex>
@@ -22,6 +23,7 @@ private:
   // Configuration factories
   static std::unordered_map<std::string, std::function<IConfig *()>> factoryMap;
 
+  static NullStorage defaultNullStorage;
   IStorage &storage;
 
   void clearAllConfigs();
@@ -38,7 +40,7 @@ private:
   };
 
 public:
-  ConfigManager(IStorage &storage) : storage(storage) {};
+  ConfigManager(IStorage &storage = defaultNullStorage) : storage(storage) {};
   ~ConfigManager();
 
   /**
