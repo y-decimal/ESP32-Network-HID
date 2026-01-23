@@ -181,7 +181,7 @@ size_t GlobalConfig::unpackSerialized(const uint8_t *input, size_t size)
   totalRead += objSize;
 
   // Check if provided data size is valid
-  if (size > ownSize)
+  if (size < ownSize)
     return 0;
 
   // Deserialize module size
