@@ -261,7 +261,7 @@ size_t KeyScannerConfig::getSerializedSize() const
   // rowCount * colCount acts as localToHidMap size metadata
   // First field for total config size information
   return sizeof(size_t) + sizeof(rowCount) + sizeof(colCount) +
-         sizeof(bitmapSize) + sizeof(rowPins) + sizeof(colPins) +
+         sizeof(bitmapSize) + rowCount + colCount +
          sizeof(refreshRate) + sizeof(bitMapSendRate) + localToHidMap.size();
 }
 
