@@ -136,7 +136,7 @@ T *ConfigManager::createConfig()
     return nullptr;
   }
 
-  T *cfg = it->second();
+  T *cfg = static_cast<T*>(factory->second());
   if (cfg == nullptr)
   {
     configLog.error("Factory for config %s returned nullptr, failed to create config", T::NAMESPACE);
