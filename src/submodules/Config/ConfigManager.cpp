@@ -102,7 +102,7 @@ size_t ConfigManager::getSerializedSize() const
     for (auto it = configMap.begin(); it != configMap.end(); it++)
     {
         combinedSize += sizeof(size_t);                  // namespace string size info
-        combinedSize += sizeof(it->first.size());        // namespace string size
+        combinedSize += it->first.size();        // namespace string size
         combinedSize += sizeof(size_t);                  // serialized config size info
         combinedSize += it->second->getSerializedSize(); // serialized config size
     }
