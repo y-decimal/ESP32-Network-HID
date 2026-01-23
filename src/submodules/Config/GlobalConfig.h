@@ -2,7 +2,7 @@
 #define GLOBALCONFIG_H
 
 #include <cstring>
-#include <interfaces/ISerializableStructs.h>
+#include <interfaces/IConfig.h>
 
 /**
  * @brief Global configuration class managing device roles and MAC address.
@@ -11,7 +11,7 @@
  * MAC address. It also implements serialization and deserialization methods
  * for storing and retrieving configuration data.
  */
-class GlobalConfig : public Serializable
+class GlobalConfig : public IConfig
 {
 public:
   // Definition of the serialized configuration structure
@@ -28,18 +28,6 @@ public:
   {
     Keyscanner, // Expand later with new modules
     Count
-  };
-
-  // Size of the serialized configuration
-  static const size_t SERIALIZED_SIZE =
-      sizeof(DeviceModule) * (size_t)DeviceModule::Count +
-      sizeof(DeviceMode) +
-      sizeof(MacAddress);
-
-  struct SerializedConfig
-  {
-    uint8_t data[SERIALIZED_SIZE]{0};
-    size_t size = SERIALIZED_SIZE;
   };
 
   /**
@@ -85,7 +73,13 @@ public:
   size_t unpackSerialized(const uint8_t *input, size_t size) override;
   size_t getSerializedSize() const override;
 
+  void setStorage(IStorage storage) override;
+  bool save() override;
+  bool load() override;
+
 private:
+  IStorage *storage = nullptr;
+
   // Array to hold device roles
   DeviceModule modules[(size_t)DeviceModule::Count]{DeviceModule::Count};
   DeviceMode mode = DeviceMode::Count;
