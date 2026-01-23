@@ -37,9 +37,9 @@ public:
     void getMacById(uint8_t id, uint8_t *out) const;
     uint8_t getIdByMac(const uint8_t *mac) const;
 
-    void onKeyEvent(std::function<void(const RawKeyEvent &keyEvent, uint8_t senderId)> callback);
-    void onBitmapEvent(std::function<void(const RawBitmapEvent &bitmapEvent, uint8_t senderId)> callback);
-    void onConfigReceived(std::function<void(const ConfigManager &config, uint8_t senderId)> callback);
+    void onKeyEvent(std::function<void(RawKeyEvent &keyEvent, uint8_t senderId)> callback);
+    void onBitmapEvent(std::function<void(RawBitmapEvent &bitmapEvent, uint8_t senderId)> callback);
+    void onConfigReceived(std::function<void(ConfigManager *config, uint8_t senderId)> callback);
 
     /**
      * @brief Allows registering custom hooks for received pairing requests.
@@ -70,9 +70,9 @@ private:
     std::vector<mac_t> peerDevices = {}; // List of active communication partners at runtime
     mac_t masterMac = {};
 
-    std::function<void(const RawKeyEvent &keyEvent, uint8_t senderId)> keyEventCallback;
-    std::function<void(const RawBitmapEvent &bitmapEvent, uint8_t senderId)> bitmapEventCallback;
-    std::function<void(const ConfigManager &config, uint8_t senderId)> configCallback;
+    std::function<void(RawKeyEvent &keyEvent, uint8_t senderId)> keyEventCallback;
+    std::function<void(RawBitmapEvent &bitmapEvent, uint8_t senderId)> bitmapEventCallback;
+    std::function<void(ConfigManager *config, uint8_t senderId)> configCallback;
     std::function<void(uint8_t)> pairingRequestCallback;
     std::function<void(uint8_t)> pairingConfirmationCallback;
     std::function<void(uint8_t)> configRequestCallback;
