@@ -31,7 +31,7 @@ private:
     static void taskEntry(void *arg);
     static void eventBusCallback(const Event &evt);
     static void pairConfirmCallback(uint8_t sourceId);
-    static void configReceiveCallback(const ConfigManager &config, uint8_t senderId);
+    static void configReceiveCallback(ConfigManager *config, uint8_t senderId);
     static void configRequestCallback(uint8_t senderId);
 };
 
