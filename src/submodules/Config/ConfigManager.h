@@ -128,7 +128,7 @@ T *ConfigManager::createConfig()
 
   if (it != configMap.end())
   {
-    configLog.error("Config %s already exists", T::NAMESPACE);
+    configLog.error("Config %s already exists", key.c_str());
     return static_cast<T *>(it->second);
   }
 
@@ -142,14 +142,14 @@ T *ConfigManager::createConfig()
   T *cfg = static_cast<T *>(factory->second());
   if (cfg == nullptr)
   {
-    configLog.error("Factory for config %s returned nullptr, failed to create config", T::NAMESPACE);
+    configLog.error("Factory for config %s returned nullptr, failed to create config", key.c_str());
     return nullptr;
   }
 
   cfg->setStorage(&storage);
   configMap[key] = cfg;
 
-  configLog.info("Created new config %s", key);
+  configLog.info("Created new config %s", key.c_str());
 
   return cfg;
 }
@@ -165,7 +165,7 @@ T *ConfigManager::getConfig() const
 
   if (it == configMap.end())
   {
-    configLog.error("Could not find config of type %s", key.c_str());
+    configLog.warn("Could not find config of type %s", key.c_str());
     return nullptr;
   }
 
