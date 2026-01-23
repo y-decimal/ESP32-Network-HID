@@ -113,7 +113,17 @@ bool GlobalConfig::load()
 
 bool GlobalConfig::erase()
 {
-  return storage->remove(NAMESPACE);
+  if (storage == nullptr)
+  {
+    log.error("No storage backend set, cannot erase config");
+    return false;
+  }
+
+  bool success = storage->remove(NAMESPACE);
+
+  success ? log.info("Configuration erased") : log.error("Erasing configuration failed");
+
+  return success;
 }
 
 // Implementation of Serializable interface methods
