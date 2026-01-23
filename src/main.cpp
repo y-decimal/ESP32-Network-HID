@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <submodules/Config/ConfigManager.h>
+#include <submodules/Config/GlobalConfig.h>
+#include <submodules/Config/KeyScannerConfig.h>
 #include <submodules/Storage/PreferencesStorage.h>
 #include <system/TaskManager.h>
 #include <submodules/ArduinoLogSink.h>
@@ -136,19 +138,18 @@ static void setKeyboardConfig()
 
   configManager.eraseConfigs();
 
-  GlobalConfig globalConfig;
+  GlobalConfig *globalConfig = configManager.createConfig<GlobalConfig>();
 
   GlobalConfig::DeviceModule modules[] = {GlobalConfig::DeviceModule::Keyscanner};
-  globalConfig.setDeviceModules(modules, sizeof(modules) / sizeof(modules[0]));
+  globalConfig->setDeviceModules(modules, sizeof(modules) / sizeof(modules[0]));
 
   GlobalConfig::MacAddress mac = {};
   esp_base_mac_addr_get(mac);
-  globalConfig.setMac(mac);
+  globalConfig->setMac(mac);
 
-  globalConfig.setDeviceMode(GlobalConfig::DeviceMode::Slave);
-  configManager.setConfig(globalConfig);
+  globalConfig->setDeviceMode(GlobalConfig::DeviceMode::Slave);
 
-  KeyScannerConfig keyScannerConfig;
+  KeyScannerConfig *keyScannerConfig = configManager.createConfig<KeyScannerConfig>();
 
   uint8_t rowPins[2] = {9, 10};
   uint8_t colPins[2] = {17, 18};
@@ -164,24 +165,12 @@ static void setKeyboardConfig()
   keyCfgParams.refreshRate = 500;
   keyCfgParams.bitmapSendRate = 1;
   keyCfgParams.localToHidMap = localToHidMap;
-  keyScannerConfig.setConfig(keyCfgParams);
+  keyScannerConfig->setConfig(keyCfgParams);
 
-  keyScannerConfig.setLocalToHidMap(localToHidMap, 4); // 2 rows * 2 cols = 4 keys
+  keyScannerConfig->setLocalToHidMap(localToHidMap, 4); // 2 rows * 2 cols = 4 keys
 
-  std::vector<uint8_t> hidMap = keyScannerConfig.getLocalToHidMap();
+  std::vector<uint8_t> hidMap = keyScannerConfig->getLocalToHidMap();
   logger.debug("Returned KeyScanner HID Map:");
-  logger.debug("Size: %d", hidMap.size());
-  for (size_t i = 0; i < hidMap.size(); i++)
-  {
-    logger.debug("  Index %d: HID 0x%02X", i, hidMap[i]);
-  }
-
-  configManager.setConfig(keyScannerConfig);
-
-  KeyScannerConfig localConfig = *configManager.getConfig<KeyScannerConfig>();
-
-  hidMap = localConfig.getLocalToHidMap();
-  logger.debug("Returned ConfigManager HID Map:");
   logger.debug("Size: %d", hidMap.size());
   for (size_t i = 0; i < hidMap.size(); i++)
   {
