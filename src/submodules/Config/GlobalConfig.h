@@ -73,7 +73,7 @@ public:
   size_t unpackSerialized(const uint8_t *input, size_t size) override;
   size_t getSerializedSize() const override;
 
-  void setStorage(IStorage storage) override;
+  void setStorage(IStorage *storage) override;
   bool save() override;
   bool load() override;
 
