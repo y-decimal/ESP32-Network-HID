@@ -13,14 +13,14 @@ static constexpr const char *KEYSCANNER_NAMESPACE = "KeyScannerTask";
 class KeyScannerTask : public ITask
 {
 public:
-    KeyScannerTask(ConfigManager &configManager, IGpio &gpio);
+    KeyScannerTask(ConfigManager *configManager, IGpio &gpio);
     ~KeyScannerTask();
     void start(TaskParameters params) override;
     void stop() override;
     void restart(TaskParameters params) override;
 
 private:
-    ConfigManager *configManagerRef = nullptr;
+    ConfigManager *configManager = nullptr;
     IGpio *gpioRef = nullptr;
     TaskHandle_t keyScannerTaskHandle = nullptr;
     static KeyScannerTask *instance;
