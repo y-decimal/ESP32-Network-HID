@@ -225,8 +225,12 @@ size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size)
 size_t KeyScannerConfig::getSerializedSize() const
 {
   // Return the total size needed for serialization
-  return sizeof(rowCount) + sizeof(colCount) + sizeof(bitmapSize) + rowCount + colCount +
-         sizeof(refreshRate) + sizeof(bitMapSendRate) + (rowCount * colCount);
+  // rowCount and colCount act as rowPins and colPins size metadata
+  // rowCount * colCount acts as localToHidMap size metadata
+  // First field for total config size information
+  return sizeof(size_t) + sizeof(rowCount) + sizeof(colCount) +
+         sizeof(bitmapSize) + sizeof(rowPins) + sizeof(colPins) +
+         sizeof(refreshRate) + sizeof(bitMapSendRate) + localToHidMap.size();
 }
 
 uint8_t KeyScannerConfig::getHIDCodeForIndex(uint8_t localKeyIndex) const
