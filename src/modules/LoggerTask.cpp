@@ -15,6 +15,8 @@ struct LogEvent
 
 LoggerTask::LoggerTask()
 {
+    internalLogInstance.setMode(Logger::LogMode::Local);  // Prevent recursive loop
+    
     if (instance != nullptr)
     {
         internalLogInstance.warn("LoggerTask instance already exists, replacing");
