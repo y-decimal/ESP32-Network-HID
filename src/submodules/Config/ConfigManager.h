@@ -20,7 +20,7 @@ private:
   std::unordered_map<std::string, IConfig *> configMap;
 
   // Configuration factories
-  std::unordered_map<std::string, std::function<IConfig *()>> factoryMap;
+  static std::unordered_map<std::string, std::function<IConfig *()>> factoryMap;
 
   IStorage &storage;
 
@@ -45,7 +45,7 @@ public:
    * @brief Registers the config so ConfigManager knows it's namespace and how to create it
    */
   template <typename T>
-  void registerConfig();
+  static void registerConfig();
 
   template <typename T>
   T *createConfig();
