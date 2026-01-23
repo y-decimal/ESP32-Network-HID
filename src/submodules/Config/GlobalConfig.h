@@ -83,6 +83,8 @@ private:
 
   // Array to hold device roles
   DeviceModule modules[(size_t)DeviceModule::Count]{DeviceModule::Count};
+
+  // Stores device mode
   DeviceMode mode = DeviceMode::Count;
 
   // Variable to hold the device MAC address
