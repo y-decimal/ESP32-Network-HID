@@ -196,8 +196,10 @@ void Logger::internalWrite(const char *logNamespace, Logger::LogLevel level, con
 
 void Logger::storeEarlyLogMessage(const char *logNamespace, LogLevel level, const char *msg)
 {
-    if (LoggerCore::earlyMessageCount >= MAX_EARLY_LOG_MESSAGES)
-        return;
+    if (LoggerCore::earlyMessageCount >= MAX_EARLY_LOG_MESSAGES) {
+        LoggerCore::earlyMessageCount = 0;
+        internalWrite("LOG", LogLevel::system, "Early Message Buffer overflow, overwriting oldest messages");
+    }
 
     EarlyLogMessage earlyMsg;
     strncpy(earlyMsg.logNamespace, logNamespace, MAX_NAMESPACE_LENGTH - 1);
