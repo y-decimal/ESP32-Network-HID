@@ -80,35 +80,35 @@ size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const
   if (size < ownSize)
     return 0;
 
-  // Temporary buffer to hold serialized data
-  uint8_t *buffer = (uint8_t *)malloc(ownSize);
-
   // Helper variables for serialization
-  size_t index = 0;
   size_t totalWrite = 0;
   size_t objSize = 0;
 
-  // Serialize modules
-  objSize = sizeof(modules);
-  memcpy(buffer, modules, objSize);
-  index += objSize;
+  // Serialize total config size
+  objSize = sizeof(size_t);
+  memcpy(output + totalWrite, &ownSize, objSize);
+  totalWrite += objSize;
+
+  // Serialize module size
+  objSize = sizeof(size_t);
+  size_t moduleSize = sizeof(modules);
+  memcpy(output + totalWrite, &moduleSize, objSize);
+  totalWrite += objSize;
+
+  // Serialize module
+  objSize = moduleSize;
+  memcpy(output, modules, objSize);
   totalWrite += objSize;
 
   // Serialize mode
   objSize = sizeof(mode);
-  memcpy(buffer + index, &mode, objSize);
-  index += objSize;
+  memcpy(output + totalWrite, &mode, objSize);
   totalWrite += objSize;
 
   // Serialize MAC address
   objSize = sizeof(deviceMac);
-  memcpy(buffer + index, deviceMac, objSize);
+  memcpy(output + totalWrite, deviceMac, objSize);
   totalWrite += objSize;
-
-  // Copy serialized data to output buffer
-  memcpy(output, buffer, totalWrite);
-
-  delete buffer;
 
   return totalWrite;
 }
