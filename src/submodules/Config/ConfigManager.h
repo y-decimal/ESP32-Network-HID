@@ -19,6 +19,9 @@ private:
   // Configuration instances
   std::unordered_map<std::string, IConfig *> configMap;
 
+  // Configuration factories
+  std::unordered_map<std::string, std::function<IConfig *()>> factoryMap;
+
   IStorage &storage;
 
   void clearAllConfigs();
@@ -212,8 +215,14 @@ void ConfigManager::setSerializedConfig(const uint8_t *buffer, size_t bufferSize
   T *stored = getConfig<T>();
   if (!stored)
   {
-    stored = createConfig<T>();
     configLog.info("Config doesn't exist, creating new config");
+    stored = createConfig<T>();
+  }
+
+  if (stored == nullptr)
+  {
+    configLog.error("Stored Config is nullptr, aborting");
+    return;
   }
 
   stored->unpackSerialized(buffer, bufferSize);
@@ -300,6 +309,99 @@ void ConfigManager::clearAllConfigs()
 ConfigManager::~ConfigManager()
 {
   clearAllConfigs();
+}
+
+size_t ConfigManager::getSerializedSize() const
+{
+  size_t combinedSize = 0;
+  for (auto it = configMap.begin(); it != configMap.end(); it++)
+  {
+    combinedSize += sizeof(size_t);                  // namespace string size info
+    combinedSize += sizeof(it->first.size());        // namespace string size
+    combinedSize += sizeof(size_t);                  // serialized config size info
+    combinedSize += it->second->getSerializedSize(); // serialized config size
+  }
+  return combinedSize;
+}
+
+size_t ConfigManager::packSerialized(uint8_t *output, size_t size) const
+{
+  size_t ownSize = getSerializedSize();
+
+  configLog.info("Serializing configmanager with size %d Bytes", ownSize);
+
+  if (size < ownSize)
+  {
+    configLog.error("Could not serialize configmanager, output buffer too small");
+    return 0;
+  }
+
+  size_t written = 0;
+
+  for (auto it = configMap.begin(); it != configMap.end(); it++)
+  {
+    size_t sizeOfData = it->first.size();                  // Get size of namespace string
+    memcpy(output + written, &sizeOfData, sizeof(size_t)); // Write size metadata field
+    written += sizeof(size_t);
+    memcpy(output + written, it->first.c_str(), sizeOfData); // Write namespace string
+    written += sizeOfData;
+
+    sizeOfData = it->second->getSerializedSize();          // Get size of serialized config
+    memcpy(output + written, &sizeOfData, sizeof(size_t)); // Write size metadata field
+    written += sizeof(size_t);
+    it->second->packSerialized(output + written, sizeOfData); // Write serialized config
+    written += sizeOfData;
+  }
+
+  return written;
+}
+
+size_t ConfigManager::unpackSerialized(const uint8_t *input, size_t size)
+{
+  configLog.info("Deserializing configmanager with size %d Bytes", size);
+  size_t read = 0;
+
+  while (read < size)
+  {
+    size_t sizeOfData = sizeof(size_t);
+    size_t stringSize = 0;
+    memcpy(&stringSize, input + read, sizeOfData);
+    read += sizeOfData;
+
+    sizeOfData = stringSize;
+    std::string namespaceString;
+    namespaceString.resize(stringSize);
+    memcpy(&namespaceString[0], input + read, sizeOfData);
+    read += sizeOfData;
+
+    IConfig *cfg = nullptr;
+    auto it = configMap.find(namespaceString);
+    if (it == configMap.end())
+    {
+      configLog.info("Config %s does not exist yet, creating new config", namespaceString.c_str());
+      cfg = createConfigByNamespace(namespaceString);
+      if (cfg == nullptr)
+      {
+        configLog.error("Failed to deserialize config with namespace %s, it was never registered",
+                        namespaceString.c_str());
+        return 0;
+      }
+    }
+    else
+    {
+      cfg = it->second;
+    }
+
+    sizeOfData = sizeof(size_t);
+    size_t configSize = 0;
+    memcpy(&configSize, input + read, sizeOfData);
+    read += sizeOfData;
+
+    sizeOfData = configSize;
+    cfg->unpackSerialized(input + read, sizeOfData);
+    read += sizeOfData;
+  }
+  return read;
 }
 
 #endif
