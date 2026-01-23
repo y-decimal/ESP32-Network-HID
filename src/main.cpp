@@ -16,7 +16,7 @@ static Logger logger("Main");
 
 static Esp32Gpio espGpio;
 static EspNow espNow;
-static PreferencesStorage prefStorage(CONFIG_MANAGER_NAMESPACE);
+static PreferencesStorage prefStorage("Esp32HidStorage");
 
 TaskManager::Platform platform = {espGpio, espNow, prefStorage};
 static TaskManager taskManager(platform);
@@ -82,8 +82,8 @@ static void keyPrintCallback(const Event &event)
   if (&localCfgCopy != nullptr)
   {
     uint8_t hidCode = localCfgCopy
-                          .getConfig<KeyScannerConfig>()
-                          .getHIDCodeForIndex(keyIndex);
+                           .getConfig<KeyScannerConfig>()
+                           ->getHIDCodeForIndex(keyIndex);
     logger.info("Key event: Key Index %d HID Code 0x%02X %s",
                 keyIndex, hidCode, state ? "pressed" : "released");
   }
@@ -128,9 +128,9 @@ static void hidPrintCallback(const Event &event)
 
 static void setKeyboardConfig()
 {
-  ConfigManager configManager(&prefStorage);
+  ConfigManager configManager(prefStorage);
 
-  configManager.clearAllConfigs();
+  configManager.eraseConfigs();
 
   GlobalConfig globalConfig;
 
@@ -174,7 +174,7 @@ static void setKeyboardConfig()
 
   configManager.setConfig(keyScannerConfig);
 
-  KeyScannerConfig localConfig = configManager.getConfig<KeyScannerConfig>();
+  KeyScannerConfig localConfig = *configManager.getConfig<KeyScannerConfig>();
 
   hidMap = localConfig.getLocalToHidMap();
   logger.debug("Returned ConfigManager HID Map:");
@@ -184,14 +184,14 @@ static void setKeyboardConfig()
     logger.debug("  Index %d: HID 0x%02X", i, hidMap[i]);
   }
 
-  configManager.saveConfig();
+  configManager.saveConfigs();
 }
 
 static void setHostConfig()
 {
-  ConfigManager configManager(&prefStorage);
+  ConfigManager configManager(prefStorage);
 
-  configManager.clearAllConfigs();
+  configManager.eraseConfigs();
 
   GlobalConfig globalConfig;
 
@@ -202,5 +202,5 @@ static void setHostConfig()
   globalConfig.setDeviceMode(GlobalConfig::DeviceMode::Master);
   configManager.setConfig(globalConfig);
 
-  configManager.saveConfig();
+  configManager.saveConfigs();
 }
