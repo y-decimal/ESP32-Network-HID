@@ -155,5 +155,6 @@ size_t GlobalConfig::unpackSerialized(const uint8_t *input, size_t size)
 size_t GlobalConfig::getSerializedSize() const
 {
   // Return the total size needed for serialization
-  return sizeof(modules) + sizeof(mode) + sizeof(deviceMac);
+  // Size metadata of total size + size metadata of module size + module data + mode data + mac data
+  return sizeof(size_t) + sizeof(size_t) + sizeof(modules) + sizeof(mode) + sizeof(deviceMac);
 }
