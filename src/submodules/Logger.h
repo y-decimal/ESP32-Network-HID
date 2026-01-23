@@ -54,7 +54,7 @@ public:
 
 private:
     LogMode mode = LogMode::Global;
-    char logNamespace[32];
+    char logNamespace[MAX_NAMESPACE_LENGTH];
 
     void logV(const char *logNamespace, LogLevel level, const char *format, va_list args);
 
