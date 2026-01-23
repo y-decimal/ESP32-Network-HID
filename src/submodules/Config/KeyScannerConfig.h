@@ -20,6 +20,8 @@ class KeyScannerConfig : public IConfig
 {
 private:
   // Key matrix configuration parameters
+  IStorage *storage = nullptr;
+
   countType rowCount = 0;
   countType colCount = 0;
   pinType rowPins{};
@@ -155,6 +157,7 @@ public:
   // Implementation of IConfig interface methods
   static constexpr const char *NAMESPACE = "KeyCfg";
   const char *getNamespace() { return NAMESPACE; }
+  void setStorage(IStorage *storage) { this->storage = storage; }
   bool save() override;
   bool load() override;
   bool erase() override;
