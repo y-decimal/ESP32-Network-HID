@@ -152,7 +152,7 @@ size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const
 
   // Serialize module
   objSize = moduleSize;
-  memcpy(output, modules, objSize);
+  memcpy(output + totalWrite, modules, objSize);
   totalWrite += objSize;
 
   // Serialize mode
