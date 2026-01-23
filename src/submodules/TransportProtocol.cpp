@@ -1,7 +1,7 @@
 #include <submodules/TransportProtocol.h>
 #include <submodules/Logger.h>
 
-static Logger log(__FILENAME__);
+static Logger log(TransportProtocol::NAMESPACE);
 
 static constexpr uint8_t KEY_EVENT = static_cast<uint8_t>(PacketType::KeyEvent);
 static constexpr uint8_t KEY_BITMAP = static_cast<uint8_t>(PacketType::KeyBitmap);

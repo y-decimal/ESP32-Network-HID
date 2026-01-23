@@ -12,7 +12,7 @@
 #define ASSERT_ICONFIG static_assert(std::is_base_of<IConfig, T>::value, "T must derive from IConfig interface")
 #define ASSERT_NAMESPACE static_assert(has_namespace_static<T>::value, "Config type must define static constexpr const char* NAMESPACE")
 
-static Logger configLog(__FILENAME__);
+static Logger configLog("ConfigManager");
 
 class ConfigManager : public ISerializable
 {

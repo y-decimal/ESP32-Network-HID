@@ -23,6 +23,7 @@ enum class PacketType : uint8_t
 class TransportProtocol
 {
 public:
+    static constexpr const char* NAMESPACE = "TransportProtocol";
     static const uint8_t MASTER_ID = 0;
 
     TransportProtocol(ITransport &espNow);

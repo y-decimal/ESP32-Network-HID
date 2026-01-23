@@ -22,6 +22,8 @@ private:
 public:
   HidMapper();
 
+  static constexpr const char* NAMESPACE = "HidMapper";
+
   void insertMap(const uint8_t *map, size_t mapSize, uint8_t mapId);
 
   void mapBitmapToHidBitmap(const uint8_t *bitmap, size_t bitmapSize, uint8_t mapId);
