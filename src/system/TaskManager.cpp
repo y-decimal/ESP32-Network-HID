@@ -10,9 +10,9 @@ void TaskManager::start()
     startModules(getAllRequiredTasks());
 }
 
-ConfigManager &TaskManager::getConfigManagerCopy()
+ConfigManager *TaskManager::getConfigManagerPointer()
 {
-    return configManager;
+    return &configManager;
 }
 
 void TaskManager::startModules(uint32_t moduleBitmap)

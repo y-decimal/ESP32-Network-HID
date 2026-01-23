@@ -47,13 +47,13 @@ public:
         loggerTask(),
         eventBusTask(),
         masterTask(platform.transport),
-        slaveTask(platform.transport, configManager),
-        keyScannerTask(configManager, platform.gpio)
+        slaveTask(platform.transport, &configManager),
+        keyScannerTask(&configManager, platform.gpio)
   {
   }
 
   void start();
-  ConfigManager &getConfigManagerCopy();
+  ConfigManager *getConfigManagerPointer();
 
 private:
   Platform &platform;
