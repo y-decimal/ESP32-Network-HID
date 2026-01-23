@@ -1,7 +1,7 @@
 #ifndef KEYSCANNERCONFIG_H
 #define KEYSCANNERCONFIG_H
 
-#include <interfaces/ISerializableStructs.h>
+#include <interfaces/IConfig.h>
 #include <stdint.h>
 #include <vector>
 
@@ -16,7 +16,7 @@ using countType = uint8_t;
  * frequency. It also implements serialization and deserialization methods
  * for storing and retrieving configuration data.
  */
-class KeyScannerConfig : public Serializable
+class KeyScannerConfig : public IConfig
 {
 private:
   // Key matrix configuration parameters
@@ -41,11 +41,6 @@ private:
   static constexpr const size_t MAX_PIN_COUNT = 20;
   static constexpr const size_t MAX_KEY_COUNT = 128;
 
-  // Maximum size for serialized configuration
-  static constexpr const size_t MAX_KEYSCANNER_CONFIG_SIZE =
-      sizeof(rowCount) + sizeof(colCount) + sizeof(bitmapSize) + MAX_PIN_COUNT * 2 +
-      sizeof(refreshRate) + sizeof(bitMapSendRate) + MAX_KEY_COUNT;
-
 public:
   // Definition of the configuration structure
   struct KeyCfgParams
@@ -56,14 +51,7 @@ public:
     uint8_t *colPins;
     uint16_t refreshRate;
     uint16_t bitmapSendRate;
-    uint8_t *localToHidMap;   // Size should be rowCount * colCount
-  };
-
-  // Definition of the serialized configuration structure
-  struct SerializedConfig
-  {
-    uint8_t data[MAX_KEYSCANNER_CONFIG_SIZE]{0};
-    size_t size = MAX_KEYSCANNER_CONFIG_SIZE;
+    uint8_t *localToHidMap; // Size should be rowCount * colCount
   };
 
   /**
@@ -158,9 +146,18 @@ public:
    */
   std::vector<uint8_t> getLocalToHidMap() const { return localToHidMap; }
 
+  /**
+   * @brief Get the HID code for a local key index from the map
+   * @return HID code
+   */
   uint8_t getHIDCodeForIndex(uint8_t localKeyIndex) const;
 
-  // Implementation of Serializable interface methods
+  // Implementation of IConfig interface methods
+  bool save() override;
+  bool load() override;
+  bool erase() override;
+
+  // Implementation of ISerializable interface methods
   size_t packSerialized(uint8_t *output, size_t size) const override;
   size_t unpackSerialized(const uint8_t *input, size_t size) override;
   size_t getSerializedSize() const override;
