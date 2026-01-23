@@ -10,6 +10,7 @@
 #include <modules/SlaveTask.h>
 
 #include <submodules/Config/ConfigManager.h>
+#include <submodules/Config/GlobalConfig.h>
 #include <submodules/Logger.h>
 #include <system/SystemConfig.h>
 
@@ -42,7 +43,7 @@ public:
 
   TaskManager(Platform &platform)
       : platform(platform),
-        configManager(&platform.storage),
+        configManager(platform.storage),
         loggerTask(),
         eventBusTask(),
         masterTask(platform.transport),
