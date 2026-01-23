@@ -82,12 +82,12 @@ static void keyPrintCallback(const Event &event)
   uint8_t keyIndex = keyEvent.keyIndex;
   bool state = keyEvent.state;
 
-  ConfigManager &localCfgCopy = taskManager.getConfigManagerCopy();
-  if (&localCfgCopy != nullptr)
+  ConfigManager *configPointer = taskManager->getConfigManagerPointer();
+  if (configPointer != nullptr)
   {
-    uint8_t hidCode = localCfgCopy
-                           .getConfig<KeyScannerConfig>()
-                           ->getHIDCodeForIndex(keyIndex);
+    uint8_t hidCode = configPointer
+                          ->getConfig<KeyScannerConfig>()
+                          ->getHIDCodeForIndex(keyIndex);
     logger.info("Key event: Key Index %d HID Code 0x%02X %s",
                 keyIndex, hidCode, state ? "pressed" : "released");
   }
