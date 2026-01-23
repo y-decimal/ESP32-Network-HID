@@ -38,8 +38,18 @@ public:
   ConfigManager(IStorage &storage) : storage(storage) {};
   ~ConfigManager();
 
+  /**
+   * @brief Registers the config so ConfigManager knows it's namespace and how to create it
+   */
+  template <typename T>
+  void registerConfig();
+
   template <typename T>
   T *createConfig();
+
+  IConfig *createConfigByNamespace(const char *nameSpaceCstring);
+
+  IConfig *createConfigByNamespace(std::string namespaceString);
 
   /**
    * @brief Retrieve the configuration of type T.
@@ -96,6 +106,14 @@ public:
 // Template implementations
 
 template <typename T>
+void ConfigManager::registerConfig()
+{
+  factoryMap[T::NAMESPACE] = {
+    []() return new T();
+};
+}
+
+template <typename T>
 T *ConfigManager::createConfig()
 {
   ASSERT_ICONFIG;
@@ -110,12 +128,49 @@ T *ConfigManager::createConfig()
     return static_cast<T *>(it->second);
   }
 
-  T *cfg = new T();
+  auto it = factoryMap.find(T::NAMESPACE) if (it == factoryMap.end())
+  {
+    configLog.error("Config was not registered. Register config with configManager.registerConfig<CONFIGTYPE>()");
+    return nullptr;
+  }
+
+  T *cfg = it->second();
+  if (cfg == nullptr)
+  {
+    configLog.error("Factory for config %s returned nullptr, failed to create config", T::NAMESPACE);
+    return nullptr;
+  }
 
   cfg->setStorage(&storage);
   configMap[key] = cfg;
 
   configLog.info("Created new config %s", key);
+
+  return cfg;
+}
+
+IConfig *ConfigManager::createConfigByNamespace(const char *namespaceCstring)
+{
+  std::string namespaceString = namespaceCstring;
+  createConfigByNamespace(namespaceString);
+}
+
+IConfig *ConfigManager::createConfigByNamespace(std::string namespaceString)
+{
+  auto it = factoryMap.find(namespaceString);
+  if (it == factoryMap.end())
+  {
+    configLog.error("Could not create config with namespace %s, it was never registered",
+                    namespaceString.c_str());
+    return nullptr;
+  }
+
+  IConfig *cfg = it->second();
+  if (cfg == nullptr)
+    configLog.error("Factory for config with namespace %s returned nullptr", namespaceString.c_str());
+
+  configMap[namespaceString] = cfg;
+  cfg->setStorage(&storage);
 
   return cfg;
 }
