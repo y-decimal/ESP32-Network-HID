@@ -1,61 +1,36 @@
 #ifndef CONFIGMANAGER_H
 #define CONFIGMANAGER_H
 
-#include <interfaces/IStorage.h>
 #include <interfaces/ISerializableStructs.h>
-#include <submodules/Config/GlobalConfig.h>
-#include <submodules/Config/KeyScannerConfig.h>
-#include <submodules/Storage/TGenericStorage.h>
+#include <interfaces/IConfig.h>
 #include <submodules/Logger.h>
+#include <unordered_map>
+#include <typeindex>
+#include <vector>
 
-// Storage keys for configuration manager (max 15 chars for ESP32 Preferences)
-#define CONFIG_MANAGER_NAMESPACE "CfgMgr"
-#define GLOBAL_CONFIG_KEY "global"
-#define KEYSCANNER_CONFIG_KEY "keyScan"
+#define ASSERT_ICONFIG static_assert(std::is_base_of<IConfig, T>::value, "T must derive from IConfig interface")
 
-static Logger configLog(CONFIG_MANAGER_NAMESPACE);
+static Logger configLog(__FILENAME__);
 
-/**
- * @brief Configuration Manager for handling different configuration types.
- *
- * The ConfigManager class provides methods to get, set, save, and load
- * configurations for various components such as GlobalConfig and
- * KeyScannerConfig. It utilizes a thread-safe generic storage mechanism to
- * ensure safe access to configuration data.
- */
-class ConfigManager : public Serializable
+class ConfigManager : public ISerializable
 {
 private:
-  // Reference to the storage interface
-
-  // Thread-safe storage for different configuration types
-  ThreadSafeGenericStorage<GlobalConfig::SerializedConfig> globalCfg;
-  ThreadSafeGenericStorage<KeyScannerConfig::SerializedConfig> keyScannerCfg;
+  // Configuration instances
+  std::unordered_map<std::type_index, IConfig *> configMap;
 
 public:
+  ConfigManager();
+  ~ConfigManager();
 
-  struct SerializedConfig
-  {
-    uint8_t data[sizeof(GlobalConfig::SerializedConfig) +
-                 sizeof(KeyScannerConfig::SerializedConfig)]{0};
-    size_t size = sizeof(data);
-  };
-
-  /**
-   * @brief Constructor for ConfigManager.
-   * @param storage Reference to an IStorage implementation for data operations.
-   * If left empty ConfigManager will start in volatile storage mode
-   */
-  ConfigManager(IStorage *storageBackend = nullptr)
-      : globalCfg(CONFIG_MANAGER_NAMESPACE "/" GLOBAL_CONFIG_KEY, storageBackend),
-        keyScannerCfg(CONFIG_MANAGER_NAMESPACE "/" KEYSCANNER_CONFIG_KEY, storageBackend) {}
+  template <typename T>
+  T *createConfig();
 
   /**
    * @brief Retrieve the configuration of type T.
    * @return The configuration object of type T.
    */
   template <typename T>
-  T getConfig() const;
+  T *getConfig() const;
 
   /**
    * @brief Set the configuration of type T.
@@ -65,22 +40,29 @@ public:
   void setConfig(const T &cfg);
 
   /**
+   * @brief Set the serialized configuration of type T.
+   * @param serializedCfg The serialized configuration data.
+   */
+  template <typename T>
+  void setSerializedConfig(const uint8_t *buffer, size_t bufferSize);
+
+  /**
    * @brief Save all configurations to storage.
    * @return True if save was successful, false otherwise.
    */
-  bool saveConfig();
+  bool saveConfigs();
 
   /**
    * @brief Load all configurations from storage.
    * @return True if load was successful, false otherwise.
    */
-  bool loadConfig();
+  bool loadConfigs();
 
   /**
    * @brief Clear all configurations from storage.
    * @return True if clear was successful, false otherwise.
    */
-  bool clearAllConfigs();
+  void clearAllConfigs();
 
   // Serializable interface implementation
   size_t packSerialized(uint8_t *output, size_t size) const override;
@@ -88,83 +70,113 @@ public:
   size_t getSerializedSize() const override;
 };
 
-// Template specializations
+// Template implementations
 
-/**
- * @brief Retrieve the GlobalConfig configuration.
- * @return The GlobalConfig object.
- */
-template <>
-inline GlobalConfig ConfigManager::getConfig<GlobalConfig>() const
+template <typename T>
+T *ConfigManager::createConfig()
 {
-  GlobalConfig::SerializedConfig serialized = globalCfg.get();
-  GlobalConfig config; // Create with defaults
-  // Only unpack if we have valid data (size > 0)
-  if (serialized.size > 0)
+  ASSERT_ICONFIG;
+
+  auto key = std::type_index(typeid(T));
+  auto it = configMap.find(key);
+
+  if (it != configMap.end())
   {
-    config.unpackSerialized(serialized.data, serialized.size);
+    configLog.error("Config %s already exists", typeid(T).name());
+    return static_cast<T *>(it->second);
   }
-  else 
-  {
-    configLog.warn("GlobalConfig is empty, using defaults");
-  }
-  return config;
+
+  T *cfg = new T();
+  configMap[key] = cfg;
+
+  configLog.info("Created new config %s", typeid(T).name());
+
+  return cfg;
 }
 
-/**
- * @brief Retrieve the KeyScannerConfig configuration.
- * @return The KeyScannerConfig object.
- */
-template <>
-inline KeyScannerConfig ConfigManager::getConfig<KeyScannerConfig>() const
+template <typename T>
+T *ConfigManager::getConfig() const
 {
-  KeyScannerConfig::SerializedConfig serialized = keyScannerCfg.get();
-  KeyScannerConfig config; // Create with defaults
-  // Only unpack if we have valid data (size > 0)
-  if (serialized.size > 0)
+  ASSERT_ICONFIG;
+
+  auto it = configMap.find(std::type_index(typeid(T)));
+
+  if (it == configMap.end())
   {
-    config.unpackSerialized(serialized.data, serialized.size);
+    configLog.error("Could not find config of type %s", typeid(T).name());
+    return nullptr;
   }
-  else 
-  {
-    configLog.warn("KeyScannerConfig is empty, using defaults");
-  }
-  return config;
+
+  configLog.debug("Returned config of type %s", typeid(T).name());
+  return static_cast<T *>(it->second);
 }
 
-/**
- * @brief Set the GlobalConfig configuration.
- * @param cfg The GlobalConfig object to set.
- */
-template <>
-inline void ConfigManager::setConfig<GlobalConfig>(const GlobalConfig &cfg)
+template <typename T>
+void ConfigManager::setConfig(const T &cfg)
 {
-  GlobalConfig::SerializedConfig serialized;
-  serialized.size = cfg.packSerialized(serialized.data, sizeof(serialized.data));
-  if (serialized.size == 0)
-  {
-    configLog.error("Failed to serialize GlobalConfig");
-    return;
-  }
-  globalCfg.set(serialized);
+  ASSERT_ICONFIG;
+
+  std::vector<uint8_t> buffer(cfg.getSerializedSize());
+  cfg.packSerialized(buffer.data(), buffer.size());
+  setSerializedConfig<T>(buffer.data(), buffer.size());
 }
 
-/**
- * @brief Set the KeyScannerConfig configuration.
- * @param cfg The KeyScannerConfig object to set.
- */
-template <>
-inline void
-ConfigManager::setConfig<KeyScannerConfig>(const KeyScannerConfig &cfg)
+template <typename T>
+void ConfigManager::setSerializedConfig(const uint8_t *buffer, size_t bufferSize)
 {
-  KeyScannerConfig::SerializedConfig serialized;
-  serialized.size = cfg.packSerialized(serialized.data, sizeof(serialized.data));
-  if (serialized.size == 0)
+  ASSERT_ICONFIG;
+
+  T *stored = getConfig<T>();
+  if (!stored)
   {
-    configLog.error("Failed to serialize KeyScannerConfig");
-    return;
+    stored = createConfig<T>();
+    configLog.info("Config doesn't exist, creating new config");
   }
-  keyScannerCfg.set(serialized);
+
+  stored->unpackSerialized(buffer, bufferSize);
+  configLog.info("Set serialized config");
+}
+
+bool ConfigManager::saveConfigs()
+{
+  bool success = true;
+  for (auto it = configMap.begin(); it != configMap.end(); it++)
+  {
+    if (!it->second->save())
+    {
+      configLog.error("Config %s could not be saved", typeid(*it->second).name());
+      success = false;
+    }
+  }
+  return success;
+}
+
+bool ConfigManager::loadConfigs()
+{
+  bool success = true;
+  for (auto it = configMap.begin(); it != configMap.end(); it++)
+  {
+    if (!it->second->load())
+    {
+      configLog.error("Config %s could not be loaded", typeid(*it->second).name());
+      success = false;
+    }
+  }
+  return success;
+}
+
+void ConfigManager::clearAllConfigs()
+{
+  for (auto it = configMap.begin(); it != configMap.end(); it++)
+  {
+    delete it->second;
+  }
+  configMap.clear();
+}
+
+ConfigManager::~ConfigManager()
+{
+  clearAllConfigs();
 }
 
 #endif
