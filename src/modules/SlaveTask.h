@@ -12,7 +12,7 @@ static constexpr const char *SLAVETASK_NAMESPACE = "SlaveTask";
 class SlaveTask : public ITask
 {
 public:
-    SlaveTask(ITransport &transport, ConfigManager & config);
+    SlaveTask(ITransport &transport, ConfigManager *config);
     ~SlaveTask();
     void start(TaskParameters params) override;
     void stop() override;
@@ -23,7 +23,7 @@ private:
     QueueHandle_t localQueue = nullptr;
     ITransport *transportRef = nullptr;
     TransportProtocol *protocol = nullptr;
-    ConfigManager &configManager;
+    ConfigManager *configManager = nullptr;
     static SlaveTask *instance;
 
     bool connected = false;
