@@ -85,141 +85,118 @@ size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const
   if (size < ownSize)
     return 0;
 
-  // Temporary buffer to hold serialized data
-  uint8_t *buffer = (uint8_t *)malloc(ownSize);
-
   // Helper variables for serialization
-  size_t index = 0;
   size_t totalWrite = 0;
   size_t objSize = 0;
 
+  objSize = sizeof(size_t);
+  memcpy(output + totalWrite, &ownSize, objSize);
+  totalWrite += objSize;
+
   // Serialize rowCount
   objSize = sizeof(rowCount);
-  memcpy(buffer, &rowCount, objSize);
-  index += objSize;
+  memcpy(output + totalWrite, &rowCount, objSize);
   totalWrite += objSize;
 
   // Serialize colCount
   objSize = sizeof(colCount);
-  memcpy(buffer + index, &colCount, objSize);
-  index += objSize;
+  memcpy(output + totalWrite, &colCount, objSize);
   totalWrite += objSize;
 
   // Serialize bitmapSize
   objSize = sizeof(bitmapSize);
-  memcpy(buffer + index, &bitmapSize, objSize);
-  index += objSize;
+  memcpy(output + totalWrite, &bitmapSize, objSize);
   totalWrite += objSize;
 
   // Serialize rowPins
   objSize = rowCount;
-  memcpy(buffer + index, rowPins.data(), objSize);
-  index += objSize;
+  memcpy(output + totalWrite, rowPins.data(), objSize);
   totalWrite += objSize;
 
   // Serialize colPins
   objSize = colCount;
-  memcpy(buffer + index, colPins.data(), objSize);
-  index += objSize;
+  memcpy(output + totalWrite, colPins.data(), objSize);
   totalWrite += objSize;
 
   // Serialize refreshRate
   objSize = sizeof(refreshRate);
-  memcpy(buffer + index, &refreshRate, objSize);
-  index += objSize;
+  memcpy(output + totalWrite, &refreshRate, objSize);
   totalWrite += objSize;
 
   // Serialize bitMapSendFrequency
   objSize = sizeof(bitMapSendRate);
-  memcpy(buffer + index, &bitMapSendRate, objSize);
-  index += objSize;
+  memcpy(output + totalWrite, &bitMapSendRate, objSize);
   totalWrite += objSize;
 
   // Serialize localToHidMap
   objSize = rowCount * colCount;
-  memcpy(buffer + index, localToHidMap.data(), objSize);
-  index += objSize;
+  memcpy(output + totalWrite, localToHidMap.data(), objSize);
   totalWrite += objSize;
-
-  // Copy serialized data to output buffer
-  memcpy(output, buffer, totalWrite);
-
-  delete buffer;
 
   return totalWrite;
 }
 
 size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size)
 {
-  // Don't check against getSerializedSize() since we don't know rowCount/colCount yet
-  // Just do basic size validation
-  if (size < sizeof(rowCount) + sizeof(colCount) + sizeof(bitmapSize))
-    return 0;
-
   // Helper variables for deserialization
-  size_t index = 0;
-  size_t totalWrite = 0;
+  size_t totalRead = 0;
   size_t objSize = 0;
+
+  size_t ownSize = 0;
+  objSize = sizeof(size_t);
+  memcpy(&ownSize, input + totalRead, objSize);
+  totalRead += objSize;
+
+  if (size < ownSize)
+  {
+    log.error("Could not unpack config into buffer. Required size: %d, actual size: %d", ownSize, size);
+    return 0;
+  }
 
   // Deserialize rowCount
   objSize = sizeof(rowCount);
-  memcpy(&rowCount, input, objSize);
-  index += objSize;
-  totalWrite += objSize;
+  memcpy(&rowCount, input + totalRead, objSize);
+  totalRead += objSize;
 
   // Deserialize colCount
   objSize = sizeof(colCount);
-  memcpy(&colCount, input + index, objSize);
-  index += objSize;
-  totalWrite += objSize;
+  memcpy(&colCount, input + totalRead, objSize);
+  totalRead += objSize;
 
   // Deserialize bitmapSize
   objSize = sizeof(bitmapSize);
-  memcpy(&bitmapSize, input + index, objSize);
-  index += objSize;
-  totalWrite += objSize;
-
-  // Now validate the full size including pin data
-  size_t expectedSize = sizeof(rowCount) + sizeof(colCount) + sizeof(bitmapSize) +
-                        rowCount + colCount + sizeof(refreshRate) +
-                        sizeof(bitMapSendRate) + (rowCount * colCount);
-  if (size < expectedSize)
-    return 0;
+  memcpy(&bitmapSize, input + totalRead, objSize);
+  totalRead += objSize;
 
   // Resize vectors BEFORE copying data into them
   rowPins.resize(rowCount);
   objSize = rowCount;
-  memcpy(rowPins.data(), input + index, objSize);
-  index += rowCount;
-  totalWrite += objSize;
+  memcpy(rowPins.data(), input + totalRead, objSize);
+  totalRead += objSize;
 
   // Resize vectors BEFORE copying data into them
   colPins.resize(colCount);
   objSize = colCount;
-  memcpy(colPins.data(), input + index, objSize);
-  index += colCount;
-  totalWrite += objSize;
+  memcpy(colPins.data(), input + totalRead, objSize);
+  totalRead += objSize;
 
   // Deserialize refreshRate
   objSize = sizeof(refreshRate);
-  memcpy(&refreshRate, input + index, objSize);
-  index += objSize;
-  totalWrite += objSize;
+  memcpy(&refreshRate, input + totalRead, objSize);
+  totalRead += objSize;
 
   // Deserialize bitMapSendFrequency
   objSize = sizeof(bitMapSendRate);
-  memcpy(&bitMapSendRate, input + index, objSize);
-  index += objSize;
-  totalWrite += objSize;
+  memcpy(&bitMapSendRate, input + totalRead, objSize);
+  totalRead += objSize;
 
   // Deserialize localToHidMap
   objSize = rowCount * colCount;
   localToHidMap.resize(objSize);
-  memcpy(localToHidMap.data(), input + index, objSize);
-  index += objSize;
-  totalWrite += objSize;
+  memcpy(localToHidMap.data(), input + totalRead, objSize);
+  totalRead += objSize;
 
-  return totalWrite;
+  return totalRead;
 }
 
 size_t KeyScannerConfig::getSerializedSize() const
