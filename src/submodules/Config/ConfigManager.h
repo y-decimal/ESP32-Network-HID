@@ -154,7 +154,7 @@ T *ConfigManager::createConfig()
 IConfig *ConfigManager::createConfigByNamespace(const char *namespaceCstring)
 {
   std::string namespaceString = namespaceCstring;
-  createConfigByNamespace(namespaceString);
+  return createConfigByNamespace(namespaceString);
 }
 
 IConfig *ConfigManager::createConfigByNamespace(std::string namespaceString)
