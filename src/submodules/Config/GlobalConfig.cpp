@@ -47,6 +47,27 @@ void GlobalConfig::getMac(uint8_t *out, size_t size)
   memcpy(out, deviceMac, sizeof(deviceMac));
 }
 
+// Implementation of IConfig interface methods
+void GlobalConfig::setStorage(IStorage *storage)
+{
+  this->storage = storage;
+}
+
+bool GlobalConfig::save()
+{
+  return false; // Todo
+}
+
+bool GlobalConfig::load()
+{
+  return false; // Todo
+}
+
+bool GlobalConfig::erase()
+{
+  return false; // Todo
+}
+
 // Implementation of Serializable interface methods
 size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const
 {
