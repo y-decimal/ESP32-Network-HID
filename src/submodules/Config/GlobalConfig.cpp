@@ -1,4 +1,7 @@
 #include <submodules/Config/GlobalConfig.h>
+#include <submodules/Logger.h>
+
+static Logger log(GlobalConfig::NAMESPACE);
 
 void GlobalConfig::setDeviceModules(DeviceModule *moduleArray, size_t arrSize)
 {
