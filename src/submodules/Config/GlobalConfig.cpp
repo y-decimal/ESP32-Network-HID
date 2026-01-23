@@ -66,7 +66,10 @@ bool GlobalConfig::save()
 
   size_t ownSize = getSerializedSize();
   uint8_t *buffer = (uint8_t *)malloc(ownSize);
-  packSerialized(buffer, ownSize);
+  size_t packedSize = packSerialized(buffer, ownSize);
+  if (packedSize != ownSize)
+    log.warn("Packed size %d and serialized size size %d don't match!", packedSize, ownSize);
+
   bool success = storage->save(NAMESPACE, buffer, ownSize);
   free(buffer);
 
@@ -92,6 +95,7 @@ bool GlobalConfig::load()
 
   uint8_t *buffer = (uint8_t *)malloc(ownSize);
   bool success = storage->load(NAMESPACE, buffer, ownSize);
+
   if (!success)
   {
     log.error("Loading config data failed");
@@ -99,11 +103,11 @@ bool GlobalConfig::load()
     return false;
   }
 
-  size_t packedSize = unpackSerialized(buffer, ownSize);
+  size_t unpackedSize = unpackSerialized(buffer, ownSize);
 
-  if (packedSize != ownSize)
+  if (unpackedSize != ownSize)
   {
-    log.warn("Packed size %d and loaded size %d don't match!", packedSize, ownSize);
+    log.warn("Unpacked size %d and loaded size %d don't match!", unpackedSize, ownSize);
   }
 
   free(buffer);
