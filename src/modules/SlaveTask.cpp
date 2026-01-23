@@ -176,19 +176,34 @@ void SlaveTask::pairConfirmCallback(uint8_t sourceId)
            masterMac[3], masterMac[4], masterMac[5]);
 }
 
-void SlaveTask::configReceiveCallback(const ConfigManager &config, uint8_t senderId)
+void SlaveTask::configReceiveCallback(ConfigManager *config, uint8_t senderId)
 {
   if (SlaveTask::instance == nullptr)
   {
     log.error("SlaveTask instance is null in configReceiveCallback");
+    delete config; // Clean up if we can't process it
     return;
   }
   log.info("Received configuration update from master ID %u", senderId);
-  return; // Todo: implement config handling
+
+  // TODO: Use the config data here
+  // Example: copy configs you need from config to your local configManager
+
+  delete config; // Clean up when done
 }
 
 void SlaveTask::configRequestCallback(uint8_t senderId)
 {
+   if (SlaveTask::instance == nullptr)
+  {
+    log.error("SlaveTask instance is null in configRequestCallback");
+    return;
+  }
   log.info("Config Request received. Sending config to master ID %d", senderId);
+  
+  if(SlaveTask::instance->configManager == nullptr) {
+    log.error("Config manager is null in configRequestCallback");
+    return;
+  }
   instance->protocol->sendConfig(senderId, instance->configManager);
 }
