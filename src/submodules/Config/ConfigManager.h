@@ -129,7 +129,8 @@ T *ConfigManager::createConfig()
     return static_cast<T *>(it->second);
   }
 
-  auto it = factoryMap.find(T::NAMESPACE) if (it == factoryMap.end())
+  auto factory = factoryMap.find(T::NAMESPACE);
+   if (factory == factoryMap.end())
   {
     configLog.error("Config was not registered. Register config with configManager.registerConfig<CONFIGTYPE>()");
     return nullptr;
