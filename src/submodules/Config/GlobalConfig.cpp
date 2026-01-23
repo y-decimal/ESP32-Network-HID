@@ -178,6 +178,7 @@ size_t GlobalConfig::unpackSerialized(const uint8_t *input, size_t size)
   size_t ownSize = 0;
   objSize = sizeof(size_t);
   memcpy(&ownSize, input + totalRead, objSize);
+  totalRead += objSize;
 
   // Check if provided data size is valid
   if (size > ownSize)
