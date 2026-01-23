@@ -76,6 +76,7 @@ public:
   void setStorage(IStorage *storage) override;
   bool save() override;
   bool load() override;
+  bool erase() override;
 
 private:
   IStorage *storage = nullptr;
