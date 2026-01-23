@@ -47,6 +47,13 @@ public:
   void setSerializedConfig(const uint8_t *buffer, size_t bufferSize);
 
   /**
+   * @brief Deletes the config of type T
+   * @return Returns true if deleted, false if config T does not exist
+   */
+  template <typename T>
+  bool deleteConfig();
+
+  /**
    * @brief Save all configurations to storage.
    * @return True if save was successful, false otherwise.
    */
@@ -135,6 +142,29 @@ void ConfigManager::setSerializedConfig(const uint8_t *buffer, size_t bufferSize
 
   stored->unpackSerialized(buffer, bufferSize);
   configLog.info("Set serialized config");
+}
+
+template <typename T>
+bool ConfigManager::deleteConfig()
+{
+  auto key = std::type_index(typeid(T));
+  auto it = configMap.find(key);
+
+  if (key == configMap.end())
+  {
+    configLog.error("Cannot delete config of type %s, it does not exist", typeid(T).name());
+    return false;
+  }
+
+  delete it->second();
+  bool erased = configMap.erase(key);
+
+  if (!erased)
+    configLog.error("Could not erase config %s", typeid.name());
+  else
+    configLog.info("Erased config %s", typeid.name());
+
+  return erased;
 }
 
 bool ConfigManager::saveConfigs()
