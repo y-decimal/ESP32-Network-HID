@@ -9,9 +9,10 @@ class IConfig : public ISerializable
 public:
     virtual ~IConfig() = default;
 
-    virtual void setStorage(IStorage storage) = 0;
+    virtual void setStorage(IStorage *storage) = 0;
 
     virtual bool save() = 0;
     virtual bool load() = 0;
+    virtual bool erase() = 0;
 };
 #endif
