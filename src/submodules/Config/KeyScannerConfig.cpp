@@ -23,7 +23,8 @@ void KeyScannerConfig::setRefreshRate(uint16_t rate)
 void KeyScannerConfig::setBitmapSendFrequency(uint16_t frequency)
 {
   if (frequency < MIN_BITMAP_REFRESH_RATE ||
-      frequency > MAX_BITMAP_REFRESH_RATE) {
+      frequency > MAX_BITMAP_REFRESH_RATE)
+  {
     // frequency is now the bitmap frequency in Hz
     // Limited to a range of 1-500 Hz to ensure reasonable bitmap rates
     log.warn("Bitmap send frequency %d Hz is out of bounds (%d-%d Hz)",
@@ -35,7 +36,8 @@ void KeyScannerConfig::setBitmapSendFrequency(uint16_t frequency)
 
 void KeyScannerConfig::setLocalToHidMap(uint8_t *mapData, size_t mapSize)
 {
-  if (mapSize > MAX_KEY_COUNT) {
+  if (mapSize > MAX_KEY_COUNT)
+  {
     log.warn("Local to HID map size %d exceeds maximum of %d", mapSize, MAX_KEY_COUNT);
     return;
   }
@@ -44,7 +46,8 @@ void KeyScannerConfig::setLocalToHidMap(uint8_t *mapData, size_t mapSize)
 
 void KeyScannerConfig::updateHIDCodeForIndex(uint8_t localKeyIndex, uint8_t hidCode)
 {
-  if (localKeyIndex >= localToHidMap.size()) {
+  if (localKeyIndex >= localToHidMap.size())
+  {
     log.warn("Attempted to update HID code for out-of-bounds index %d", localKeyIndex);
     return;
   }
@@ -57,6 +60,21 @@ void KeyScannerConfig::setConfig(KeyCfgParams config)
   setRefreshRate(config.refreshRate);
   setBitmapSendFrequency(config.bitmapSendRate);
   setLocalToHidMap(config.localToHidMap, (config.rowCount * config.colCount));
+}
+
+bool KeyScannerConfig::save()
+{
+  return false; // Todo
+}
+
+bool KeyScannerConfig::load()
+{
+  return false; // Todo
+}
+
+bool KeyScannerConfig::erase()
+{
+  return false; // Todo
 }
 
 size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const
@@ -211,7 +229,8 @@ size_t KeyScannerConfig::getSerializedSize() const
 
 uint8_t KeyScannerConfig::getHIDCodeForIndex(uint8_t localKeyIndex) const
 {
-  if (localKeyIndex >= localToHidMap.size()) {
+  if (localKeyIndex >= localToHidMap.size())
+  {
     log.warn("Requested HID code for out-of-bounds index %d", localKeyIndex);
     return 0;
   }
