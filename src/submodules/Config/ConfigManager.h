@@ -1,7 +1,7 @@
 #ifndef CONFIGMANAGER_H
 #define CONFIGMANAGER_H
 
-#include <interfaces/ISerializableStructs.h>
+#include <interfaces/ISerializable.h>
 #include <interfaces/IConfig.h>
 #include <submodules/Logger.h>
 #include <unordered_map>
@@ -18,8 +18,10 @@ private:
   // Configuration instances
   std::unordered_map<std::type_index, IConfig *> configMap;
 
+  IStorage &storage;
+
 public:
-  ConfigManager();
+  ConfigManager(IStorage &storage) : storage(storage) {};
   ~ConfigManager();
 
   template <typename T>
@@ -94,6 +96,7 @@ T *ConfigManager::createConfig()
   }
 
   T *cfg = new T();
+  cfg->setStorage(&storage);
   configMap[key] = cfg;
 
   configLog.info("Created new config %s", typeid(T).name());
