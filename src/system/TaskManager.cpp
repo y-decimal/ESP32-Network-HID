@@ -128,11 +128,11 @@ uint32_t TaskManager::getAllRequiredTasks()
 
     bitmap |= coreModules;
 
-    bool configLoaded = configManager.loadConfig();
+    bool configLoaded = configManager.loadConfigs();
     if (!configLoaded)
         taskLog.warn("Failed to load configuration, using defaults");
 
-    if (configManager.getConfig<GlobalConfig>().getDeviceMode() == DeviceMode::Master)
+    if (configManager.getConfig<GlobalConfig>()->getDeviceMode() == DeviceMode::Master)
     {
         bitmap |= TaskId::MASTER_TASK;
         taskLog.info("Device mode: Master");
@@ -144,7 +144,7 @@ uint32_t TaskManager::getAllRequiredTasks()
     }
 
     DeviceModule modules[(size_t)DeviceModule::Count] = {};
-    configManager.getConfig<GlobalConfig>().getDeviceModules(modules, sizeof(modules));
+    configManager.getConfig<GlobalConfig>()->getDeviceModules(modules, sizeof(modules));
 
     bitmap |= getRequiredTasksForAllModules(modules);
 
