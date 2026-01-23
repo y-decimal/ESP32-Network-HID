@@ -42,6 +42,9 @@ void setup()
   ConfigManager::registerConfig<GlobalConfig>();
   ConfigManager::registerConfig<KeyScannerConfig>();
 
+  // setKeyboardConfig();
+  // setHostConfig();
+
   logger.info("Starting setup...");
   Serial.begin(115200);
   logger.info("Serial initialized.");
