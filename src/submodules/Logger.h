@@ -53,7 +53,7 @@ public:
     void log(const char *logNamespace, LogLevel level, const char *format, ...);
 
 private:
-    LogMode mode = LogMode::Local;
+    LogMode mode = LogMode::Global;
     char logNamespace[32];
 
     void logV(const char *logNamespace, LogLevel level, const char *format, va_list args);
@@ -63,7 +63,7 @@ private:
     static void clearEarlyLogMessages();
 
     static void internalWrite(const char *logNamespace, LogLevel level, const char *msg);
-    static const char* getModifiedNamespace(const char* originalNamespace);
+    static const char *getModifiedNamespace(const char *originalNamespace);
 };
 
 #endif
