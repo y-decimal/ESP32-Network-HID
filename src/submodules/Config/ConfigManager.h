@@ -220,7 +220,7 @@ bool ConfigManager::deleteConfig()
     return false;
   }
 
-  delete it->second();
+  delete it->second;
   bool erased = configMap.erase(key);
 
   if (!erased)
