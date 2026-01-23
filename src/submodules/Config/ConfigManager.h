@@ -111,9 +111,7 @@ public:
 template <typename T>
 void ConfigManager::registerConfig()
 {
-  factoryMap[T::NAMESPACE] = {
-    []() return new T();
-};
+  factoryMap[T::NAMESPACE] = []() { return new T(); };
 }
 
 template <typename T>
