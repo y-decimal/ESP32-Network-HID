@@ -4,6 +4,7 @@
 #include <interfaces/ISerializable.h>
 #include <interfaces/IStorage.h>
 
+// IMPORTANT: All implementations must provide a static const char* NAMESPACE member
 class IConfig : public ISerializable
 {
 public:

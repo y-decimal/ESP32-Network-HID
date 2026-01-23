@@ -9,6 +9,7 @@
 #include <vector>
 
 #define ASSERT_ICONFIG static_assert(std::is_base_of<IConfig, T>::value, "T must derive from IConfig interface")
+#define ASSERT_NAMESPACE static_assert(has_namespace_static<T>::value, "Config type must define static constexpr const char* NAMESPACE")
 
 static Logger configLog(__FILENAME__);
 
@@ -16,11 +17,22 @@ class ConfigManager : public ISerializable
 {
 private:
   // Configuration instances
-  std::unordered_map<std::type_index, IConfig *> configMap;
+  std::unordered_map<std::string, IConfig *> configMap;
 
   IStorage &storage;
 
   void clearAllConfigs();
+
+  template <typename, typename = void>
+  struct has_namespace_static : std::false_type
+  {
+  };
+
+  template <typename T>
+  struct has_namespace_static<T, std::void_t<decltype(T::NAMESPACE)>>
+      : std::true_type
+  {
+  };
 
 public:
   ConfigManager(IStorage &storage) : storage(storage) {};
@@ -87,21 +99,23 @@ template <typename T>
 T *ConfigManager::createConfig()
 {
   ASSERT_ICONFIG;
+  ASSERT_NAMESPACE;
 
-  auto key = std::type_index(typeid(T));
+  std::string key = T::NAMESPACE;
   auto it = configMap.find(key);
 
   if (it != configMap.end())
   {
-    configLog.error("Config %s already exists", typeid(T).name());
+    configLog.error("Config %s already exists", T::NAMESPACE);
     return static_cast<T *>(it->second);
   }
 
   T *cfg = new T();
+
   cfg->setStorage(&storage);
   configMap[key] = cfg;
 
-  configLog.info("Created new config %s", typeid(T).name());
+  configLog.info("Created new config %s", key);
 
   return cfg;
 }
@@ -110,16 +124,18 @@ template <typename T>
 T *ConfigManager::getConfig() const
 {
   ASSERT_ICONFIG;
+  ASSERT_NAMESPACE;
 
-  auto it = configMap.find(std::type_index(typeid(T)));
+  std::string key = T::NAMESPACE;
+  auto it = configMap.find(key);
 
   if (it == configMap.end())
   {
-    configLog.error("Could not find config of type %s", typeid(T).name());
+    configLog.error("Could not find config of type %s", key.c_str());
     return nullptr;
   }
 
-  configLog.debug("Returned config of type %s", typeid(T).name());
+  configLog.debug("Returned config of type %s", key.c_str());
   return static_cast<T *>(it->second);
 }
 
@@ -152,12 +168,15 @@ void ConfigManager::setSerializedConfig(const uint8_t *buffer, size_t bufferSize
 template <typename T>
 bool ConfigManager::deleteConfig()
 {
-  auto key = std::type_index(typeid(T));
+  ASSERT_ICONFIG;
+  ASSERT_NAMESPACE;
+
+  std::string key = T::NAMESPACE;
   auto it = configMap.find(key);
 
-  if (key == configMap.end())
+  if (it == configMap.end())
   {
-    configLog.error("Cannot delete config of type %s, it does not exist", typeid(T).name());
+    configLog.error("Cannot delete config of type %s, it does not exist", key.c_str());
     return false;
   }
 
@@ -165,9 +184,9 @@ bool ConfigManager::deleteConfig()
   bool erased = configMap.erase(key);
 
   if (!erased)
-    configLog.error("Could not erase config %s", typeid.name());
+    configLog.error("Could not erase config %s", key.c_str());
   else
-    configLog.info("Erased config %s", typeid.name());
+    configLog.info("Erased config %s", key.c_str());
 
   return erased;
 }
@@ -179,7 +198,7 @@ bool ConfigManager::saveConfigs()
   {
     if (!it->second->save())
     {
-      configLog.error("Config %s could not be saved", typeid(*it->second).name());
+      configLog.error("Config %s could not be saved", it->first.c_str());
       success = false;
     }
   }
@@ -193,7 +212,7 @@ bool ConfigManager::loadConfigs()
   {
     if (!it->second->load())
     {
-      configLog.error("Config %s could not be loaded", typeid(*it->second).name());
+      configLog.error("Config %s could not be loaded", it->first.c_str());
       success = false;
     }
   }
@@ -207,7 +226,7 @@ bool ConfigManager::eraseConfigs()
   {
     if (!it->second->erase())
     {
-      configLog.error("Config %s could not be erased", typeid(*it->second).name());
+      configLog.error("Config %s could not be erased", it->first.c_str());
       success = false;
     }
   }
