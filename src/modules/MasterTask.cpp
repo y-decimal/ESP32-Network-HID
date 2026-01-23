@@ -194,7 +194,7 @@ void MasterTask::bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_
 
 void MasterTask::configReceiveCallback(const ConfigManager &config, uint8_t senderId)
 {
-  std::vector<uint8_t> map = config.getConfig<KeyScannerConfig>().getLocalToHidMap();
+  std::vector<uint8_t> map = config.getConfig<KeyScannerConfig>()->getLocalToHidMap();
 
   hidMapper.insertMap(map.data(), map.size(), senderId);
 
