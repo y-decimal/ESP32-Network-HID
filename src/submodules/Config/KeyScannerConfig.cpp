@@ -64,17 +64,72 @@ void KeyScannerConfig::setConfig(KeyCfgParams config)
 
 bool KeyScannerConfig::save()
 {
-  return false; // Todo
+  if (storage == nullptr)
+  {
+    log.error("No storage backend set, cannot save config");
+    return false;
+  }
+
+  size_t ownSize = getSerializedSize();
+  uint8_t *buffer = (uint8_t *)malloc(ownSize);
+  packSerialized(buffer, ownSize);
+  bool success = storage->save(NAMESPACE, buffer, ownSize);
+  free(buffer);
+
+  success ? log.info("Configuration saved") : log.error("Saving configuration failed");
+
+  return success;
 }
 
 bool KeyScannerConfig::load()
 {
-  return false; // Todo
+  if (storage == nullptr)
+  {
+    log.error("No storage backend set, cannot load config");
+    return false;
+  }
+
+  size_t ownSize = storage->getSize(NAMESPACE);
+  if (ownSize == 0)
+  {
+    log.error("No config data stored");
+    return false;
+  }
+
+  uint8_t *buffer = (uint8_t *)malloc(ownSize);
+  bool success = storage->load(NAMESPACE, buffer, ownSize);
+  if (!success)
+  {
+    log.error("Loading config data failed");
+    free(buffer);
+    return false;
+  }
+
+  size_t packedSize = unpackSerialized(buffer, ownSize);
+
+  if (packedSize != ownSize)
+  {
+    log.warn("Packed size %d and loaded size %d don't match!", packedSize, ownSize);
+  }
+
+  free(buffer);
+
+  return success;
 }
 
 bool KeyScannerConfig::erase()
 {
-  return false; // Todo
+  if (storage == nullptr)
+  {
+    log.error("No storage backend set, cannot erase config");
+    return false;
+  }
+
+  bool success = storage->remove(NAMESPACE);
+
+  success ? log.info("Configuration erased") : log.error("Erasing configuration failed");
+
+  return success;
 }
 
 size_t KeyScannerConfig::packSerialized(uint8_t *output, size_t size) const
