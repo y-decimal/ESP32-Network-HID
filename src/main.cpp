@@ -19,7 +19,7 @@ static EspNow espNow;
 static PreferencesStorage prefStorage("Esp32HidStorage");
 
 TaskManager::Platform platform = {espGpio, espNow, prefStorage};
-static TaskManager taskManager(platform);
+static TaskManager *taskManager;
 
 static void keyPrintCallback(const Event &event);
 static void bitMapPrintCallback(const Event &event);
@@ -37,8 +37,8 @@ void setup()
   Logger::setNamespaceLevel(SLAVETASK_NAMESPACE, Logger::LogLevel::info);
   Logger::setNamespaceLevel("TransportProtocol.cpp", Logger::LogLevel::info);
 
-  // setHostConfig();
-  // setKeyboardConfig();
+  ConfigManager::registerConfig<GlobalConfig>();
+  ConfigManager::registerConfig<KeyScannerConfig>();
 
   logger.info("Starting setup...");
   Serial.begin(115200);
@@ -57,7 +57,11 @@ void setup()
   EventRegistry::registerHandler(EventType::RawBitmap, bitMapPrintCallback);
   EventRegistry::registerHandler(EventType::HidBitmap, hidPrintCallback);
 
-  taskManager.start();
+  taskManager = new TaskManager(platform);
+  // setHostConfig();
+  setKeyboardConfig();
+  logger.info("Starting taskmanager");
+  taskManager->start();
 
   logger.info("setup complete");
 }
