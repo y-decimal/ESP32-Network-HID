@@ -7,6 +7,8 @@ static inline uint32_t getRequiredTaskForModule(DeviceModule module);
 
 void TaskManager::start()
 {
+    configManager.createConfig<GlobalConfig>();
+    configManager.createConfig<KeyScannerConfig>();
     startModules(getAllRequiredTasks());
 }
 
