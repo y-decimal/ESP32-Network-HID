@@ -73,6 +73,8 @@ public:
   size_t unpackSerialized(const uint8_t *input, size_t size) override;
   size_t getSerializedSize() const override;
 
+  static constexpr const char *NAMESPACE = "GlobalCfg";
+  const char *getNamespace() { return NAMESPACE; }
   void setStorage(IStorage *storage) override;
   bool save() override;
   bool load() override;
