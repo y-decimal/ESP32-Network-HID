@@ -58,17 +58,59 @@ void GlobalConfig::setStorage(IStorage *storage)
 
 bool GlobalConfig::save()
 {
-  return false; // Todo
+  if (storage == nullptr)
+  {
+    log.error("No storage backend set, cannot save config");
+    return false;
+  }
+
+  size_t ownSize = getSerializedSize();
+  uint8_t *buffer = (uint8_t *)malloc(ownSize);
+  packSerialized(buffer, ownSize);
+  bool success = storage->save(NAMESPACE, buffer, ownSize);
+  free(buffer);
+
+  success ? log.info("Configuration saved") : log.error("Saving configuration failed");
+
+  return success;
 }
 
 bool GlobalConfig::load()
 {
-  return false; // Todo
+  if (storage == nullptr)
+  {
+    log.error("No storage backend set, cannot load config");
+    return false;
+  }
+
+  size_t ownSize = storage->getSize(NAMESPACE);
+  if (ownSize == 0)
+  {
+    log.error("No config data stored");
+    return false;
+  }
+
+  uint8_t *buffer = (uint8_t *)malloc(ownSize);
+  bool success = storage->load(NAMESPACE, buffer, ownSize);
+  if (!success)
+  {
+    log.error("Loading config data failed");
+    return false;
+  }
+
+  size_t packedSize = unpackSerialized(buffer, ownSize);
+
+  if (packedSize != ownSize)
+  {
+    log.warn("Packed size %d and loaded size %d don't match!", packedSize, ownSize);
+  }
+
+  return success;
 }
 
 bool GlobalConfig::erase()
 {
-  return false; // Todo
+  return storage->remove(NAMESPACE);
 }
 
 // Implementation of Serializable interface methods
