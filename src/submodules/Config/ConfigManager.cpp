@@ -33,6 +33,7 @@ IConfig *ConfigManager::createConfigByNamespace(std::string namespaceString)
 
 bool ConfigManager::saveConfigs()
 {
+    configLog.debug("Saving configs");
     bool success = true;
     for (auto it = configMap.begin(); it != configMap.end(); it++)
     {
@@ -41,12 +42,15 @@ bool ConfigManager::saveConfigs()
             configLog.error("Config %s could not be saved", it->first.c_str());
             success = false;
         }
+        else 
+            configLog.info("Saved config: %s", it->first.c_str());
     }
     return success;
 }
 
 bool ConfigManager::loadConfigs()
 {
+    configLog.debug("Loading configs");
     bool success = true;
     for (auto it = configMap.begin(); it != configMap.end(); it++)
     {
@@ -55,12 +59,15 @@ bool ConfigManager::loadConfigs()
             configLog.error("Config %s could not be loaded", it->first.c_str());
             success = false;
         }
+        else 
+            configLog.info("Loaded config: %s", it->first.c_str());
     }
     return success;
 }
 
 bool ConfigManager::eraseConfigs()
 {
+    configLog.debug("Erasing configs");
     bool success = true;
     for (auto it = configMap.begin(); it != configMap.end(); it++)
     {
@@ -69,6 +76,8 @@ bool ConfigManager::eraseConfigs()
             configLog.error("Config %s could not be erased", it->first.c_str());
             success = false;
         }
+        else 
+            configLog.info("Erased config: %s", it->first.c_str());
     }
     return success;
 }
