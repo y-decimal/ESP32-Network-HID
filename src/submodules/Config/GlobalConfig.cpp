@@ -78,7 +78,7 @@ size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const
     return 0;
 
   // Temporary buffer to hold serialized data
-  uint8_t buffer[ownSize] = {};
+  uint8_t *buffer = (uint8_t *)malloc(ownSize);
 
   // Helper variables for serialization
   size_t index = 0;
@@ -104,6 +104,8 @@ size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const
 
   // Copy serialized data to output buffer
   memcpy(output, buffer, totalWrite);
+
+  delete buffer;
 
   return totalWrite;
 }
