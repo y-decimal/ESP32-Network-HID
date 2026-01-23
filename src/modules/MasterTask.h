@@ -6,6 +6,8 @@
 #include <submodules/TransportProtocol.h>
 #include <submodules/EventRegistry.h>
 #include <submodules/HidMapper.h>
+#include <submodules/Config/ConfigManager.h>
+#include <submodules/Config/KeyScannerConfig.h>
 #include <vector>
 
 static constexpr const char *MASTERTASK_NAMESPACE = "MasterTask";
