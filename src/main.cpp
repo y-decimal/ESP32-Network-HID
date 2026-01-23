@@ -60,8 +60,6 @@ void setup()
   EventRegistry::registerHandler(EventType::HidBitmap, hidPrintCallback);
 
   taskManager = new TaskManager(platform);
-  // setHostConfig();
-  setKeyboardConfig();
   logger.info("Starting taskmanager");
   taskManager->start();
 
