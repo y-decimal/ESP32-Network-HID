@@ -95,6 +95,7 @@ bool GlobalConfig::load()
   if (!success)
   {
     log.error("Loading config data failed");
+    free(buffer);
     return false;
   }
 
@@ -104,6 +105,8 @@ bool GlobalConfig::load()
   {
     log.warn("Packed size %d and loaded size %d don't match!", packedSize, ownSize);
   }
+
+  free(buffer);
 
   return success;
 }
