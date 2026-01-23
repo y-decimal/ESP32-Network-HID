@@ -153,6 +153,8 @@ public:
   uint8_t getHIDCodeForIndex(uint8_t localKeyIndex) const;
 
   // Implementation of IConfig interface methods
+  static constexpr const char *NAMESPACE = "KeyCfg";
+  const char *getNamespace() { return NAMESPACE; }
   bool save() override;
   bool load() override;
   bool erase() override;
