@@ -20,6 +20,8 @@ private:
 
   IStorage &storage;
 
+  void clearAllConfigs();
+
 public:
   ConfigManager(IStorage &storage) : storage(storage) {};
   ~ConfigManager();
@@ -68,10 +70,10 @@ public:
   bool loadConfigs();
 
   /**
-   * @brief Clear all configurations from storage.
-   * @return True if clear was successful, false otherwise.
+   * @brief Erases ALL configurations from PERSISTENT storage.
+   * @return True if deletion was successful, false otherwise.
    */
-  void clearAllConfigs();
+  bool eraseConfigs();
 
   // Serializable interface implementation
   size_t packSerialized(uint8_t *output, size_t size) const override;
@@ -192,6 +194,20 @@ bool ConfigManager::loadConfigs()
     if (!it->second->load())
     {
       configLog.error("Config %s could not be loaded", typeid(*it->second).name());
+      success = false;
+    }
+  }
+  return success;
+}
+
+bool ConfigManager::eraseConfigs()
+{
+  bool success = true;
+  for (auto it = configMap.begin(); it != configMap.end(); it++)
+  {
+    if (!it->second->erase())
+    {
+      configLog.error("Config %s could not be erased", typeid(*it->second).name());
       success = false;
     }
   }
