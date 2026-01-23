@@ -103,7 +103,7 @@ void MasterTask::pairReceiveCallback(uint8_t sourceId)
   instance->protocol->requestConfig(sourceId);
 };
 
-void MasterTask::keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderId)
+void MasterTask::keyReceiveCallback(RawKeyEvent &keyEvent, uint8_t senderId)
 {
   if (instance->hidMapper.doesMapExist(senderId) == false)
   {
@@ -147,7 +147,7 @@ void MasterTask::keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderI
   oldBitmap = currentBitmap;
 };
 
-void MasterTask::bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_t senderId)
+void MasterTask::bitmapReceiveCallback(RawBitmapEvent &bitmapEvent, uint8_t senderId)
 {
   if (instance->hidMapper.doesMapExist(senderId) == false)
   {
@@ -192,11 +192,13 @@ void MasterTask::bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_
   oldBitmap = currentBitmap;
 };
 
-void MasterTask::configReceiveCallback(const ConfigManager &config, uint8_t senderId)
+void MasterTask::configReceiveCallback(ConfigManager *config, uint8_t senderId)
 {
-  std::vector<uint8_t> map = config.getConfig<KeyScannerConfig>()->getLocalToHidMap();
+  std::vector<uint8_t> map = config->getConfig<KeyScannerConfig>()->getLocalToHidMap();
 
   hidMapper.insertMap(map.data(), map.size(), senderId);
 
   log.info("Received Map from device %d", senderId);
+
+  delete config;
 }
