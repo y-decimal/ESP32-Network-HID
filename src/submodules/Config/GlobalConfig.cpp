@@ -116,34 +116,40 @@ size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const
 size_t GlobalConfig::unpackSerialized(const uint8_t *input, size_t size)
 {
 
+  // Helper variables for deserialization
+  size_t totalRead = 0;
+  size_t objSize = 0;
+
+  size_t ownSize = 0;
+  objSize = sizeof(size_t);
+  memcpy(&ownSize, input + totalRead, objSize);
+
   // Check if provided data size is valid
-  size_t ownSize = getSerializedSize();
   if (size > ownSize)
     return 0;
 
-  // Helper variables for deserialization
-  size_t index = 0;
-  size_t totalWrite = 0;
-  size_t objSize = 0;
+  // Deserialize module size
+  size_t moduleSize = 0;
+  objSize = sizeof(size_t);
+  memcpy(&moduleSize, input + totalRead, objSize);
+  totalRead += objSize;
 
   // Deserialize modules
-  objSize = sizeof(modules);
-  memcpy(modules, input, objSize);
-  index += objSize;
-  totalWrite += objSize;
+  objSize = moduleSize;
+  memcpy(modules, input + totalRead, objSize);
+  totalRead += objSize;
 
   // Deserialize mode
   objSize = sizeof(mode);
-  memcpy(&mode, input + index, objSize);
-  index += objSize;
-  totalWrite += objSize;
+  memcpy(&mode, input + totalRead, objSize);
+  totalRead += objSize;
 
   // Deserialize MAC address
   objSize = sizeof(deviceMac);
-  memcpy(deviceMac, input + index, objSize);
-  totalWrite += objSize;
+  memcpy(deviceMac, input + totalRead, objSize);
+  totalRead += objSize;
 
-  return totalWrite;
+  return totalRead;
 }
 
 size_t GlobalConfig::getSerializedSize() const
