@@ -40,7 +40,14 @@ private:
   };
 
 public:
-  ConfigManager(IStorage &storage = defaultNullStorage) : storage(storage) {};
+  ConfigManager(IStorage &storage = defaultNullStorage) : storage(storage)
+  {
+    if (&this->storage == &defaultNullStorage)
+    {
+      configLog.warn("ConfigManager initialized with NullStorage; configuration changes will not be persisted.");
+    }
+  };
+  
   ~ConfigManager();
 
   /**
