@@ -101,7 +101,9 @@ public:
       return 0;
 
     prefs.begin(namespaceName, true);
-    return prefs.getBytesLength(key.c_str());
+    size_t length = prefs.getBytesLength(key.c_str());
+    prefs.end();
+    return length;
   }
 
   bool clearAll() override
