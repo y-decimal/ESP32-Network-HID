@@ -194,8 +194,21 @@ void MasterTask::bitmapReceiveCallback(RawBitmapEvent &bitmapEvent, uint8_t send
 
 void MasterTask::configReceiveCallback(ConfigManager *config, uint8_t senderId)
 {
-  std::vector<uint8_t> map = config->getConfig<KeyScannerConfig>()->getLocalToHidMap();
+  if (config == nullptr)
+  {
+    log.error("Received null ConfigManager in configReceiveCallback for device %d", senderId);
+    return;
+  }
 
+  auto keyScannerConfig = config->getConfig<KeyScannerConfig>();
+  if (keyScannerConfig == nullptr)
+  {
+    log.error("No KeyScannerConfig found in ConfigManager for device %d", senderId);
+    delete config;
+    return;
+  }
+
+  std::vector<uint8_t> map = keyScannerConfig->getLocalToHidMap();
   hidMapper.insertMap(map.data(), map.size(), senderId);
 
   log.info("Received Map from device %d", senderId);
