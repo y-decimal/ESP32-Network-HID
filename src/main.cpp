@@ -34,10 +34,11 @@ void setup()
 {
   Logger::setDefaultLogLevel(Logger::LogLevel::warn);
   Logger::setNamespaceLevel("Main", Logger::LogLevel::info);
-  Logger::setNamespaceLevel(LOGGERTASK_NAMESPACE, Logger::LogLevel::warn);
-  Logger::setNamespaceLevel(MASTERTASK_NAMESPACE, Logger::LogLevel::info);
-  Logger::setNamespaceLevel(SLAVETASK_NAMESPACE, Logger::LogLevel::info);
-  Logger::setNamespaceLevel("TransportProtocol.cpp", Logger::LogLevel::info);
+  Logger::setNamespaceLevel(LoggerTask::NAMESPACE, Logger::LogLevel::warn);
+  Logger::setNamespaceLevel(TaskManager::NAMESPACE, Logger::LogLevel::info);
+  Logger::setNamespaceLevel(MasterTask::NAMESPACE, Logger::LogLevel::info);
+  Logger::setNamespaceLevel(SlaveTask::NAMESPACE, Logger::LogLevel::info);
+  Logger::setNamespaceLevel(TransportProtocol::NAMESPACE, Logger::LogLevel::info);
 
   ConfigManager::registerConfig<GlobalConfig>();
   ConfigManager::registerConfig<KeyScannerConfig>();
