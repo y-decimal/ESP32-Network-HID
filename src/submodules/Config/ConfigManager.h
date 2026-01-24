@@ -3,7 +3,7 @@
 
 #include <interfaces/ISerializable.h>
 #include <interfaces/IConfig.h>
-#include <submodules/Storage/NullStorage.h>
+#include <interfaces/implementations/NullStorage.h>
 #include <submodules/Logger.h>
 #include <unordered_map>
 #include <typeindex>

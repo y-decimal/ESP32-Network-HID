@@ -3,16 +3,16 @@
 #include <submodules/Config/ConfigManager.h>
 #include <submodules/Config/GlobalConfig.h>
 #include <submodules/Config/KeyScannerConfig.h>
-#include <submodules/Storage/PreferencesStorage.h>
 #include <system/TaskManager.h>
-#include <submodules/ArduinoLogSink.h>
 #include <submodules/Logger.h>
 
 // temp local definitions for testing
 
 #include <interfaces/ITransport.h>
-#include <submodules/Esp32Gpio.h>
-#include <submodules/EspNowTransport.h>
+#include <interfaces/implementations/Esp32Gpio.h>
+#include <interfaces/implementations/EspNowTransport.h>
+#include <interfaces/implementations/ArduinoLogSink.h>
+#include <interfaces/implementations/PreferencesStorage.h>
 
 static Logger logger("Main");
 
