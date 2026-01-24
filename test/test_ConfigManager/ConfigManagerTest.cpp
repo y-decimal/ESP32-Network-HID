@@ -50,6 +50,10 @@ void setup()
 int main(int argc, char **argv)
 {
 #endif
+  // Register configs once before tests
+  ConfigManager::registerConfig<GlobalConfig>();
+  ConfigManager::registerConfig<KeyScannerConfig>();
+
   UNITY_BEGIN();
   run_ConfigManager_tests();
   UNITY_END();

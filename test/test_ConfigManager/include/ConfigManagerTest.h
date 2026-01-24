@@ -19,8 +19,7 @@ void test_ConfigManager_getConfig_GlobalConfig_defaults()
 {
   ConfigManager manager(testStorage);
 
-  // Register and create config
-  ConfigManager::registerConfig<GlobalConfig>();
+  // Create config
   GlobalConfig *config = manager.createConfig<GlobalConfig>();
 
   TEST_ASSERT_NOT_NULL(config);
@@ -35,7 +34,6 @@ void test_ConfigManager_getConfig_KeyScannerConfig_defaults()
 {
   ConfigManager manager(testStorage);
 
-  ConfigManager::registerConfig<KeyScannerConfig>();
   KeyScannerConfig *config = manager.createConfig<KeyScannerConfig>();
 
   TEST_ASSERT_NOT_NULL(config);
@@ -47,7 +45,6 @@ void test_ConfigManager_setConfig_GlobalConfig()
 {
   ConfigManager manager(testStorage);
 
-  ConfigManager::registerConfig<GlobalConfig>();
   manager.createConfig<GlobalConfig>();
 
   GlobalConfig config;
@@ -67,7 +64,6 @@ void test_ConfigManager_setConfig_KeyScannerConfig()
 {
   ConfigManager manager(testStorage);
 
-  ConfigManager::registerConfig<KeyScannerConfig>();
   manager.createConfig<KeyScannerConfig>();
 
   KeyScannerConfig config;
@@ -84,7 +80,6 @@ void test_ConfigManager_saveConfig()
 {
   ConfigManager manager(testStorage);
 
-  ConfigManager::registerConfig<GlobalConfig>();
   manager.createConfig<GlobalConfig>();
 
   GlobalConfig config;
@@ -100,10 +95,6 @@ void test_ConfigManager_saveConfig()
 void test_ConfigManager_loadConfig()
 {
   ConfigManager manager1(testStorage);
-
-  // Register configs
-  ConfigManager::registerConfig<GlobalConfig>();
-  ConfigManager::registerConfig<KeyScannerConfig>();
 
   // Create configs
   manager1.createConfig<GlobalConfig>();
@@ -141,9 +132,6 @@ void test_ConfigManager_save_and_load_multiple_configs()
 {
   ConfigManager manager1(testStorage);
 
-  ConfigManager::registerConfig<GlobalConfig>();
-  ConfigManager::registerConfig<KeyScannerConfig>();
-
   manager1.createConfig<GlobalConfig>();
   manager1.createConfig<KeyScannerConfig>();
 
@@ -179,7 +167,6 @@ void test_ConfigManager_overwrite_config()
 {
   ConfigManager manager(testStorage);
 
-  ConfigManager::registerConfig<GlobalConfig>();
   manager.createConfig<GlobalConfig>();
 
   GlobalConfig config1;
