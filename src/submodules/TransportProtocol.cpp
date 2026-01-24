@@ -300,12 +300,16 @@ void TransportProtocol::handleConfigData(const uint8_t *data, size_t len, const 
     {
         ConfigManager *config = new ConfigManager();
         size_t unpacked = config->unpackSerialized(data, len);
-        if (unpacked == 0 || unpacked != len)
+        if (unpacked == 0)
         {
-            log.error("Failed to unpack config from ID %d (unpacked %zu of %zu bytes)",
-                      getIdByMac(mac), unpacked, len);
-            delete config; // Clean up on error
+            log.error("Failed to unpack config from ID %d: no data unpacked", getIdByMac(mac));
+            delete config;
             return;
+        }
+        if (unpacked != len)
+        {
+            log.warn("Partial config unpacked from ID %d (%zu of %zu bytes) - some config types may be missing factories",
+                      getIdByMac(mac), unpacked, len);
         }
         configCallback(config, getIdByMac(mac));
         log.info("Triggered config callback for ID %d", getIdByMac(mac));
