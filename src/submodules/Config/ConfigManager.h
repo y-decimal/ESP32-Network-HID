@@ -44,10 +44,10 @@ public:
   {
     if (&this->storage == &defaultNullStorage)
     {
-      configLog.warn("ConfigManager initialized with NullStorage; configuration changes will not be persisted.");
+      configLog.warn("ConfigManager initialized with NullStorage: configuration changes will not be persisted. Note: this might be intentional for local copies");
     }
   };
-  
+
   ~ConfigManager();
 
   /**
