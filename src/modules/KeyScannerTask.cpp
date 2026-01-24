@@ -79,7 +79,13 @@ void KeyScannerTask::taskEntry(void *arg)
   // Get immutable local copy of config at task startup.
   // ConfigManager holds the live reference; this task operates only on its
   // snapshot.
-  KeyScannerConfig localConfig = *task->configManager->getConfig<KeyScannerConfig>();
+  KeyScannerConfig *configPtr = task->configManager->getConfig<KeyScannerConfig>();
+  if (configPtr == nullptr)
+  {
+    log.error("KeyScannerConfig not available, aborting task");
+    vTaskDelete(nullptr);
+  }
+  KeyScannerConfig localConfig = *configPtr;
 
   IGpio &gpio = *task->gpioRef;
 
