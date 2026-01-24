@@ -11,6 +11,7 @@ public:
     virtual ~IConfig() = default;
 
     virtual void setStorage(IStorage *storage) = 0;
+    virtual const char *getNamespace() = 0;
 
     virtual bool save() = 0;
     virtual bool load() = 0;
