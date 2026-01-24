@@ -61,8 +61,7 @@ Logger::Logger(const char *logNamespace)
 {
     strncpy(this->logNamespace, logNamespace, MAX_NAMESPACE_LENGTH - 1);
     this->logNamespace[sizeof(this->logNamespace) - 1] = '\0';
-    std::lock_guard<std::mutex> lock(LoggerCore::mutex);
-    setMode(LoggerCore::defaultLogMode);
+    mode = LoggerCore::defaultLogMode;
 }
 
 void Logger::setGlobalSink(ILogSink *globalSink)
