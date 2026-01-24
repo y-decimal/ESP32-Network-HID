@@ -38,7 +38,7 @@ void KeyScannerConfig::setLocalToHidMap(uint8_t *mapData, size_t mapSize)
 {
   if (mapSize > MAX_KEY_COUNT)
   {
-    log.warn("Local to HID map size %d exceeds maximum of %d", mapSize, MAX_KEY_COUNT);
+    log.warn("Local to HID map size %zu exceeds maximum of %d", mapSize, MAX_KEY_COUNT);
     return;
   }
   localToHidMap.assign(mapData, mapData + mapSize);
@@ -74,7 +74,7 @@ bool KeyScannerConfig::save()
   uint8_t *buffer = (uint8_t *)malloc(ownSize);
   size_t packedSize = packSerialized(buffer, ownSize);
   if (packedSize != ownSize)
-    log.warn("Packed size %d and serialized size size %d don't match!", packedSize, ownSize);
+    log.warn("Packed size %zu and serialized size size %zu don't match!", packedSize, ownSize);
 
   bool success = storage->save(NAMESPACE, buffer, ownSize);
   free(buffer);
@@ -113,7 +113,7 @@ bool KeyScannerConfig::load()
 
   if (unpackedSize != ownSize)
   {
-    log.warn("Unpacked size %d and loaded size %d don't match!", unpackedSize, ownSize);
+    log.warn("Unpacked size %zu and loaded size %zu don't match!", unpackedSize, ownSize);
   }
 
   free(buffer);
@@ -208,7 +208,7 @@ size_t KeyScannerConfig::unpackSerialized(const uint8_t *input, size_t size)
 
   if (size < ownSize)
   {
-    log.error("Could not unpack config into buffer. Required size: %d, actual size: %d", ownSize, size);
+    log.error("Could not unpack config into buffer. Required size: %zu, actual size: %zu", ownSize, size);
     return 0;
   }
 
