@@ -156,7 +156,7 @@ public:
 
   // Implementation of IConfig interface methods
   static constexpr const char *NAMESPACE = "KeyCfg";
-  const char *getNamespace() { return NAMESPACE; }
+  const char *getNamespace() override { return NAMESPACE; }
   void setStorage(IStorage *storage) { this->storage = storage; }
   bool save() override;
   bool load() override;

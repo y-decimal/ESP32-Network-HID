@@ -74,7 +74,7 @@ public:
   size_t getSerializedSize() const override;
 
   static constexpr const char *NAMESPACE = "GlobalCfg";
-  const char *getNamespace() { return NAMESPACE; }
+  const char *getNamespace()override { return NAMESPACE; }
   void setStorage(IStorage *storage) override;
   bool save() override;
   bool load() override;
