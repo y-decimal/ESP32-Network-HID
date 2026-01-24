@@ -207,8 +207,8 @@ void Logger::storeEarlyLogMessage(const char *logNamespace, LogLevel level, cons
 {
     if (LoggerCore::earlyMessageCount >= MAX_EARLY_LOG_MESSAGES)
     {
-        LoggerCore::earlyMessageCount = 0;
-        internalWrite("LOG", LogLevel::system, "Early Message Buffer overflow, overwriting oldest messages");
+        internalWrite("LOG", LogLevel::system, "Early Message Buffer overflow, discarding new messages");
+        return;
     }
 
     EarlyLogMessage earlyMsg;
