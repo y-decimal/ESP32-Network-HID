@@ -1,4 +1,7 @@
 #include <submodules/Config/GlobalConfig.h>
+#include <submodules/Logger.h>
+
+static Logger log(GlobalConfig::NAMESPACE);
 
 void GlobalConfig::setDeviceModules(DeviceModule *moduleArray, size_t arrSize)
 {
@@ -47,6 +50,86 @@ void GlobalConfig::getMac(uint8_t *out, size_t size)
   memcpy(out, deviceMac, sizeof(deviceMac));
 }
 
+// Implementation of IConfig interface methods
+void GlobalConfig::setStorage(IStorage *storage)
+{
+  this->storage = storage;
+}
+
+bool GlobalConfig::save()
+{
+  if (storage == nullptr)
+  {
+    log.error("No storage backend set, cannot save config");
+    return false;
+  }
+
+  size_t ownSize = getSerializedSize();
+  uint8_t *buffer = (uint8_t *)malloc(ownSize);
+  size_t packedSize = packSerialized(buffer, ownSize);
+  if (packedSize != ownSize)
+    log.warn("Packed size %zu and serialized size size %zu don't match!", packedSize, ownSize);
+
+  bool success = storage->save(NAMESPACE, buffer, ownSize);
+  free(buffer);
+
+  success ? log.info("Configuration saved") : log.error("Saving configuration failed");
+
+  return success;
+}
+
+bool GlobalConfig::load()
+{
+  if (storage == nullptr)
+  {
+    log.error("No storage backend set, cannot load config");
+    return false;
+  }
+
+  size_t ownSize = storage->getSize(NAMESPACE);
+  if (ownSize == 0)
+  {
+    log.error("No config data stored");
+    return false;
+  }
+
+  uint8_t *buffer = (uint8_t *)malloc(ownSize);
+  bool success = storage->load(NAMESPACE, buffer, ownSize);
+
+  if (!success)
+  {
+    log.error("Loading config data failed");
+    free(buffer);
+    return false;
+  }
+
+  size_t unpackedSize = unpackSerialized(buffer, ownSize);
+
+  if (unpackedSize != ownSize)
+  {
+    log.warn("Unpacked size %zu and loaded size %zu don't match!", unpackedSize, ownSize);
+  }
+
+  free(buffer);
+
+  return success;
+}
+
+bool GlobalConfig::erase()
+{
+  if (storage == nullptr)
+  {
+    log.error("No storage backend set, cannot erase config");
+    return false;
+  }
+
+  bool success = storage->remove(NAMESPACE);
+
+  success ? log.info("Configuration erased") : log.error("Erasing configuration failed");
+
+  return success;
+}
+
 // Implementation of Serializable interface methods
 size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const
 {
@@ -56,33 +139,35 @@ size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const
   if (size < ownSize)
     return 0;
 
-  // Temporary buffer to hold serialized data
-  uint8_t buffer[ownSize] = {};
-
   // Helper variables for serialization
-  size_t index = 0;
   size_t totalWrite = 0;
   size_t objSize = 0;
 
-  // Serialize modules
-  objSize = sizeof(modules);
-  memcpy(buffer, modules, objSize);
-  index += objSize;
+  // Serialize total config size
+  objSize = sizeof(size_t);
+  memcpy(output + totalWrite, &ownSize, objSize);
+  totalWrite += objSize;
+
+  // Serialize module size
+  objSize = sizeof(size_t);
+  size_t moduleSize = sizeof(modules);
+  memcpy(output + totalWrite, &moduleSize, objSize);
+  totalWrite += objSize;
+
+  // Serialize module
+  objSize = moduleSize;
+  memcpy(output + totalWrite, modules, objSize);
   totalWrite += objSize;
 
   // Serialize mode
   objSize = sizeof(mode);
-  memcpy(buffer + index, &mode, objSize);
-  index += objSize;
+  memcpy(output + totalWrite, &mode, objSize);
   totalWrite += objSize;
 
   // Serialize MAC address
   objSize = sizeof(deviceMac);
-  memcpy(buffer + index, deviceMac, objSize);
+  memcpy(output + totalWrite, deviceMac, objSize);
   totalWrite += objSize;
-
-  // Copy serialized data to output buffer
-  memcpy(output, buffer, totalWrite);
 
   return totalWrite;
 }
@@ -90,38 +175,46 @@ size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const
 size_t GlobalConfig::unpackSerialized(const uint8_t *input, size_t size)
 {
 
-  // Check if provided data size is valid
-  size_t ownSize = getSerializedSize();
-  if (size > ownSize)
-    return 0;
-
   // Helper variables for deserialization
-  size_t index = 0;
-  size_t totalWrite = 0;
+  size_t totalRead = 0;
   size_t objSize = 0;
 
+  size_t ownSize = 0;
+  objSize = sizeof(size_t);
+  memcpy(&ownSize, input + totalRead, objSize);
+  totalRead += objSize;
+
+  // Check if provided data size is valid
+  if (size < ownSize)
+    return 0;
+
+  // Deserialize module size
+  size_t moduleSize = 0;
+  objSize = sizeof(size_t);
+  memcpy(&moduleSize, input + totalRead, objSize);
+  totalRead += objSize;
+
   // Deserialize modules
-  objSize = sizeof(modules);
-  memcpy(modules, input, objSize);
-  index += objSize;
-  totalWrite += objSize;
+  objSize = moduleSize;
+  memcpy(modules, input + totalRead, objSize);
+  totalRead += objSize;
 
   // Deserialize mode
   objSize = sizeof(mode);
-  memcpy(&mode, input + index, objSize);
-  index += objSize;
-  totalWrite += objSize;
+  memcpy(&mode, input + totalRead, objSize);
+  totalRead += objSize;
 
   // Deserialize MAC address
   objSize = sizeof(deviceMac);
-  memcpy(deviceMac, input + index, objSize);
-  totalWrite += objSize;
+  memcpy(deviceMac, input + totalRead, objSize);
+  totalRead += objSize;
 
-  return totalWrite;
+  return totalRead;
 }
 
 size_t GlobalConfig::getSerializedSize() const
 {
   // Return the total size needed for serialization
-  return sizeof(modules) + sizeof(mode) + sizeof(deviceMac);
+  // Size metadata of total size + size metadata of module size + module data + mode data + mac data
+  return sizeof(size_t) + sizeof(size_t) + sizeof(modules) + sizeof(mode) + sizeof(deviceMac);
 }

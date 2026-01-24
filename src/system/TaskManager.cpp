@@ -1,18 +1,20 @@
 #include <system/TaskManager.h>
 
-static Logger taskLog("TaskManager");
+static Logger taskLog(TaskManager::NAMESPACE);
 
 static inline uint32_t getRequiredTasksForAllModules(DeviceModule modules[(size_t)DeviceModule::Count]);
 static inline uint32_t getRequiredTaskForModule(DeviceModule module);
 
 void TaskManager::start()
 {
+    configManager.createConfig<GlobalConfig>();
+    configManager.createConfig<KeyScannerConfig>();
     startModules(getAllRequiredTasks());
 }
 
-ConfigManager &TaskManager::getConfigManagerCopy()
+ConfigManager *TaskManager::getConfigManagerPointer()
 {
-    return configManager;
+    return &configManager;
 }
 
 void TaskManager::startModules(uint32_t moduleBitmap)
@@ -128,11 +130,20 @@ uint32_t TaskManager::getAllRequiredTasks()
 
     bitmap |= coreModules;
 
-    bool configLoaded = configManager.loadConfig();
+    bool configLoaded = configManager.loadConfigs();
     if (!configLoaded)
+    {
         taskLog.warn("Failed to load configuration, using defaults");
+    }
 
-    if (configManager.getConfig<GlobalConfig>().getDeviceMode() == DeviceMode::Master)
+    GlobalConfig *globalCfg = configManager.getConfig<GlobalConfig>();
+    if (globalCfg == nullptr)
+    {
+        taskLog.error("Failed to retrieve global config, aborting");
+        return 0;
+    }
+
+    if (globalCfg->getDeviceMode() == DeviceMode::Master)
     {
         bitmap |= TaskId::MASTER_TASK;
         taskLog.info("Device mode: Master");
@@ -144,7 +155,7 @@ uint32_t TaskManager::getAllRequiredTasks()
     }
 
     DeviceModule modules[(size_t)DeviceModule::Count] = {};
-    configManager.getConfig<GlobalConfig>().getDeviceModules(modules, sizeof(modules));
+    globalCfg->getDeviceModules(modules, sizeof(modules));
 
     bitmap |= getRequiredTasksForAllModules(modules);
 

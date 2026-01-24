@@ -5,12 +5,13 @@
 #include <stdint.h>
 
 /**
- * @brief Interface for serializable structures.
+ * @brief Interface for serializable classes.
  *
  * The Serializable interface provides methods for packing and unpacking
  * serialized data, as well as retrieving the size of the serialized data.
  */
-class Serializable {
+class ISerializable
+{
 public:
   /**
    * @brief Pack the structure into a serialized byte array.
@@ -35,7 +36,7 @@ public:
   virtual size_t getSerializedSize() const = 0;
 
   // Virtual destructor.
-  virtual ~Serializable() = default;
+  virtual ~ISerializable() = default;
 };
 
 #endif

@@ -10,7 +10,8 @@
  * The PreferencesStorage class provides an implementation of the IStorage
  * interface using the Preferences library for persistent storage on ESP32.
  */
-class PreferencesStorage : public IStorage {
+class PreferencesStorage : public IStorage
+{
 private:
   // Preferences instance for storage operations
   Preferences prefs;
@@ -33,7 +34,8 @@ public:
    * @param size Size of the data to be stored.
    * @return True if saving was successful, false otherwise.
    */
-  bool save(const std::string &key, const uint8_t *in, size_t size) override {
+  bool save(const std::string &key, const uint8_t *in, size_t size) override
+  {
     prefs.begin(namespaceName, false);
     size_t written = prefs.putBytes(key.c_str(), in, size);
     prefs.end();
@@ -47,9 +49,11 @@ public:
    * @param size Size of the data to be loaded.
    * @return True if loading was successful, false otherwise.
    */
-  bool load(const std::string &key, uint8_t *out, size_t size) override {
+  bool load(const std::string &key, uint8_t *out, size_t size) override
+  {
 
-    if (!exists(key)) {
+    if (!exists(key))
+    {
       return false;
     }
 
@@ -64,9 +68,11 @@ public:
    * @param key The key under which the data is stored.
    * @return True if removal was successful, false otherwise.
    */
-  bool remove(const std::string &key) override {
+  bool remove(const std::string &key) override
+  {
 
-    if (!exists(key)) {
+    if (!exists(key))
+    {
       return false;
     }
 
@@ -81,14 +87,27 @@ public:
    * @param key The key to check for existence.
    * @return True if the key exists, false otherwise.
    */
-  bool exists(const std::string &key) override {
+  bool exists(const std::string &key) override
+  {
     prefs.begin(namespaceName, true);
     bool exists = prefs.isKey(key.c_str());
     prefs.end();
     return exists;
   }
 
-  bool clearAll() override {
+  size_t getSize(const std::string &key) override
+  {
+    if (!exists(key))
+      return 0;
+
+    prefs.begin(namespaceName, true);
+    size_t length = prefs.getBytesLength(key.c_str());
+    prefs.end();
+    return length;
+  }
+
+  bool clearAll() override
+  {
     prefs.begin(namespaceName, false);
     bool result = prefs.clear();
     prefs.end();

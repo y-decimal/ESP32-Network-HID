@@ -1,6 +1,6 @@
 #include <submodules/HidMapper.h>
 #include <submodules/Logger.h>
-static Logger log(__FILENAME__);
+static Logger log(HidMapper::NAMESPACE);
 
 HidMapper::HidMapper() {};
 

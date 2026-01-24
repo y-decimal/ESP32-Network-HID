@@ -45,6 +45,13 @@ public:
   virtual bool exists(const std::string &key) = 0;
 
   /**
+   * @brief Get the size of the saved data 
+   * @param key The key to get the size of.
+   * @return Size of data at key, if it exists, 0 if it does not exist.
+   */
+  virtual size_t getSize(const std::string &key) = 0;
+
+  /**
    * @brief Clear all data from storage.
    * @return True if clear was successful, false otherwise.
    */

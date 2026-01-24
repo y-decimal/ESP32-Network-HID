@@ -5,11 +5,11 @@
 #include <submodules/EventRegistry.h>
 #include <queue.h>
 
-static constexpr const char *EVENTBUSTASK_NAMESPACE = "EventBusTask";
-
 class EventBusTask : public ITask
 {
 public:
+  static constexpr const char *NAMESPACE = "EventBusTask";
+
   EventBusTask();
   ~EventBusTask();
 

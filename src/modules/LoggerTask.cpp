@@ -1,7 +1,7 @@
 #include <modules/LoggerTask.h>
 #include <cstring>
 
-static Logger internalLogInstance(LOGGERTASK_NAMESPACE);
+static Logger internalLogInstance(LoggerTask::NAMESPACE);
 
 // Initialize static member variable
 LoggerTask *LoggerTask::instance = nullptr;
@@ -15,6 +15,8 @@ struct LogEvent
 
 LoggerTask::LoggerTask()
 {
+    internalLogInstance.setMode(Logger::LogMode::Local); // Prevent recursive loop
+
     if (instance != nullptr)
     {
         internalLogInstance.warn("LoggerTask instance already exists, replacing");
@@ -48,7 +50,7 @@ void LoggerTask::callback(const char *logNamespace, Logger::LogLevel level, cons
     {
         internalLogInstance.error("Failed to send log event to queue");
     }
-    else 
+    else
     {
         internalLogInstance.debug("Log event queued: [%s] %s", logEvent.logNs, logEvent.logMsg);
     }
@@ -71,7 +73,7 @@ void LoggerTask::taskEntry(void *arg)
 void LoggerTask::start(TaskParameters params)
 {
     localQueue = xQueueCreate(32, sizeof(LogEvent));
-    if(localQueue == nullptr)
+    if (localQueue == nullptr)
     {
         internalLogInstance.error("Failed to create LoggerTask queue");
         return;
@@ -86,7 +88,7 @@ void LoggerTask::start(TaskParameters params)
         return;
     }
     BaseType_t result = xTaskCreatePinnedToCore(
-        taskEntry, "LoggerTask", params.stackSize,
+        taskEntry, LoggerTask::NAMESPACE, params.stackSize,
         this, params.priority, &loggerHandle,
         params.coreAffinity);
 

@@ -1,7 +1,7 @@
 #include <modules/EventBusTask.h>
 #include <submodules/Logger.h>
 
-static Logger log(EVENTBUSTASK_NAMESPACE);
+static Logger log(EventBusTask::NAMESPACE);
 
 // Initialize static member variable
 EventBusTask *EventBusTask::instance = nullptr;
@@ -82,7 +82,7 @@ void EventBusTask::start(TaskParameters params)
     return;
   }
   BaseType_t result = xTaskCreatePinnedToCore(
-      EventBusTask::taskEntry, EVENTBUSTASK_NAMESPACE, params.stackSize, this,
+      EventBusTask::taskEntry, EventBusTask::NAMESPACE, params.stackSize, this,
       params.priority, &eventBusHandle, params.coreAffinity);
 
   if (result != pdPASS)

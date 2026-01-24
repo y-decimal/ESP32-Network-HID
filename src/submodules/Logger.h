@@ -40,6 +40,7 @@ public:
     static void setNamespaceLevel(const char *logNamespace, LogLevel level);
     static LogLevel getNamespaceLevel(const char *logNamespace);
     static void setDefaultLogLevel(LogLevel level);
+    static void setDefaultLogMode(LogMode mode);
     static void setLogCallback(globalLogCallback callback);
 
     // Instance methods
@@ -53,8 +54,8 @@ public:
     void log(const char *logNamespace, LogLevel level, const char *format, ...);
 
 private:
-    LogMode mode = LogMode::Local;
-    char logNamespace[32];
+    LogMode mode = LogMode::Global;
+    char logNamespace[MAX_NAMESPACE_LENGTH];
 
     void logV(const char *logNamespace, LogLevel level, const char *format, va_list args);
 
@@ -63,7 +64,7 @@ private:
     static void clearEarlyLogMessages();
 
     static void internalWrite(const char *logNamespace, LogLevel level, const char *msg);
-    static const char* getModifiedNamespace(const char* originalNamespace);
+    static const char *getModifiedNamespace(const char *originalNamespace);
 };
 
 #endif

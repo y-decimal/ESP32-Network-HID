@@ -10,6 +10,7 @@
 #include <modules/SlaveTask.h>
 
 #include <submodules/Config/ConfigManager.h>
+#include <submodules/Config/GlobalConfig.h>
 #include <submodules/Logger.h>
 #include <system/SystemConfig.h>
 
@@ -24,6 +25,8 @@ using DeviceMode = GlobalConfig::DeviceMode;
 class TaskManager
 {
 public:
+  static constexpr const char* NAMESPACE = "TaskManager";
+
   struct Platform
   {
     IGpio &gpio;
@@ -42,17 +45,17 @@ public:
 
   TaskManager(Platform &platform)
       : platform(platform),
-        configManager(&platform.storage),
+        configManager(platform.storage),
         loggerTask(),
         eventBusTask(),
         masterTask(platform.transport),
-        slaveTask(platform.transport, configManager),
-        keyScannerTask(configManager, platform.gpio)
+        slaveTask(platform.transport, &configManager),
+        keyScannerTask(&configManager, platform.gpio)
   {
   }
 
   void start();
-  ConfigManager &getConfigManagerCopy();
+  ConfigManager *getConfigManagerPointer();
 
 private:
   Platform &platform;

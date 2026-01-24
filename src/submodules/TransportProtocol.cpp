@@ -1,7 +1,7 @@
 #include <submodules/TransportProtocol.h>
 #include <submodules/Logger.h>
 
-static Logger log(__FILENAME__);
+static Logger log(TransportProtocol::NAMESPACE);
 
 static constexpr uint8_t KEY_EVENT = static_cast<uint8_t>(PacketType::KeyEvent);
 static constexpr uint8_t KEY_BITMAP = static_cast<uint8_t>(PacketType::KeyBitmap);
@@ -63,6 +63,11 @@ void TransportProtocol::requestConfig(uint8_t id)
 void TransportProtocol::sendConfig(uint8_t id, const ConfigManager *config)
 {
     log.info("Sending config to ID %d", id);
+
+    if (config == nullptr) {
+        log.error("Received empty config manager");
+        return;
+    }
 
     size_t requiredSize = config->getSerializedSize();
     uint8_t *buffer = (uint8_t *)malloc(requiredSize);
@@ -129,7 +134,7 @@ uint8_t TransportProtocol::getIdByMac(const uint8_t *mac) const
     return 0xFF;
 }
 
-void TransportProtocol::onKeyEvent(std::function<void(const RawKeyEvent &keyEvent, uint8_t senderId)> callback)
+void TransportProtocol::onKeyEvent(std::function<void(RawKeyEvent &keyEvent, uint8_t senderId)> callback)
 {
     keyEventCallback = callback;
     transport.registerPacketTypeCallback(KEY_EVENT,
@@ -138,7 +143,7 @@ void TransportProtocol::onKeyEvent(std::function<void(const RawKeyEvent &keyEven
     log.info("Registered onKeyEvent callback");
 }
 
-void TransportProtocol::onBitmapEvent(std::function<void(const RawBitmapEvent &bitmapEvent, uint8_t senderId)> callback)
+void TransportProtocol::onBitmapEvent(std::function<void(RawBitmapEvent &bitmapEvent, uint8_t senderId)> callback)
 {
     bitmapEventCallback = callback;
     transport.registerPacketTypeCallback(KEY_BITMAP,
@@ -147,7 +152,7 @@ void TransportProtocol::onBitmapEvent(std::function<void(const RawBitmapEvent &b
     log.info("Registered onBitmapEvent callback");
 }
 
-void TransportProtocol::onConfigReceived(std::function<void(const ConfigManager &config, uint8_t senderId)> callback)
+void TransportProtocol::onConfigReceived(std::function<void(ConfigManager *config, uint8_t senderId)> callback)
 {
     configCallback = callback;
     transport.registerPacketTypeCallback(CONFIG,
@@ -293,13 +298,18 @@ void TransportProtocol::handleConfigData(const uint8_t *data, size_t len, const 
 
     if (configCallback)
     {
-        ConfigManager config;
-        size_t unpacked = config.unpackSerialized(data, len);
-        if (unpacked == 0 || unpacked != len)
+        ConfigManager *config = new ConfigManager();
+        size_t unpacked = config->unpackSerialized(data, len);
+        if (unpacked == 0)
         {
-            log.error("Failed to unpack config from ID %d (unpacked %zu of %zu bytes)",
-                      getIdByMac(mac), unpacked, len);
+            log.error("Failed to unpack config from ID %d: no data unpacked", getIdByMac(mac));
+            delete config;
             return;
+        }
+        if (unpacked != len)
+        {
+            log.warn("Partial config unpacked from ID %d (%zu of %zu bytes) - some config types may be missing factories",
+                      getIdByMac(mac), unpacked, len);
         }
         configCallback(config, getIdByMac(mac));
         log.info("Triggered config callback for ID %d", getIdByMac(mac));

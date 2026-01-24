@@ -44,6 +44,16 @@ public:
     return storage.find(key) != storage.end();
   }
 
+  size_t getSize(const std::string &key) override
+  {
+    auto it = storage.find(key);
+    if (it == storage.end())
+    {
+      return 0;
+    }
+    return it->second.size();
+  }
+
   bool clearAll() override
   {
     storage.clear();

@@ -16,26 +16,50 @@ FakeStorage testStorageImplementation;
 
 IStorage &testStorage = testStorageImplementation;
 
-void setUp() {
+void setUp()
+{
   // No setup needed with FakeStorage
 }
 
-void tearDown() {
-  testStorage.remove(CONFIG_MANAGER_NAMESPACE "/" GLOBAL_CONFIG_KEY);
-  testStorage.remove(CONFIG_MANAGER_NAMESPACE "/" KEYSCANNER_CONFIG_KEY);
+void tearDown()
+{
+  try
+  {
+    testStorage.remove(GlobalConfig::NAMESPACE);
+  }
+  catch (...)
+  {
+    // Ignore teardown errors for GlobalConfig
+  }
+
+  try
+  {
+    testStorage.remove(KeyScannerConfig::NAMESPACE);
+  }
+  catch (...)
+  {
+    // Ignore teardown errors for KeyScannerConfig
+  }
 }
 
 #ifndef UNITY_NATIVE
-void setup() {
+void setup()
+{
   delay(1000); // Wait for Preferences to be ready
 #else
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 #endif
+  // Register configs once before tests
+  ConfigManager::registerConfig<GlobalConfig>();
+  ConfigManager::registerConfig<KeyScannerConfig>();
+
   UNITY_BEGIN();
   run_ConfigManager_tests();
   UNITY_END();
 }
 
-void loop() {
+void loop()
+{
   // No loop needed
 }

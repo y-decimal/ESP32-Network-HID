@@ -1,7 +1,7 @@
 #include <modules/MasterTask.h>
 #include <submodules/Logger.h>
 
-static Logger log(MASTERTASK_NAMESPACE);
+static Logger log(MasterTask::NAMESPACE);
 
 // Initialize static member variable
 MasterTask *MasterTask::instance = nullptr;
@@ -58,7 +58,7 @@ void MasterTask::start(TaskParameters params)
 
   protocol = new TransportProtocol(*transportRef);
 
-  BaseType_t result = xTaskCreatePinnedToCore(taskEntry, "MasterTask",
+  BaseType_t result = xTaskCreatePinnedToCore(taskEntry, MasterTask::NAMESPACE,
                                               params.stackSize, this,
                                               params.priority, &masterTaskHandle,
                                               params.coreAffinity);
@@ -103,7 +103,7 @@ void MasterTask::pairReceiveCallback(uint8_t sourceId)
   instance->protocol->requestConfig(sourceId);
 };
 
-void MasterTask::keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderId)
+void MasterTask::keyReceiveCallback(RawKeyEvent &keyEvent, uint8_t senderId)
 {
   if (instance->hidMapper.doesMapExist(senderId) == false)
   {
@@ -147,7 +147,7 @@ void MasterTask::keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderI
   oldBitmap = currentBitmap;
 };
 
-void MasterTask::bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_t senderId)
+void MasterTask::bitmapReceiveCallback(RawBitmapEvent &bitmapEvent, uint8_t senderId)
 {
   if (instance->hidMapper.doesMapExist(senderId) == false)
   {
@@ -192,11 +192,26 @@ void MasterTask::bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_
   oldBitmap = currentBitmap;
 };
 
-void MasterTask::configReceiveCallback(const ConfigManager &config, uint8_t senderId)
+void MasterTask::configReceiveCallback(ConfigManager *config, uint8_t senderId)
 {
-  std::vector<uint8_t> map = config.getConfig<KeyScannerConfig>().getLocalToHidMap();
+  if (config == nullptr)
+  {
+    log.error("Received null ConfigManager in configReceiveCallback for device %d", senderId);
+    return;
+  }
 
+  auto keyScannerConfig = config->getConfig<KeyScannerConfig>();
+  if (keyScannerConfig == nullptr)
+  {
+    log.error("No KeyScannerConfig found in ConfigManager for device %d", senderId);
+    delete config;
+    return;
+  }
+
+  std::vector<uint8_t> map = keyScannerConfig->getLocalToHidMap();
   hidMapper.insertMap(map.data(), map.size(), senderId);
 
   log.info("Received Map from device %d", senderId);
+
+  delete config;
 }

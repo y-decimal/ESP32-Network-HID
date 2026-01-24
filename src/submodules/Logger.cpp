@@ -19,6 +19,7 @@ namespace
         static std::unordered_map<std::string, Logger::LogLevel> namespaceLevels;
         static Logger::globalLogCallback globalCallback;
         static Logger::LogLevel defaultLogLevel;
+        static Logger::LogMode defaultLogMode;
         static EarlyLogMessage earlyMessages[Logger::MAX_EARLY_LOG_MESSAGES];
         static size_t earlyMessageCount;
         static bool loggingReady;
@@ -28,7 +29,8 @@ namespace
     ILogSink *LoggerCore::globalSink = nullptr;
     std::unordered_map<std::string, Logger::LogLevel> LoggerCore::namespaceLevels{};
     Logger::globalLogCallback LoggerCore::globalCallback = nullptr;
-    Logger::LogLevel LoggerCore::defaultLogLevel = Logger::LogLevel::info;
+    Logger::LogLevel LoggerCore::defaultLogLevel = Logger::LogLevel::warn;
+    Logger::LogMode LoggerCore::defaultLogMode = Logger::LogMode::Global;
     EarlyLogMessage LoggerCore::earlyMessages[Logger::MAX_EARLY_LOG_MESSAGES] = {};
     size_t LoggerCore::earlyMessageCount = 0;
     bool LoggerCore::loggingReady = false;
@@ -59,6 +61,7 @@ Logger::Logger(const char *logNamespace)
 {
     strncpy(this->logNamespace, logNamespace, MAX_NAMESPACE_LENGTH - 1);
     this->logNamespace[sizeof(this->logNamespace) - 1] = '\0';
+    mode = LoggerCore::defaultLogMode;
 }
 
 void Logger::setGlobalSink(ILogSink *globalSink)
@@ -88,6 +91,12 @@ void Logger::setDefaultLogLevel(LogLevel level)
 {
     std::lock_guard<std::mutex> lock(LoggerCore::mutex);
     LoggerCore::defaultLogLevel = level;
+}
+
+void Logger::setDefaultLogMode(LogMode mode)
+{
+    std::lock_guard<std::mutex> lock(LoggerCore::mutex);
+    LoggerCore::defaultLogMode = mode;
 }
 
 void Logger::setLogCallback(globalLogCallback callback)
@@ -197,7 +206,10 @@ void Logger::internalWrite(const char *logNamespace, Logger::LogLevel level, con
 void Logger::storeEarlyLogMessage(const char *logNamespace, LogLevel level, const char *msg)
 {
     if (LoggerCore::earlyMessageCount >= MAX_EARLY_LOG_MESSAGES)
+    {
+        internalWrite("LOG", LogLevel::system, "Early Message Buffer overflow, discarding new messages");
         return;
+    }
 
     EarlyLogMessage earlyMsg;
     strncpy(earlyMsg.logNamespace, logNamespace, MAX_NAMESPACE_LENGTH - 1);

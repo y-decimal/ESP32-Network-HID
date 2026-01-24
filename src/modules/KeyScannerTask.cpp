@@ -1,13 +1,13 @@
 #include <modules/KeyScannerTask.h>
 #include <submodules/Logger.h>
 
-static Logger log(KEYSCANNER_NAMESPACE);
+static Logger log(KeyScannerTask::NAMESPACE);
 
 // Initialize static member variable
 KeyScannerTask *KeyScannerTask::instance = nullptr;
 
-KeyScannerTask::KeyScannerTask(ConfigManager &configManager, IGpio &gpio)
-    : configManagerRef(&configManager),
+KeyScannerTask::KeyScannerTask(ConfigManager *configManager, IGpio &gpio)
+    : configManager(configManager),
       gpioRef(&gpio)
 {
   if (instance != nullptr)
@@ -79,8 +79,13 @@ void KeyScannerTask::taskEntry(void *arg)
   // Get immutable local copy of config at task startup.
   // ConfigManager holds the live reference; this task operates only on its
   // snapshot.
-  KeyScannerConfig localConfig =
-      task->configManagerRef->getConfig<KeyScannerConfig>();
+  KeyScannerConfig *configPtr = task->configManager->getConfig<KeyScannerConfig>();
+  if (configPtr == nullptr)
+  {
+    log.error("KeyScannerConfig not available, aborting task");
+    vTaskDelete(nullptr);
+  }
+  KeyScannerConfig localConfig = *configPtr;
 
   IGpio &gpio = *task->gpioRef;
 
@@ -157,7 +162,7 @@ void KeyScannerTask::start(TaskParameters params)
            params.stackSize, params.priority, params.coreAffinity);
 
   BaseType_t result = xTaskCreatePinnedToCore(
-      taskEntry, "KeyScannerTask", params.stackSize, this,
+      taskEntry, KeyScannerTask::NAMESPACE, params.stackSize, this,
       params.priority, &keyScannerTaskHandle, params.coreAffinity);
   if (result != pdPASS)
   {

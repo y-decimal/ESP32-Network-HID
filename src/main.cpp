@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <submodules/Config/ConfigManager.h>
+#include <submodules/Config/GlobalConfig.h>
+#include <submodules/Config/KeyScannerConfig.h>
 #include <submodules/Storage/PreferencesStorage.h>
 #include <system/TaskManager.h>
 #include <submodules/ArduinoLogSink.h>
@@ -16,10 +18,10 @@ static Logger logger("Main");
 
 static Esp32Gpio espGpio;
 static EspNow espNow;
-static PreferencesStorage prefStorage(CONFIG_MANAGER_NAMESPACE);
+static PreferencesStorage prefStorage("Esp32HidStorage");
 
 TaskManager::Platform platform = {espGpio, espNow, prefStorage};
-static TaskManager taskManager(platform);
+static TaskManager *taskManager;
 
 static void keyPrintCallback(const Event &event);
 static void bitMapPrintCallback(const Event &event);
@@ -32,13 +34,17 @@ void setup()
 {
   Logger::setDefaultLogLevel(Logger::LogLevel::warn);
   Logger::setNamespaceLevel("Main", Logger::LogLevel::info);
-  Logger::setNamespaceLevel(LOGGERTASK_NAMESPACE, Logger::LogLevel::warn);
-  Logger::setNamespaceLevel(MASTERTASK_NAMESPACE, Logger::LogLevel::info);
-  Logger::setNamespaceLevel(SLAVETASK_NAMESPACE, Logger::LogLevel::info);
-  Logger::setNamespaceLevel("TransportProtocol.cpp", Logger::LogLevel::info);
+  Logger::setNamespaceLevel(LoggerTask::NAMESPACE, Logger::LogLevel::warn);
+  Logger::setNamespaceLevel(TaskManager::NAMESPACE, Logger::LogLevel::info);
+  Logger::setNamespaceLevel(MasterTask::NAMESPACE, Logger::LogLevel::info);
+  Logger::setNamespaceLevel(SlaveTask::NAMESPACE, Logger::LogLevel::info);
+  Logger::setNamespaceLevel(TransportProtocol::NAMESPACE, Logger::LogLevel::info);
 
-  // setHostConfig();
+  ConfigManager::registerConfig<GlobalConfig>();
+  ConfigManager::registerConfig<KeyScannerConfig>();
+
   // setKeyboardConfig();
+  // setHostConfig();
 
   logger.info("Starting setup...");
   Serial.begin(115200);
@@ -57,7 +63,14 @@ void setup()
   EventRegistry::registerHandler(EventType::RawBitmap, bitMapPrintCallback);
   EventRegistry::registerHandler(EventType::HidBitmap, hidPrintCallback);
 
-  taskManager.start();
+  if (taskManager != nullptr)
+  {
+    delete taskManager;
+    taskManager = nullptr;
+  }
+  taskManager = new TaskManager(platform);
+  logger.info("Starting taskmanager");
+  taskManager->start();
 
   logger.info("setup complete");
 }
@@ -78,12 +91,12 @@ static void keyPrintCallback(const Event &event)
   uint8_t keyIndex = keyEvent.keyIndex;
   bool state = keyEvent.state;
 
-  ConfigManager &localCfgCopy = taskManager.getConfigManagerCopy();
-  if (&localCfgCopy != nullptr)
+  ConfigManager *configPointer = taskManager->getConfigManagerPointer();
+  if (configPointer != nullptr)
   {
-    uint8_t hidCode = localCfgCopy
-                          .getConfig<KeyScannerConfig>()
-                          .getHIDCodeForIndex(keyIndex);
+    uint8_t hidCode = configPointer
+                          ->getConfig<KeyScannerConfig>()
+                          ->getHIDCodeForIndex(keyIndex);
     logger.info("Key event: Key Index %d HID Code 0x%02X %s",
                 keyIndex, hidCode, state ? "pressed" : "released");
   }
@@ -128,23 +141,22 @@ static void hidPrintCallback(const Event &event)
 
 static void setKeyboardConfig()
 {
-  ConfigManager configManager(&prefStorage);
+  ConfigManager configManager(prefStorage);
 
-  configManager.clearAllConfigs();
+  configManager.eraseConfigs();
 
-  GlobalConfig globalConfig;
+  GlobalConfig *globalConfig = configManager.createConfig<GlobalConfig>();
 
   GlobalConfig::DeviceModule modules[] = {GlobalConfig::DeviceModule::Keyscanner};
-  globalConfig.setDeviceModules(modules, sizeof(modules) / sizeof(modules[0]));
+  globalConfig->setDeviceModules(modules, sizeof(modules) / sizeof(modules[0]));
 
   GlobalConfig::MacAddress mac = {};
   esp_base_mac_addr_get(mac);
-  globalConfig.setMac(mac);
+  globalConfig->setMac(mac);
 
-  globalConfig.setDeviceMode(GlobalConfig::DeviceMode::Slave);
-  configManager.setConfig(globalConfig);
+  globalConfig->setDeviceMode(GlobalConfig::DeviceMode::Slave);
 
-  KeyScannerConfig keyScannerConfig;
+  KeyScannerConfig *keyScannerConfig = configManager.createConfig<KeyScannerConfig>();
 
   uint8_t rowPins[2] = {9, 10};
   uint8_t colPins[2] = {17, 18};
@@ -160,11 +172,11 @@ static void setKeyboardConfig()
   keyCfgParams.refreshRate = 500;
   keyCfgParams.bitmapSendRate = 1;
   keyCfgParams.localToHidMap = localToHidMap;
-  keyScannerConfig.setConfig(keyCfgParams);
+  keyScannerConfig->setConfig(keyCfgParams);
 
-  keyScannerConfig.setLocalToHidMap(localToHidMap, 4); // 2 rows * 2 cols = 4 keys
+  keyScannerConfig->setLocalToHidMap(localToHidMap, 4); // 2 rows * 2 cols = 4 keys
 
-  std::vector<uint8_t> hidMap = keyScannerConfig.getLocalToHidMap();
+  std::vector<uint8_t> hidMap = keyScannerConfig->getLocalToHidMap();
   logger.debug("Returned KeyScanner HID Map:");
   logger.debug("Size: %d", hidMap.size());
   for (size_t i = 0; i < hidMap.size(); i++)
@@ -172,26 +184,14 @@ static void setKeyboardConfig()
     logger.debug("  Index %d: HID 0x%02X", i, hidMap[i]);
   }
 
-  configManager.setConfig(keyScannerConfig);
-
-  KeyScannerConfig localConfig = configManager.getConfig<KeyScannerConfig>();
-
-  hidMap = localConfig.getLocalToHidMap();
-  logger.debug("Returned ConfigManager HID Map:");
-  logger.debug("Size: %d", hidMap.size());
-  for (size_t i = 0; i < hidMap.size(); i++)
-  {
-    logger.debug("  Index %d: HID 0x%02X", i, hidMap[i]);
-  }
-
-  configManager.saveConfig();
+  configManager.saveConfigs();
 }
 
 static void setHostConfig()
 {
-  ConfigManager configManager(&prefStorage);
+  ConfigManager configManager(prefStorage);
 
-  configManager.clearAllConfigs();
+  configManager.eraseConfigs();
 
   GlobalConfig globalConfig;
 
@@ -202,5 +202,5 @@ static void setHostConfig()
   globalConfig.setDeviceMode(GlobalConfig::DeviceMode::Master);
   configManager.setConfig(globalConfig);
 
-  configManager.saveConfig();
+  configManager.saveConfigs();
 }

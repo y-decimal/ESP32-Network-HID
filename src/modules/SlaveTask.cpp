@@ -1,12 +1,12 @@
 #include <modules/SlaveTask.h>
 #include <submodules/Logger.h>
 
-static Logger log(SLAVETASK_NAMESPACE);
+static Logger log(SlaveTask::NAMESPACE);
 
 // Initialize static member variable
 SlaveTask *SlaveTask::instance = nullptr;
 
-SlaveTask::SlaveTask(ITransport &transport, ConfigManager &config) : transportRef(&transport), configManager(config)
+SlaveTask::SlaveTask(ITransport &transport, ConfigManager *config) : transportRef(&transport), configManager(config)
 {
   if (instance != nullptr)
   {
@@ -105,7 +105,7 @@ void SlaveTask::start(TaskParameters params)
   protocol = new TransportProtocol(*transportRef);
 
   BaseType_t result = xTaskCreatePinnedToCore(
-      taskEntry, SLAVETASK_NAMESPACE, params.stackSize, this,
+      taskEntry, SlaveTask::NAMESPACE, params.stackSize, this,
       params.priority, &slaveTaskHandle, params.coreAffinity);
 
   if (result != pdPASS)
@@ -176,19 +176,34 @@ void SlaveTask::pairConfirmCallback(uint8_t sourceId)
            masterMac[3], masterMac[4], masterMac[5]);
 }
 
-void SlaveTask::configReceiveCallback(const ConfigManager &config, uint8_t senderId)
+void SlaveTask::configReceiveCallback(ConfigManager *config, uint8_t senderId)
 {
   if (SlaveTask::instance == nullptr)
   {
     log.error("SlaveTask instance is null in configReceiveCallback");
+    delete config; // Clean up if we can't process it
     return;
   }
   log.info("Received configuration update from master ID %u", senderId);
-  return; // Todo: implement config handling
+
+  // TODO: Use the config data here
+  // Example: copy configs you need from config to your local configManager
+
+  delete config; // Clean up when done
 }
 
 void SlaveTask::configRequestCallback(uint8_t senderId)
 {
+   if (SlaveTask::instance == nullptr)
+  {
+    log.error("SlaveTask instance is null in configRequestCallback");
+    return;
+  }
   log.info("Config Request received. Sending config to master ID %d", senderId);
-  instance->protocol->sendConfig(senderId, &instance->configManager);
+  
+  if(SlaveTask::instance->configManager == nullptr) {
+    log.error("Config manager is null in configRequestCallback");
+    return;
+  }
+  instance->protocol->sendConfig(senderId, instance->configManager);
 }

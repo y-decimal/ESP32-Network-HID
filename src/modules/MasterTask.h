@@ -6,13 +6,15 @@
 #include <submodules/TransportProtocol.h>
 #include <submodules/EventRegistry.h>
 #include <submodules/HidMapper.h>
+#include <submodules/Config/ConfigManager.h>
+#include <submodules/Config/KeyScannerConfig.h>
 #include <vector>
-
-static constexpr const char *MASTERTASK_NAMESPACE = "MasterTask";
 
 class MasterTask : public ITask
 {
 public:
+    static constexpr const char *NAMESPACE = "MasterTask";
+
     MasterTask(ITransport &transport);
     ~MasterTask();
     void start(TaskParameters params) override;
@@ -30,9 +32,9 @@ private:
 
     static void taskEntry(void *arg);
     static void pairReceiveCallback(uint8_t sourceId);
-    static void keyReceiveCallback(const RawKeyEvent &keyEvent, uint8_t senderId);
-    static void bitmapReceiveCallback(const RawBitmapEvent &bitmapEvent, uint8_t senderId);
-    static void configReceiveCallback(const ConfigManager &config, uint8_t senderId);
+    static void keyReceiveCallback(RawKeyEvent &keyEvent, uint8_t senderId);
+    static void bitmapReceiveCallback(RawBitmapEvent &bitmapEvent, uint8_t senderId);
+    static void configReceiveCallback(ConfigManager *config, uint8_t senderId);
 };
 
 #endif
