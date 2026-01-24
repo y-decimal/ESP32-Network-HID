@@ -23,8 +23,23 @@ void setUp()
 
 void tearDown()
 {
-  testStorage.remove(GlobalConfig::NAMESPACE);
-  testStorage.remove(KeyScannerConfig::NAMESPACE);
+  try
+  {
+    testStorage.remove(GlobalConfig::NAMESPACE);
+  }
+  catch (...)
+  {
+    // Ignore teardown errors for GlobalConfig
+  }
+
+  try
+  {
+    testStorage.remove(KeyScannerConfig::NAMESPACE);
+  }
+  catch (...)
+  {
+    // Ignore teardown errors for KeyScannerConfig
+  }
 }
 
 #ifndef UNITY_NATIVE
