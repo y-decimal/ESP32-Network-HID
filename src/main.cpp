@@ -62,6 +62,11 @@ void setup()
   EventRegistry::registerHandler(EventType::RawBitmap, bitMapPrintCallback);
   EventRegistry::registerHandler(EventType::HidBitmap, hidPrintCallback);
 
+  if (taskManager != nullptr)
+  {
+    delete taskManager;
+    taskManager = nullptr;
+  }
   taskManager = new TaskManager(platform);
   logger.info("Starting taskmanager");
   taskManager->start();
