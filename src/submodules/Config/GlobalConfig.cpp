@@ -68,7 +68,7 @@ bool GlobalConfig::save()
   uint8_t *buffer = (uint8_t *)malloc(ownSize);
   size_t packedSize = packSerialized(buffer, ownSize);
   if (packedSize != ownSize)
-    log.warn("Packed size %d and serialized size size %d don't match!", packedSize, ownSize);
+    log.warn("Packed size %zu and serialized size size %zu don't match!", packedSize, ownSize);
 
   bool success = storage->save(NAMESPACE, buffer, ownSize);
   free(buffer);
@@ -107,7 +107,7 @@ bool GlobalConfig::load()
 
   if (unpackedSize != ownSize)
   {
-    log.warn("Unpacked size %d and loaded size %d don't match!", unpackedSize, ownSize);
+    log.warn("Unpacked size %zu and loaded size %zu don't match!", unpackedSize, ownSize);
   }
 
   free(buffer);
