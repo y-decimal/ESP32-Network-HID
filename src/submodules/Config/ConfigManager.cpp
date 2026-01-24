@@ -143,7 +143,7 @@ size_t ConfigManager::packSerialized(uint8_t *output, size_t size) const
 
 size_t ConfigManager::unpackSerialized(const uint8_t *input, size_t size)
 {
-    configLog.info("Deserializing configmanager with size %d Bytes", size);
+    configLog.info("Deserializing configmanager with size %zu Bytes", size);
     size_t read = 0;
 
     while (read < size)
