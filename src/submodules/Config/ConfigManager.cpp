@@ -113,7 +113,7 @@ size_t ConfigManager::packSerialized(uint8_t *output, size_t size) const
 {
     size_t ownSize = getSerializedSize();
 
-    configLog.info("Serializing configmanager with size %d Bytes", ownSize);
+    configLog.info("Serializing configmanager with size %zu Bytes", ownSize);
 
     if (size < ownSize)
     {
