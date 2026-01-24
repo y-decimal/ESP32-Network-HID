@@ -1,7 +1,7 @@
 #include <modules/KeyScannerTask.h>
 #include <submodules/Logger.h>
 
-static Logger log(KEYSCANNER_NAMESPACE);
+static Logger log(KeyScannerTask::NAMESPACE);
 
 // Initialize static member variable
 KeyScannerTask *KeyScannerTask::instance = nullptr;
@@ -162,7 +162,7 @@ void KeyScannerTask::start(TaskParameters params)
            params.stackSize, params.priority, params.coreAffinity);
 
   BaseType_t result = xTaskCreatePinnedToCore(
-      taskEntry, "KeyScannerTask", params.stackSize, this,
+      taskEntry, KeyScannerTask::NAMESPACE, params.stackSize, this,
       params.priority, &keyScannerTaskHandle, params.coreAffinity);
   if (result != pdPASS)
   {

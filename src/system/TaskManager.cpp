@@ -1,6 +1,6 @@
 #include <system/TaskManager.h>
 
-static Logger taskLog("TaskManager");
+static Logger taskLog(TaskManager::NAMESPACE);
 
 static inline uint32_t getRequiredTasksForAllModules(DeviceModule modules[(size_t)DeviceModule::Count]);
 static inline uint32_t getRequiredTaskForModule(DeviceModule module);

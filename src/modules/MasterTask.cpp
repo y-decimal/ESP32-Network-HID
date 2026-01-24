@@ -1,7 +1,7 @@
 #include <modules/MasterTask.h>
 #include <submodules/Logger.h>
 
-static Logger log(MASTERTASK_NAMESPACE);
+static Logger log(MasterTask::NAMESPACE);
 
 // Initialize static member variable
 MasterTask *MasterTask::instance = nullptr;
@@ -58,7 +58,7 @@ void MasterTask::start(TaskParameters params)
 
   protocol = new TransportProtocol(*transportRef);
 
-  BaseType_t result = xTaskCreatePinnedToCore(taskEntry, "MasterTask",
+  BaseType_t result = xTaskCreatePinnedToCore(taskEntry, MasterTask::NAMESPACE,
                                               params.stackSize, this,
                                               params.priority, &masterTaskHandle,
                                               params.coreAffinity);

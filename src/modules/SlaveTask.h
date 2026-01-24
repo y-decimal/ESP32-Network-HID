@@ -7,11 +7,11 @@
 #include <submodules/EventRegistry.h>
 #include <queue.h>
 
-static constexpr const char *SLAVETASK_NAMESPACE = "SlaveTask";
-
 class SlaveTask : public ITask
 {
 public:
+    static constexpr const char *NAMESPACE = "SlaveTask";
+
     SlaveTask(ITransport &transport, ConfigManager *config);
     ~SlaveTask();
     void start(TaskParameters params) override;

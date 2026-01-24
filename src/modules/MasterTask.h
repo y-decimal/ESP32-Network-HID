@@ -10,11 +10,11 @@
 #include <submodules/Config/KeyScannerConfig.h>
 #include <vector>
 
-static constexpr const char *MASTERTASK_NAMESPACE = "MasterTask";
-
 class MasterTask : public ITask
 {
 public:
+    static constexpr const char *NAMESPACE = "MasterTask";
+
     MasterTask(ITransport &transport);
     ~MasterTask();
     void start(TaskParameters params) override;

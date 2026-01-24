@@ -25,6 +25,8 @@ using DeviceMode = GlobalConfig::DeviceMode;
 class TaskManager
 {
 public:
+  static constexpr const char* NAMESPACE = "TaskManager";
+
   struct Platform
   {
     IGpio &gpio;

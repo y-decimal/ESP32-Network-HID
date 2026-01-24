@@ -8,11 +8,11 @@
 #include <submodules/EventRegistry.h>
 #include <queue.h>
 
-static constexpr const char *KEYSCANNER_NAMESPACE = "KeyScannerTask";
-
 class KeyScannerTask : public ITask
 {
 public:
+    static constexpr const char *NAMESPACE = "KeyScannerTask";
+
     KeyScannerTask(ConfigManager *configManager, IGpio &gpio);
     ~KeyScannerTask();
     void start(TaskParameters params) override;

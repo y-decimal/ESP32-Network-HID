@@ -1,7 +1,7 @@
 #include <modules/SlaveTask.h>
 #include <submodules/Logger.h>
 
-static Logger log(SLAVETASK_NAMESPACE);
+static Logger log(SlaveTask::NAMESPACE);
 
 // Initialize static member variable
 SlaveTask *SlaveTask::instance = nullptr;
@@ -105,7 +105,7 @@ void SlaveTask::start(TaskParameters params)
   protocol = new TransportProtocol(*transportRef);
 
   BaseType_t result = xTaskCreatePinnedToCore(
-      taskEntry, SLAVETASK_NAMESPACE, params.stackSize, this,
+      taskEntry, SlaveTask::NAMESPACE, params.stackSize, this,
       params.priority, &slaveTaskHandle, params.coreAffinity);
 
   if (result != pdPASS)
