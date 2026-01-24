@@ -4,31 +4,30 @@
 std::unordered_map<std::string, std::function<IConfig *()>> ConfigManager::factoryMap;
 NullStorage ConfigManager::defaultNullStorage;
 
-
 IConfig *ConfigManager::createConfigByNamespace(const char *namespaceCstring)
 {
-  std::string namespaceString = namespaceCstring;
-  return createConfigByNamespace(namespaceString);
+    std::string namespaceString = namespaceCstring;
+    return createConfigByNamespace(namespaceString);
 }
 
 IConfig *ConfigManager::createConfigByNamespace(std::string namespaceString)
 {
-  auto it = factoryMap.find(namespaceString);
-  if (it == factoryMap.end())
-  {
-    configLog.error("Could not create config with namespace %s, it was never registered",
-                    namespaceString.c_str());
-    return nullptr;
-  }
+    auto it = factoryMap.find(namespaceString);
+    if (it == factoryMap.end())
+    {
+        configLog.error("Could not create config with namespace %s, it was never registered",
+                        namespaceString.c_str());
+        return nullptr;
+    }
 
-  IConfig *cfg = it->second();
-  if (cfg == nullptr)
-    configLog.error("Factory for config with namespace %s returned nullptr", namespaceString.c_str());
+    IConfig *cfg = it->second();
+    if (cfg == nullptr)
+        configLog.error("Factory for config with namespace %s returned nullptr", namespaceString.c_str());
 
-  configMap[namespaceString] = cfg;
-  cfg->setStorage(&storage);
+    configMap[namespaceString] = cfg;
+    cfg->setStorage(&storage);
 
-  return cfg;
+    return cfg;
 }
 
 bool ConfigManager::saveConfigs()
@@ -42,7 +41,7 @@ bool ConfigManager::saveConfigs()
             configLog.error("Config %s could not be saved", it->first.c_str());
             success = false;
         }
-        else 
+        else
             configLog.info("Saved config: %s", it->first.c_str());
     }
     return success;
@@ -59,7 +58,7 @@ bool ConfigManager::loadConfigs()
             configLog.error("Config %s could not be loaded", it->first.c_str());
             success = false;
         }
-        else 
+        else
             configLog.info("Loaded config: %s", it->first.c_str());
     }
     return success;
@@ -76,7 +75,7 @@ bool ConfigManager::eraseConfigs()
             configLog.error("Config %s could not be erased", it->first.c_str());
             success = false;
         }
-        else 
+        else
             configLog.info("Erased config: %s", it->first.c_str());
     }
     return success;
@@ -102,7 +101,7 @@ size_t ConfigManager::getSerializedSize() const
     for (auto it = configMap.begin(); it != configMap.end(); it++)
     {
         combinedSize += sizeof(size_t);                  // namespace string size info
-        combinedSize += it->first.size();        // namespace string size
+        combinedSize += it->first.size();                // namespace string size
         combinedSize += sizeof(size_t);                  // serialized config size info
         combinedSize += it->second->getSerializedSize(); // serialized config size
     }
@@ -159,6 +158,11 @@ size_t ConfigManager::unpackSerialized(const uint8_t *input, size_t size)
         memcpy(&namespaceString[0], input + read, sizeOfData);
         read += sizeOfData;
 
+        sizeOfData = sizeof(size_t);
+        size_t configSize = 0;
+        memcpy(&configSize, input + read, sizeOfData);
+        read += sizeOfData;
+
         IConfig *cfg = nullptr;
         auto it = configMap.find(namespaceString);
         if (it == configMap.end())
@@ -167,20 +171,16 @@ size_t ConfigManager::unpackSerialized(const uint8_t *input, size_t size)
             cfg = createConfigByNamespace(namespaceString);
             if (cfg == nullptr)
             {
-                configLog.error("Failed to deserialize config with namespace %s, it was never registered",
+                configLog.error("Failed to deserialize config with namespace %s, it was never registered and will be skipped",
                                 namespaceString.c_str());
-                return 0;
+                read += configSize;
+                continue;
             }
         }
         else
         {
             cfg = it->second;
         }
-
-        sizeOfData = sizeof(size_t);
-        size_t configSize = 0;
-        memcpy(&configSize, input + read, sizeOfData);
-        read += sizeOfData;
 
         sizeOfData = configSize;
         cfg->unpackSerialized(input + read, sizeOfData);
