@@ -40,6 +40,7 @@ public:
     static void setNamespaceLevel(const char *logNamespace, LogLevel level);
     static LogLevel getNamespaceLevel(const char *logNamespace);
     static void setDefaultLogLevel(LogLevel level);
+    static void setDefaultLogMode(LogMode mode);
     static void setLogCallback(globalLogCallback callback);
 
     // Instance methods
