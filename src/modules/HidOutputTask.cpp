@@ -23,16 +23,39 @@ HidOutputTask::~HidOutputTask()
 
 void HidOutputTask::taskEntry(void *param)
 {
+    log.info("HidOutputTask started");
+    log.debug("Task entry: instance=%p, localQueue=%p", instance, instance ? instance->localQueue : nullptr);
+
+    if (instance == nullptr)
+    {
+        log.error("Task entry: instance is null, task cannot run");
+        vTaskDelete(nullptr);
+        return;
+    }
+
+    if (instance->localQueue == nullptr)
+    {
+        log.error("Task entry: localQueue is null, task cannot run");
+        vTaskDelete(nullptr);
+        return;
+    }
+
+    log.info("Task entry: Starting main loop");
+
     for (;;)
     {
+        log.debug("Task entry: Waiting for queue item...");
         HidBitmapEvent hidEvt;
         if (xQueueReceive(instance->localQueue, &hidEvt, portMAX_DELAY))
         {
+            log.debug("Task entry: Received queue item, size=%zu, data=%d", hidEvt.bitmapSize, *hidEvt.bitMapData);
             instance->hidOut->sendHidReport(hidEvt.bitMapData, hidEvt.bitmapSize);
             free(hidEvt.bitMapData);
         }
         else
+        {
             log.warn("Hid Event could not be read from queue");
+        }
     }
 }
 
