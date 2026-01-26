@@ -1,4 +1,9 @@
 #include <interfaces/implementations/HID/Helper6KRO.h>
+
+#include <submodules/Logger.h>
+
+static Logger log(SixKroHelper::NAMESPACE);
+
 void SixKroHelper::convertBitmapTo6KRO(const uint8_t *bitmap, size_t bitmapSize, uint8_t *outputReport)
     {
         if (lastBitmap == nullptr)
