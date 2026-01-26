@@ -12,32 +12,34 @@ void SixKroHelper::convertBitmapTo6KRO(const uint8_t *bitmap, size_t bitmapSize,
         log.debug("Initialized lastBitmap with size %zu", bitmapSize);
     }
 
-        uint8_t modifierByte = 0;
+    uint8_t modifierByte = 0;
 
-        for (uint8_t hidCode = 0; hidCode < bitmapSize * 8; hidCode++)
+    for (uint16_t hidCode = 0; hidCode < bitmapSize * 8; hidCode++)
+    {
+        bool wasDown = lastBitmap[hidCode / 8] & (1 << (hidCode % 8));
+        bool isDown = bitmap[hidCode / 8] & (1 << (hidCode % 8));
+
+        if (!wasDown && isDown)
         {
-            bool wasDown = lastBitmap[hidCode / 8] & (1 << (hidCode % 8));
-            bool isDown = bitmap[hidCode / 8] & (1 << (hidCode % 8));
-
-            if (!wasDown && isDown)
-            {
-                if (isModifier(hidCode))
-                    modifierByte |= hidCode;
-                else
-                    pressedKeysInOrder.push_back(hidCode);
-            }
-            else if (wasDown && !isDown)
-            {
-                if (isModifier(hidCode))
-                    modifierByte &= !hidCode;
-                else
-                    for (int i = 0; i < pressedKeysInOrder.size(); i++)
-                    {
-                        if (pressedKeysInOrder[i] == hidCode)
-                            pressedKeysInOrder.erase(pressedKeysInOrder.begin() + i);
-                    }
-            }
+            log.debug("Key 0x%02X pressed", hidCode);
+            if (isModifier(hidCode))
+                modifierByte |= (1 << (hidCode - 0xE0)); // Convert HID code to bit position
+            else
+                pressedKeysInOrder.push_back(hidCode);
         }
+        else if (wasDown && !isDown)
+        {
+            log.debug("Key 0x%02X released", hidCode);
+            if (isModifier(hidCode))
+                modifierByte &= ~(1 << (hidCode - 0xE0)); // Convert HID code to bit position and clear
+            else
+                for (int i = 0; i < pressedKeysInOrder.size(); i++)
+                {
+                    if (pressedKeysInOrder[i] == hidCode)
+                        pressedKeysInOrder.erase(pressedKeysInOrder.begin() + i);
+                }
+        }
+    }
 
     // Update lastBitmap AFTER processing changes
     memcpy(lastBitmap, bitmap, bitmapSize);
