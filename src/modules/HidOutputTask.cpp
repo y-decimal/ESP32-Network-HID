@@ -103,7 +103,7 @@ void HidOutputTask::start(TaskParameters params)
     if (localQueue == nullptr)
     {
         log.info("Creating queue");
-        localQueue = xQueueCreate(16, sizeof(HidBitmapEvent));
+        localQueue = xQueueCreate(32, sizeof(HidBitmapEvent));
         if (localQueue == nullptr)
         {
             log.error("Failed to create queue, aborting task creation");
