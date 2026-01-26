@@ -1,4 +1,4 @@
-#include <interfaces/implementations/HID/BleHidOuput.h>
+#include <interfaces/implementations/HID/BleHidOutput.h>
 #include <BLEDevice.h>
 #include <interfaces/implementations/HID/Helper6KRO.h>
 
