@@ -5,10 +5,12 @@
 static Logger log(SixKroHelper::NAMESPACE);
 
 void SixKroHelper::convertBitmapTo6KRO(const uint8_t *bitmap, size_t bitmapSize, uint8_t *outputReport)
+{
+    if (lastBitmap == nullptr)
     {
-        if (lastBitmap == nullptr)
-            lastBitmap = (uint8_t *)malloc(bitmapSize);
-        memcpy(lastBitmap, bitmap, bitmapSize);
+        lastBitmap = (uint8_t *)calloc(bitmapSize, 1);
+        log.debug("Initialized lastBitmap with size %zu", bitmapSize);
+    }
 
         uint8_t modifierByte = 0;
 
@@ -37,22 +39,31 @@ void SixKroHelper::convertBitmapTo6KRO(const uint8_t *bitmap, size_t bitmapSize,
             }
         }
 
-        outputReport[0] = modifierByte;
-        outputReport[1] = 0;
+    // Update lastBitmap AFTER processing changes
+    memcpy(lastBitmap, bitmap, bitmapSize);
 
-        size_t count = 0;
-        for (uint8_t hidCode : pressedKeysInOrder)
+    memcpy(outputReport, &modifierByte, 1);
+    memcpy(outputReport + 1, "\x00", 1); // Reserved byte
+
+    size_t count = 0;
+    for (uint8_t hidCode : pressedKeysInOrder)
+    {
+        if (isModifier(hidCode))
         {
-            if (isModifier(hidCode))
-                continue;
-            if (count >= 6)
-                break;
-
-            outputReport[2 + count] = hidCode;
-            count++;
+            log.debug("Skipping modifier key 0x%02X in key array", hidCode);
+            continue;
         }
+        if (count >= 6)
+        {
+            log.warn("More than 6 keys pressed, ignoring additional keys");
+            break;
+        }
+        memcpy(outputReport + 2 + count, &hidCode, 1);
+        log.debug("Added key 0x%02X to output report at position %zu", hidCode, count);
+        count++;
     }
-
+    log.debug("Output report prepared with %zu keys pressed", count);
+}
 
 bool SixKroHelper::isModifier(uint8_t hidCode)
 {
