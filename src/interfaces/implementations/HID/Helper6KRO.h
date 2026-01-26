@@ -23,6 +23,8 @@
 class SixKroHelper
 {
 public:
+    static constexpr const char *NAMESPACE = "SixKroHelper";
+
     void convertBitmapTo6KRO(const uint8_t *bitmap, size_t bitmapSize, uint8_t *outputReport);
 
     static uint8_t reportDescriptor6KRO[63];
