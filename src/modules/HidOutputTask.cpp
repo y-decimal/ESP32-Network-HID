@@ -1,6 +1,5 @@
 #include <modules/HidOutputTask.h>
 #include <submodules/Logger.h>
-#include <shared/EventTypes.h>
 
 static Logger log(HidOutputTask::NAMESPACE);
 
@@ -8,6 +7,7 @@ HidOutputTask::HidOutputTask(IHidOutput &hidOut)
 {
     this->hidOut = &hidOut;
     instance = this;
+    EventRegistry::registerHandler(EventType::HidBitmap, processEvent);
 }
 
 HidOutputTask::~HidOutputTask()
@@ -34,6 +34,34 @@ void HidOutputTask::taskEntry(void *param)
         }
         else
             log.warn("Hid Event could not be read from queue");
+    }
+}
+
+void HidOutputTask::processEvent(const Event &event)
+{
+    if (instance == nullptr || instance->localQueue == nullptr)
+    {
+        log.error("HidOutputTask instance or local queue is not initialized");
+        return;
+    }
+
+    if (event.type != EventType::HidBitmap)
+    {
+        log.warn("Received unsupported event type: %d", static_cast<uint8_t>(event.type));
+        return;
+    }
+
+    HidBitmapEvent hidEvt = event.hidBitmapEvt;
+    if (hidEvt.bitMapData == nullptr)
+    {
+        log.error("HidBitmapEvent data is null");
+        return;
+    }
+
+    BaseType_t result = xQueueSend(instance->localQueue, &hidEvt, 0);
+    if (result != pdPASS)
+    {
+        log.error("Failed to enqueue HidBitmapEvent");
     }
 }
 

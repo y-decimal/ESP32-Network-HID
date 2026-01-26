@@ -3,6 +3,7 @@
 
 #include <interfaces/ITask.h>
 #include <interfaces/IHidOutput.h>
+#include <submodules/EventRegistry.h>
 #include <queue.h>
 
 class HidOutputTask : public ITask
@@ -24,6 +25,8 @@ private:
     static HidOutputTask *instance;
 
     static void taskEntry(void *param);
+
+    static void processEvent(const Event &event);
 };
 
 #endif
