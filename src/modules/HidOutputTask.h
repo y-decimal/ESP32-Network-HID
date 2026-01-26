@@ -24,6 +24,8 @@ private:
     TaskHandle_t hidOutputTaskHandle = nullptr;
     static HidOutputTask *instance;
 
+    bool initialized = false;
+
     static void taskEntry(void *param);
 
     static void processEvent(const Event &event);

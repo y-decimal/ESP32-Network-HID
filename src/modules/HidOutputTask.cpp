@@ -90,6 +90,16 @@ void HidOutputTask::start(TaskParameters params)
         return;
     }
 
+    if (!initialized)
+    {
+        if (!hidOut->initialize())
+        {
+            log.error("Hid output interface initialization failed, aborting task creation");
+            return;
+        }
+        initialized = true;
+    }
+
     if (localQueue == nullptr)
     {
         log.info("Creating queue");
