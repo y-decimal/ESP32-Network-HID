@@ -3,6 +3,8 @@
 
 static Logger log(HidOutputTask::NAMESPACE);
 
+HidOutputTask *HidOutputTask::instance = nullptr;
+
 HidOutputTask::HidOutputTask(IHidOutput &hidOut)
 {
     this->hidOut = &hidOut;
