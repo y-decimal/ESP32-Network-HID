@@ -2,12 +2,23 @@
 #include <BLEDevice.h>
 #include <interfaces/implementations/HID/Helper6KRO.h>
 
+#include <submodules/Logger.h>
+
+static Logger log(BleHidOutput::NAMESPACE);
+
 bool BleHidOutput::initialize()
 {
+    log.info("Initializing BLE HID Output");
     BLEDevice::init("Decimator"); // Name in honor of someone's insistance I call it that
 
     BLEServer *server = BLEDevice::createServer();
     hid = new BLEHIDDevice(server);
+
+    if (server == nullptr || hid == nullptr)
+    {
+        log.error("Failed to create BLE server or HID device");
+        return false;
+    }
 
     inputReport = hid->inputReport(1);
     outputReport = hid->outputReport(1);
@@ -18,7 +29,7 @@ bool BleHidOutput::initialize()
     hid->pnp(0x02, 0x1234, 0x5678, 0x0100); // What does this mean?
     hid->hidInfo(0x00, 0x01);
 
-    // Set the HID report descriptor (we’ll fill this in next)
+    // Set the HID report descriptor
     hid->reportMap(sixKro.reportDescriptor6KRO, sizeof(sixKro.reportDescriptor6KRO));
     hid->startServices();
     BLEAdvertising *advertising = server->getAdvertising();
