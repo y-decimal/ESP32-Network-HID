@@ -66,8 +66,6 @@ void setup()
   EventRegistry::registerHandler(EventType::RawBitmap, bitMapPrintCallback);
   EventRegistry::registerHandler(EventType::HidBitmap, hidPrintCallback);
 
-  bleHidOutput.initialize();
-
   if (taskManager != nullptr)
   {
     delete taskManager;
