@@ -58,6 +58,10 @@ void TaskManager::stopTaskByBit(uint32_t bit)
         taskLog.info("Stopping KeyScannerTask");
         keyScannerTask.stop();
         break;
+    case TaskId::HIDOUTPUT_TASK:
+        taskLog.info("Stopping HidOutputTask");
+        hidOutputTask.stop();
+        break;
     default:
         taskLog.warn("Unknown task bit: %u", bit);
         break;
@@ -88,6 +92,10 @@ void TaskManager::restartTaskByBit(uint32_t bit)
         taskLog.info("Restarting KeyScannerTask");
         keyScannerTask.restart({STACK_KEYSCAN, PRIORITY_KEYSCAN, CORE_KEYSCAN});
         break;
+    case TaskId::HIDOUTPUT_TASK:
+        taskLog.info("Restarting HidOutputTask");
+        hidOutputTask.restart({STACK_HIDOUTPUT, PRIORITY_HIDOUTPUT, CORE_HIDOUTPUT});
+        break;
     default:
         taskLog.warn("Unknown task bit for restart: %u", bit);
         break;
@@ -117,6 +125,10 @@ void TaskManager::startTaskByBit(uint32_t bit)
     case TaskId::KEYSCANNER_TASK:
         taskLog.info("Starting KeyScannerTask");
         keyScannerTask.start({STACK_KEYSCAN, PRIORITY_KEYSCAN, CORE_KEYSCAN});
+        break;
+    case TaskId::HIDOUTPUT_TASK:
+        taskLog.info("Starting HidOutputTask");
+        hidOutputTask.start({STACK_HIDOUTPUT, PRIORITY_HIDOUTPUT, CORE_HIDOUTPUT});
         break;
     default:
         taskLog.warn("Unknown task bit: %u", bit);
@@ -179,6 +191,9 @@ uint32_t getRequiredTaskForModule(DeviceModule module)
     case DeviceModule::Keyscanner:
         taskLog.info("Module: Keyscanner");
         return TaskManager::TaskId::KEYSCANNER_TASK;
+    case DeviceModule::HidOutput:
+        taskLog.info("Module: HidOutput");
+        return TaskManager::TaskId::HIDOUTPUT_TASK;
     default:
         return 0;
     }
