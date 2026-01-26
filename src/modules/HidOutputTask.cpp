@@ -29,10 +29,7 @@ void HidOutputTask::taskEntry(void *param)
         if (xQueueReceive(instance->localQueue, &hidEvt, portMAX_DELAY))
         {
             instance->hidOut->sendHidReport(hidEvt.bitMapData, hidEvt.bitmapSize);
-            log.info("Hid bitmap event sent to output: size %zu, data %d", hidEvt.bitmapSize, hidEvt.bitMapData);
-            // Note, with current implementation, cleaning up the bitmap data buffer may not be possible
-            // and every hid bitmap event will leak memory gradually. Need to investigate event bus and
-            // event registry implementation
+            free(hidEvt.bitMapData);
         }
         else
             log.warn("Hid Event could not be read from queue");
@@ -53,17 +50,29 @@ void HidOutputTask::processEvent(const Event &event)
         return;
     }
 
-    HidBitmapEvent hidEvt = event.hidBitmapEvt;
-    if (hidEvt.bitMapData == nullptr)
+    Event bitmapEvent = event;
+
+    if (bitmapEvent.hidBitmapEvt.bitmapSize == 0 || bitmapEvent.hidBitmapEvt.bitMapData == nullptr)
     {
-        log.error("HidBitmapEvent data is null");
+        log.error("HidBitmapEvent has invalid size or data");
         return;
     }
+
+    uint8_t *hidBitmapData = (uint8_t *)malloc(bitmapEvent.hidBitmapEvt.bitmapSize);
+    uint8_t hidBitmapSize = bitmapEvent.hidBitmapEvt.bitmapSize;
+    memcpy(hidBitmapData, bitmapEvent.hidBitmapEvt.bitMapData, bitmapEvent.hidBitmapEvt.bitmapSize);
+    bitmapEvent.cleanup(&bitmapEvent);
+
+    HidBitmapEvent hidEvt{hidBitmapSize, hidBitmapData};
 
     BaseType_t result = xQueueSend(instance->localQueue, &hidEvt, 0);
     if (result != pdPASS)
     {
         log.error("Failed to enqueue HidBitmapEvent");
+    }
+    else
+    {
+        log.debug("HidBitmapEvent enqueued successfully: size %zu", hidEvt.bitmapSize);
     }
 }
 
