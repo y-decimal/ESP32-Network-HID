@@ -36,3 +36,8 @@ void BleHidOutput::sendHidReport(const uint8_t *bitmap, size_t size)
     inputReport->setValue(report, sizeof(report));
     inputReport->notify();
 }
+
+BleHidOutput::KroMode BleHidOutput::getKroMode()
+{
+    return KroMode::MODE_6KRO;
+}
