@@ -41,26 +41,32 @@ void TaskManager::stopTaskByBit(uint32_t bit)
     case TaskId::LOGGER_TASK:
         taskLog.info("Stopping LoggerTask");
         loggerTask.stop();
+        currentTasks &= ~bit;
         break;
     case TaskId::EVENT_BUS_TASK:
         taskLog.info("Stopping EventBusTask");
         eventBusTask.stop();
+        currentTasks &= ~bit;
         break;
     case TaskId::MASTER_TASK:
         taskLog.info("Stopping MasterTask");
         masterTask.stop();
+        currentTasks &= ~bit;
         break;
     case TaskId::SLAVE_TASK:
         taskLog.info("Stopping SlaveTask");
         slaveTask.stop();
+        currentTasks &= ~bit;
         break;
     case TaskId::KEYSCANNER_TASK:
         taskLog.info("Stopping KeyScannerTask");
         keyScannerTask.stop();
+        currentTasks &= ~bit;
         break;
     case TaskId::HIDOUTPUT_TASK:
         taskLog.info("Stopping HidOutputTask");
         hidOutputTask.stop();
+        currentTasks &= ~bit;
         break;
     default:
         taskLog.warn("Unknown task bit: %u", bit);
@@ -109,26 +115,32 @@ void TaskManager::startTaskByBit(uint32_t bit)
     case TaskId::LOGGER_TASK:
         taskLog.info("Starting LoggerTask");
         loggerTask.start({STACK_LOGGER, PRIORITY_LOGGER, CORE_LOGGER});
+        currentTasks |= bit;
         break;
     case TaskId::EVENT_BUS_TASK:
         taskLog.info("Starting EventBusTask");
         eventBusTask.start({STACK_EVENTBUS, PRIORITY_EVENTBUS, CORE_EVENTBUS});
+        currentTasks |= bit;
         break;
     case TaskId::MASTER_TASK:
         taskLog.info("Starting MasterTask");
         masterTask.start({STACK_MASTER, PRIORITY_MASTER, CORE_MASTER});
+        currentTasks |= bit;
         break;
     case TaskId::SLAVE_TASK:
         taskLog.info("Starting SlaveTask");
         slaveTask.start({STACK_SLAVE, PRIORITY_SLAVE, CORE_SLAVE});
+        currentTasks |= bit;
         break;
     case TaskId::KEYSCANNER_TASK:
         taskLog.info("Starting KeyScannerTask");
         keyScannerTask.start({STACK_KEYSCAN, PRIORITY_KEYSCAN, CORE_KEYSCAN});
+        currentTasks |= bit;
         break;
     case TaskId::HIDOUTPUT_TASK:
         taskLog.info("Starting HidOutputTask");
         hidOutputTask.start({STACK_HIDOUTPUT, PRIORITY_HIDOUTPUT, CORE_HIDOUTPUT});
+        currentTasks |= bit;
         break;
     default:
         taskLog.warn("Unknown task bit: %u", bit);
