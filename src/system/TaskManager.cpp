@@ -2,7 +2,7 @@
 
 static Logger taskLog(TaskManager::NAMESPACE);
 
-static inline uint32_t getRequiredTasksForAllModules(DeviceModule modules[(size_t)DeviceModule::Count]);
+static inline uint32_t getRequiredTasksForAllModules(std::vector<DeviceModule> *modules);
 static inline uint32_t getRequiredTaskForModule(DeviceModule module);
 
 void TaskManager::start()
@@ -23,15 +23,22 @@ void TaskManager::startModules(uint32_t moduleBitmap)
     uint32_t toRestart = currentTasks & moduleBitmap;
     uint32_t toStart = moduleBitmap & ~currentTasks;
 
+    taskLog.debug("startModules: bitmap=0x%08X, current=0x%08X, toStart=0x%08X", moduleBitmap, currentTasks, toStart);
+
     for (uint32_t bit = 1; bit != 0; bit <<= 1)
     {
+        taskLog.debug("Loop iteration: bit=0x%08X, checking toStart=0x%08X", bit, toStart);
         if (toStop & bit)
             stopTaskByBit(bit);
         if (toRestart & bit)
             restartTaskByBit(bit);
         if (toStart & bit)
+        {
+            taskLog.debug("Calling startTaskByBit for bit=0x%08X", bit);
             startTaskByBit(bit);
+        }
     }
+    taskLog.debug("startModules: Loop completed");
 }
 
 void TaskManager::stopTaskByBit(uint32_t bit)
@@ -178,20 +185,19 @@ uint32_t TaskManager::getAllRequiredTasks()
         taskLog.info("Device mode: Slave");
     }
 
-    DeviceModule modules[(size_t)DeviceModule::Count] = {};
-    globalCfg->getDeviceModules(modules, sizeof(modules));
+    std::vector<DeviceModule> modules = globalCfg->getDeviceModules();
 
-    bitmap |= getRequiredTasksForAllModules(modules);
+    bitmap |= getRequiredTasksForAllModules(&modules);
 
     return bitmap;
 }
 
-uint32_t getRequiredTasksForAllModules(DeviceModule modules[(size_t)DeviceModule::Count])
+uint32_t getRequiredTasksForAllModules(std::vector<DeviceModule> *modules)
 {
     uint32_t bitmap = 0;
-    for (size_t i = 0; i < (size_t)DeviceModule::Count; i++)
+    for (size_t i = 0; i < modules->size(); i++)
     {
-        bitmap |= getRequiredTaskForModule(modules[i]);
+        bitmap |= getRequiredTaskForModule((*modules)[i]);
     }
     return bitmap;
 }
