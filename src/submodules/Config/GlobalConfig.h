@@ -27,6 +27,7 @@ public:
   enum class DeviceModule : uint8_t
   {
     Keyscanner, // Expand later with new modules
+    HidOutput,
     Count
   };
 
