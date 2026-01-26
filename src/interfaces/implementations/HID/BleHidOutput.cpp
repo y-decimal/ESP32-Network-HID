@@ -25,6 +25,8 @@ bool BleHidOutput::initialize()
     advertising->setAppearance(HID_KEYBOARD);
     advertising->addServiceUUID(hid->hidService()->getUUID());
     advertising->start();
+
+    return true;
 }
 
 void BleHidOutput::sendHidReport(const uint8_t *bitmap, size_t size)
