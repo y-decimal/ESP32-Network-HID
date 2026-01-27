@@ -19,7 +19,8 @@ public:
 
 private:
     BLEHIDDevice *hid;
-    BLECharacteristic *inputReport;
+    BLECharacteristic *inputReportKeyboard;
+    BLECharacteristic *inputReportMediaControls;
     BLECharacteristic *outputReport;
     SixKroHelper sixKro;
     BLEServer *server;

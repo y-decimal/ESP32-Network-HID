@@ -1,5 +1,6 @@
 #include <interfaces/implementations/HID/BleHidOutput.h>
 #include <BLEDevice.h>
+#include <BLESecurity.h>
 #include <interfaces/implementations/HID/Helper6KRO.h>
 
 #include <submodules/Logger.h>
@@ -82,7 +83,8 @@ bool BleHidOutput::initialize()
         return false;
     }
 
-    inputReport = hid->inputReport(1);
+    inputReportKeyboard = hid->inputReport(1);
+    inputReportMediaControls = hid->inputReport(2);
     outputReport = hid->outputReport(1);
 
     hid->manufacturer()->setValue("Decimal");
