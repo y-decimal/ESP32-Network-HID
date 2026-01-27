@@ -91,73 +91,47 @@ bool SixKroHelper::isKeyboardUsage(uint8_t hidCode)
 }
 
 uint8_t SixKroHelper::reportDescriptor6KRO[63] = {
-    USAGE_PAGE(1),
-    0x01, // Generic Desktop
-    USAGE(1),
-    0x06, // Keyboard
-    COLLECTION(1),
-    0x01, // Application
+    USAGE_PAGE(1), 0x01, // Generic Desktop
+    USAGE(1), 0x06,      // Keyboard
+    COLLECTION(1), 0x01, // Application
 
     // Modifier byte
-    REPORT_ID(1),
-    0x01,
-    USAGE_PAGE(1),
-    0x07, // Keyboard/Keypad
-    USAGE_MINIMUM(1),
-    0xE0,
-    USAGE_MAXIMUM(1),
-    0xE7,
-    LOGICAL_MINIMUM(1),
-    0x00,
-    LOGICAL_MAXIMUM(1),
-    0x01,
-    REPORT_SIZE(1),
-    0x01,
-    REPORT_COUNT(1),
-    0x08,
-    HIDINPUT(1),
-    0x02, // Data, Variable, Absolute
+    REPORT_ID(1), 0x01,
+    USAGE_PAGE(1), 0x07, // Keyboard/Keypad
+    USAGE_MINIMUM(1), 0xE0,
+    USAGE_MAXIMUM(1), 0xE7,
+    LOGICAL_MINIMUM(1), 0x00,
+    LOGICAL_MAXIMUM(1), 0x01,
+    REPORT_SIZE(1), 0x01,
+    REPORT_COUNT(1), 0x08,
+    HIDINPUT(1), 0x02, // Data, Variable, Absolute
 
     // Reserved byte
-    REPORT_COUNT(1),
-    0x01,
-    REPORT_SIZE(1),
-    0x08,
-    HIDINPUT(1),
-    0x01, // Constant
+    REPORT_COUNT(1), 0x01,
+    REPORT_SIZE(1), 0x08,
+    HIDINPUT(1), 0x01, // Constant
 
     // 6KRO key array
-    REPORT_COUNT(1),
-    0x06,
-    REPORT_SIZE(1),
-    0x08,
-    LOGICAL_MINIMUM(1),
-    0x00,
-    LOGICAL_MAXIMUM(1),
-    0x65,
-    USAGE_MINIMUM(1),
-    0x00,
-    USAGE_MAXIMUM(1),
-    0x65,
-    HIDINPUT(1),
-    0x00, // Data, Array
+    REPORT_COUNT(1), 0x06,
+    REPORT_SIZE(1), 0x08,
+    LOGICAL_MINIMUM(1), 0x00,
+    LOGICAL_MAXIMUM(1), 0x65,
+    USAGE_MINIMUM(1), 0x00,
+    USAGE_MAXIMUM(1), 0x65,
+    HIDINPUT(1), 0x00, // Data, Array
 
     // LED output report
-    REPORT_COUNT(1),
-    0x05,
-    REPORT_SIZE(1),
-    0x01,
-    USAGE_PAGE(1),
-    0x08, // LEDs
-    USAGE_MINIMUM(1),
-    0x01,
-    USAGE_MAXIMUM(1),
-    0x05,
-    HIDOUTPUT(1),
-    0x02, // Data, Variable, Absolute
+    REPORT_COUNT(1), 0x05,
+    REPORT_SIZE(1), 0x01,
+    USAGE_PAGE(1), 0x08, // LEDs
+    USAGE_MINIMUM(1), 0x01,
+    USAGE_MAXIMUM(1), 0x05,
+    HIDOUTPUT(1), 0x02, // Data, Variable, Absolute
 
     // LED padding
-    REPORT_COUNT(1), 0x01, REPORT_SIZE(1), 0x03, HIDOUTPUT(1), 0x01, // Constant
+    REPORT_COUNT(1), 0x01,
+    REPORT_SIZE(1), 0x03,
+    HIDOUTPUT(1), 0x01, // Constant
     END_COLLECTION(0)};
 
 uint8_t SixKroHelper::reportDescriptorMediaControls[31] = {
