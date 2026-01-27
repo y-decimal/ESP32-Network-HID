@@ -158,7 +158,6 @@ void MasterTask::bitmapReceiveCallback(RawBitmapEvent &bitmapEvent, uint8_t send
   }
 
   instance->hidMapper.mapBitmapToHidBitmap(bitmapEvent.bitMapData, bitmapEvent.bitmapSize, senderId);
-  free(bitmapEvent.bitMapData);
   log.debug("Pushed bitmap event from device ID %u to HidMapper", senderId);
 
   std::vector<uint8_t> currentBitmap{0};
