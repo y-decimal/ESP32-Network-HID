@@ -50,9 +50,9 @@ void SixKroHelper::convertBitmapTo6KRO(const uint8_t *bitmap, size_t bitmapSize,
     size_t count = 0;
     for (uint8_t hidCode : pressedKeysInOrder)
     {
-        if (isModifier(hidCode))
+        if (isModifier(hidCode) || !isKeyboardUsage(hidCode))
         {
-            log.debug("Skipping modifier key 0x%02X in key array", hidCode);
+            log.debug("Skipping modifier or non-keyboard key 0x%02X in key array", hidCode);
             continue;
         }
         if (count >= 6)
