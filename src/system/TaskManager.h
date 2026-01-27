@@ -52,7 +52,7 @@ public:
         configManager(platform.storage),
         loggerTask(),
         eventBusTask(),
-        masterTask(platform.transport),
+        masterTask(platform.transport, &configManager),
         slaveTask(platform.transport, &configManager),
         keyScannerTask(&configManager, platform.gpio),
         hidOutputTask(platform.hidOut)
