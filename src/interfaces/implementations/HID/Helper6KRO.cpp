@@ -14,8 +14,16 @@ void SixKroHelper::convertBitmapTo6KRO(const uint8_t *bitmap, size_t bitmapSize,
 
     uint8_t modifierByte = 0;
 
-    for (uint16_t hidCode = 0; hidCode < bitmapSize * 8; hidCode++)
+    bool loop = true;
+    uint8_t hidCode = 0x04; // Start from first HID usage code
+    while (loop)
     {
+        if (hidCode >= 0x65 && hidCode < 0xE0) // Skip to modifier keys
+            hidCode = 0xE0;
+
+        if (hidCode >= 0xE7) // End of HID codes
+            loop = false;
+
         bool wasDown = lastBitmap[hidCode / 8] & (1 << (hidCode % 8));
         bool isDown = bitmap[hidCode / 8] & (1 << (hidCode % 8));
 
@@ -39,6 +47,7 @@ void SixKroHelper::convertBitmapTo6KRO(const uint8_t *bitmap, size_t bitmapSize,
                         pressedKeysInOrder.erase(pressedKeysInOrder.begin() + i);
                 }
         }
+        hidCode++;
     }
 
     // Update lastBitmap AFTER processing changes
