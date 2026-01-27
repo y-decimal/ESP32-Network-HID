@@ -33,6 +33,7 @@ private:
     uint8_t *lastBitmap = nullptr;
 
     bool isModifier(uint8_t hidCode);
+    bool isKeyboardUsage(uint8_t hidCode);
 };
 
 #endif

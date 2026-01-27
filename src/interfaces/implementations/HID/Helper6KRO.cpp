@@ -85,6 +85,11 @@ bool SixKroHelper::isModifier(uint8_t hidCode)
     }
 }
 
+bool SixKroHelper::isKeyboardUsage(uint8_t hidCode)
+{
+    return (hidCode >= 0x04 && hidCode <= 0x65) || (hidCode >= 0xE0 && hidCode <= 0xE7);
+}
+
 uint8_t SixKroHelper::reportDescriptor6KRO[63] = {
     USAGE_PAGE(1),
     0x01, // Generic Desktop
