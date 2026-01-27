@@ -197,7 +197,7 @@ uint32_t getRequiredTasksForAllModules(std::vector<DeviceModule> *modules)
     uint32_t bitmap = 0;
     for (size_t i = 0; i < modules->size(); i++)
     {
-        bitmap |= getRequiredTaskForModule((*modules)[i]);
+        bitmap |= getRequiredTaskForModule(modules->at(i));
     }
     return bitmap;
 }
