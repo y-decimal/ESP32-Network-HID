@@ -274,6 +274,7 @@ void TransportProtocol::handleBitmapEventData(const uint8_t *data, size_t len, c
             bitmapEvent.bitMapData = (uint8_t *)malloc(bitmapEvent.bitmapSize);
             memcpy(bitmapEvent.bitMapData, data + 1, bitmapEvent.bitmapSize);
             bitmapEventCallback(bitmapEvent, getIdByMac(mac));
+            free(bitmapEvent.bitMapData);
         }
     }
     log.debug("Received bitmap event from ID %d", getIdByMac(mac));
