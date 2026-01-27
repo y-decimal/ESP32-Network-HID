@@ -36,6 +36,7 @@ private:
     static void keyReceiveCallback(RawKeyEvent &keyEvent, uint8_t senderId);
     static void bitmapReceiveCallback(RawBitmapEvent &bitmapEvent, uint8_t senderId);
     static void configReceiveCallback(ConfigManager *config, uint8_t senderId);
+    static void internalEventProcessor(const Event &event);
 };
 
 #endif

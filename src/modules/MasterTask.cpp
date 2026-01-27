@@ -217,3 +217,36 @@ void MasterTask::configReceiveCallback(ConfigManager *config, uint8_t senderId)
 
   delete config;
 }
+
+void MasterTask::internalEventProcessor(const Event &event)
+{
+  if (instance == nullptr)
+  {
+    log.error("internalEventProcessor: instance is null");
+    return;
+  }
+
+  switch (event.type)
+  {
+  case EventType::RawKey:
+  {
+    RawKeyEvent rawKeyEvent{event.rawKeyEvt.keyIndex, event.rawKeyEvt.state};
+    keyReceiveCallback(rawKeyEvent, 0);
+    break;
+  }
+  case EventType::RawBitmap:
+  {
+    RawBitmapEvent rawBitmapEvent;
+    uint8_t *bitmapData = static_cast<uint8_t *>(malloc(event.rawBitmapEvt.bitmapSize));
+    memcpy(bitmapData, event.rawBitmapEvt.bitMapData, event.rawBitmapEvt.bitmapSize);
+    rawBitmapEvent.bitmapSize = event.rawBitmapEvt.bitmapSize;
+    rawBitmapEvent.bitMapData = bitmapData;
+    bitmapReceiveCallback(rawBitmapEvent, 0);
+    free(rawBitmapEvent.bitMapData);
+    break;
+  }
+  default:
+    log.warn("internalEventProcessor: Unsupported event type %d", static_cast<uint8_t>(event.type));
+    break;
+  }
+}
