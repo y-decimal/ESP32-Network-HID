@@ -30,6 +30,7 @@ static void bitMapPrintCallback(const Event &event);
 static void hidPrintCallback(const Event &event);
 
 static void setKeyboardConfig();
+static void setKeyboardHostConfig();
 static void setHostConfig();
 
 void setup()
@@ -41,13 +42,16 @@ void setup()
   // Logger::setNamespaceLevel(MasterTask::NAMESPACE, Logger::LogLevel::info);
   // Logger::setNamespaceLevel(SlaveTask::NAMESPACE, Logger::LogLevel::info);
   // Logger::setNamespaceLevel(TransportProtocol::NAMESPACE, Logger::LogLevel::info);
-  Logger::setNamespaceLevel(HidOutputTask::NAMESPACE, Logger::LogLevel::debug);
+  // Logger::setNamespaceLevel(HidOutputTask::NAMESPACE, Logger::LogLevel::debug);
+  // Logger::setNamespaceLevel(BleHidOutput::NAMESPACE, Logger::LogLevel::debug);
+  // Logger::setNamespaceLevel(SixKroHelper::NAMESPACE, Logger::LogLevel::debug);
 
   ConfigManager::registerConfig<GlobalConfig>();
   ConfigManager::registerConfig<KeyScannerConfig>();
 
   // setKeyboardConfig();
   // setHostConfig();
+  setKeyboardHostConfig();
 
   logger.info("Starting setup...");
   Serial.begin(115200);
@@ -165,6 +169,64 @@ static void setKeyboardConfig()
   uint8_t colPins[2] = {17, 18};
   uint8_t localToHidMap[2 * 2] = {
       0x46, 0x7F, 0x7C, 0x7D // HID codes for the 4 keys: PrntScr, Mute, Copy, Paste
+  }; // Note: Adjust size according to rowCount * colCount
+
+  // uint8_t localToHidMap[4] = {
+  //     0x04, 0x05, 0x06, 0x07 // HID codes for the 4 keys: A, B, C, D
+  // }; // Note: Adjust size according to rowCount * colCount
+
+  KeyScannerConfig::KeyCfgParams keyCfgParams;
+  keyCfgParams.rowCount = 2;
+  keyCfgParams.colCount = 2;
+  keyCfgParams.rowPins = rowPins;
+  keyCfgParams.colPins = colPins;
+  keyCfgParams.refreshRate = 500;
+  keyCfgParams.bitmapSendRate = 1;
+  keyCfgParams.localToHidMap = localToHidMap;
+  keyScannerConfig->setConfig(keyCfgParams);
+
+  keyScannerConfig->setLocalToHidMap(localToHidMap, 4); // 2 rows * 2 cols = 4 keys
+
+  std::vector<uint8_t> hidMap = keyScannerConfig->getLocalToHidMap();
+  logger.debug("Returned KeyScanner HID Map:");
+  logger.debug("Size: %d", hidMap.size());
+  for (size_t i = 0; i < hidMap.size(); i++)
+  {
+    logger.debug("  Index %d: HID 0x%02X", i, hidMap[i]);
+  }
+
+  configManager.saveConfigs();
+}
+
+static void setKeyboardHostConfig()
+{
+  logger.info("Setting keyboard host config");
+
+  ConfigManager configManager(prefStorage);
+
+  configManager.eraseConfigs();
+
+  GlobalConfig *globalConfig = configManager.createConfig<GlobalConfig>();
+
+  globalConfig->appendDeviceModule(GlobalConfig::DeviceModule::Keyscanner);
+  globalConfig->appendDeviceModule(GlobalConfig::DeviceModule::HidOutput);
+
+  GlobalConfig::MacAddress mac = {};
+  esp_base_mac_addr_get(mac);
+  globalConfig->setMac(mac);
+
+  globalConfig->setDeviceMode(GlobalConfig::DeviceMode::Master);
+
+  KeyScannerConfig *keyScannerConfig = configManager.createConfig<KeyScannerConfig>();
+
+  uint8_t rowPins[2] = {9, 10};
+  uint8_t colPins[2] = {17, 18};
+  // uint8_t localToHidMap[2 * 2] = {
+  //     0x46, 0x7F, 0x7C, 0x7D // HID codes for the 4 keys: PrntScr, Mute, Copy, Paste
+  // }; // Note: Adjust size according to rowCount * colCount
+
+  uint8_t localToHidMap[4] = {
+      0x04, 0x05, 0x06, 0x07 // HID codes for the 4 keys: A, B, C, D
   }; // Note: Adjust size according to rowCount * colCount
 
   KeyScannerConfig::KeyCfgParams keyCfgParams;
