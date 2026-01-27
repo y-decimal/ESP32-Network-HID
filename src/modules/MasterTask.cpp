@@ -35,7 +35,21 @@ void MasterTask::taskEntry(void *arg)
   task->protocol->onBitmapEvent(bitmapReceiveCallback);
   task->protocol->onPairingRequest(pairReceiveCallback);
   task->protocol->onConfigReceived(configReceiveCallback);
-  log.debug("Registered TransportProtocol callbacks");
+  EventRegistry::registerHandler(EventType::RawKey, internalEventProcessor);
+  EventRegistry::registerHandler(EventType::RawBitmap, internalEventProcessor);
+
+  log.debug("Registered callbacks");
+
+  KeyScannerConfig *keyScannerConfig = task->configManager->getConfig<KeyScannerConfig>();
+
+  if (keyScannerConfig == nullptr)
+    log.info("taskEntry: Could not retrieve KeyScannerConfig");
+  else
+  {
+    std::vector<uint8_t> map = keyScannerConfig->getLocalToHidMap();
+    hidMapper.insertMap(map.data(), map.size(), 0);
+    log.info("Inserted internal HID map for KeyScannerConfig with size %zu", map.size());
+  }
 
   for (;;)
   {
