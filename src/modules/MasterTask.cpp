@@ -8,7 +8,8 @@ MasterTask *MasterTask::instance = nullptr;
 HidMapper MasterTask::hidMapper;
 std::vector<uint8_t> MasterTask::oldBitmap = {0};
 
-MasterTask::MasterTask(ITransport &transport) : transportRef(&transport)
+MasterTask::MasterTask(ITransport &transport, ConfigManager *configMgr)
+    : transportRef(&transport), configManager(configMgr)
 {
   if (instance)
   {

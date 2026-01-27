@@ -15,7 +15,7 @@ class MasterTask : public ITask
 public:
     static constexpr const char *NAMESPACE = "MasterTask";
 
-    MasterTask(ITransport &transport);
+    MasterTask(ITransport &transport, ConfigManager *configMgr);
     ~MasterTask();
     void start(TaskParameters params) override;
     void stop() override;
@@ -25,6 +25,7 @@ private:
     TaskHandle_t masterTaskHandle = nullptr;
     ITransport *transportRef = nullptr;
     TransportProtocol *protocol = nullptr;
+    ConfigManager *configManager = nullptr;
     static MasterTask *instance;
 
     static HidMapper hidMapper;
