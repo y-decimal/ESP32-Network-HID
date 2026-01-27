@@ -159,3 +159,24 @@ uint8_t SixKroHelper::reportDescriptor6KRO[63] = {
     // LED padding
     REPORT_COUNT(1), 0x01, REPORT_SIZE(1), 0x03, HIDOUTPUT(1), 0x01, // Constant
     END_COLLECTION(0)};
+
+uint8_t SixKroHelper::reportDescriptorMediaControls[31] = {
+    USAGE_PAGE(1), 0x0C, // Consumer
+    USAGE(1), 0x01,      // Consumer Control
+    COLLECTION(1), 0x01, // Application
+
+    REPORT_ID(1), 0x02, // Report ID 2
+
+    USAGE_PAGE(1), 0x0C,    // Consumer
+    USAGE_MINIMUM(1), 0xE0, // Mute (0xE2), Volume Up (0xE9), etc.
+    USAGE_MAXIMUM(1), 0xE9,
+    LOGICAL_MINIMUM(1), 0x00,
+    LOGICAL_MAXIMUM(1), 0x01,
+    REPORT_SIZE(1), 0x01,
+    REPORT_COUNT(1), 0x0A, // 10 bits for 10 media keys
+    HIDINPUT(1), 0x02,     // Data, Var, Abs
+
+    REPORT_COUNT(1), 0x06, // Padding to byte boundary
+    REPORT_SIZE(1), 0x01,
+    HIDINPUT(1), 0x01, // Constant
+    END_COLLECTION(0)};
