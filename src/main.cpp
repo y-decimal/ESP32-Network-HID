@@ -3,24 +3,26 @@
 #include <submodules/Config/ConfigManager.h>
 #include <submodules/Config/GlobalConfig.h>
 #include <submodules/Config/KeyScannerConfig.h>
-#include <submodules/Storage/PreferencesStorage.h>
 #include <system/TaskManager.h>
-#include <submodules/ArduinoLogSink.h>
 #include <submodules/Logger.h>
 
 // temp local definitions for testing
 
 #include <interfaces/ITransport.h>
-#include <submodules/Esp32Gpio.h>
-#include <submodules/EspNowTransport.h>
+#include <interfaces/implementations/Esp32Gpio.h>
+#include <interfaces/implementations/EspNowTransport.h>
+#include <interfaces/implementations/ArduinoLogSink.h>
+#include <interfaces/implementations/PreferencesStorage.h>
+#include <interfaces/implementations/HID/BleHidOutput.h>
 
 static Logger logger("Main");
 
 static Esp32Gpio espGpio;
 static EspNow espNow;
 static PreferencesStorage prefStorage("Esp32HidStorage");
+static BleHidOutput bleHidOutput;
 
-TaskManager::Platform platform = {espGpio, espNow, prefStorage};
+TaskManager::Platform platform = {espGpio, espNow, prefStorage, bleHidOutput};
 static TaskManager *taskManager;
 
 static void keyPrintCallback(const Event &event);
@@ -36,9 +38,10 @@ void setup()
   Logger::setNamespaceLevel("Main", Logger::LogLevel::info);
   Logger::setNamespaceLevel(LoggerTask::NAMESPACE, Logger::LogLevel::warn);
   Logger::setNamespaceLevel(TaskManager::NAMESPACE, Logger::LogLevel::info);
-  Logger::setNamespaceLevel(MasterTask::NAMESPACE, Logger::LogLevel::info);
-  Logger::setNamespaceLevel(SlaveTask::NAMESPACE, Logger::LogLevel::info);
-  Logger::setNamespaceLevel(TransportProtocol::NAMESPACE, Logger::LogLevel::info);
+  // Logger::setNamespaceLevel(MasterTask::NAMESPACE, Logger::LogLevel::info);
+  // Logger::setNamespaceLevel(SlaveTask::NAMESPACE, Logger::LogLevel::info);
+  // Logger::setNamespaceLevel(TransportProtocol::NAMESPACE, Logger::LogLevel::info);
+  Logger::setNamespaceLevel(HidOutputTask::NAMESPACE, Logger::LogLevel::debug);
 
   ConfigManager::registerConfig<GlobalConfig>();
   ConfigManager::registerConfig<KeyScannerConfig>();
@@ -147,8 +150,8 @@ static void setKeyboardConfig()
 
   GlobalConfig *globalConfig = configManager.createConfig<GlobalConfig>();
 
-  GlobalConfig::DeviceModule modules[] = {GlobalConfig::DeviceModule::Keyscanner};
-  globalConfig->setDeviceModules(modules, sizeof(modules) / sizeof(modules[0]));
+  std::vector<GlobalConfig::DeviceModule> modules = {GlobalConfig::DeviceModule::Keyscanner};
+  globalConfig->setDeviceModules(modules);
 
   GlobalConfig::MacAddress mac = {};
   esp_base_mac_addr_get(mac);
@@ -189,18 +192,22 @@ static void setKeyboardConfig()
 
 static void setHostConfig()
 {
+  logger.info("Setting host config");
+
   ConfigManager configManager(prefStorage);
 
   configManager.eraseConfigs();
 
-  GlobalConfig globalConfig;
+  GlobalConfig *globalConfig = configManager.createConfig<GlobalConfig>();
 
   GlobalConfig::MacAddress mac = {};
   esp_base_mac_addr_get(mac);
-  globalConfig.setMac(mac);
-
-  globalConfig.setDeviceMode(GlobalConfig::DeviceMode::Master);
-  configManager.setConfig(globalConfig);
+  globalConfig->setMac(mac);
+  globalConfig->setDeviceMode(GlobalConfig::DeviceMode::Master);
+  std::vector<GlobalConfig::DeviceModule> modules = {GlobalConfig::DeviceModule::HidOutput};
+  globalConfig->setDeviceModules(modules);
 
   configManager.saveConfigs();
+
+  logger.info("Host config set");
 }

@@ -3,15 +3,14 @@
 
 static Logger log(GlobalConfig::NAMESPACE);
 
-void GlobalConfig::setDeviceModules(DeviceModule *moduleArray, size_t arrSize)
+void GlobalConfig::setDeviceModules(const std::vector<DeviceModule> &modules)
 {
+  this->modules = modules;
+}
 
-  // Prevent overflow
-  if (arrSize > (size_t)DeviceModule::Count)
-    return;
-
-  // Copy roles into internal array
-  memcpy(modules, moduleArray, arrSize);
+void GlobalConfig::appendDeviceModule(DeviceModule module)
+{
+  this->modules.push_back(module);
 }
 
 void GlobalConfig::setDeviceMode(DeviceMode mode)
@@ -25,14 +24,9 @@ void GlobalConfig::setMac(MacAddress mac)
   memcpy(deviceMac, mac, 6);
 }
 
-void GlobalConfig::getDeviceModules(DeviceModule *out, size_t size)
+std::vector<GlobalConfig::DeviceModule> GlobalConfig::getDeviceModules()
 {
-  // Prevent overflow
-  if (size < sizeof(modules))
-    return;
-
-  // Copy roles into output array
-  memcpy(out, modules, sizeof(modules));
+  return modules;
 }
 
 GlobalConfig::DeviceMode GlobalConfig::getDeviceMode()
@@ -150,13 +144,13 @@ size_t GlobalConfig::packSerialized(uint8_t *output, size_t size) const
 
   // Serialize module size
   objSize = sizeof(size_t);
-  size_t moduleSize = sizeof(modules);
+  size_t moduleSize = modules.size() * sizeof(DeviceModule);
   memcpy(output + totalWrite, &moduleSize, objSize);
   totalWrite += objSize;
 
   // Serialize module
   objSize = moduleSize;
-  memcpy(output + totalWrite, modules, objSize);
+  memcpy(output + totalWrite, modules.data(), objSize);
   totalWrite += objSize;
 
   // Serialize mode
@@ -196,7 +190,8 @@ size_t GlobalConfig::unpackSerialized(const uint8_t *input, size_t size)
 
   // Deserialize modules
   objSize = moduleSize;
-  memcpy(modules, input + totalRead, objSize);
+  modules.resize(moduleSize / sizeof(DeviceModule));
+  memcpy(modules.data(), input + totalRead, objSize);
   totalRead += objSize;
 
   // Deserialize mode
@@ -216,5 +211,5 @@ size_t GlobalConfig::getSerializedSize() const
 {
   // Return the total size needed for serialization
   // Size metadata of total size + size metadata of module size + module data + mode data + mac data
-  return sizeof(size_t) + sizeof(size_t) + sizeof(modules) + sizeof(mode) + sizeof(deviceMac);
+  return sizeof(size_t) + sizeof(size_t) + modules.size() * sizeof(DeviceModule) + sizeof(mode) + sizeof(deviceMac);
 }

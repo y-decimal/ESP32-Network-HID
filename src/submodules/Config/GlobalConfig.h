@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <interfaces/IConfig.h>
+#include <vector>
 
 /**
  * @brief Global configuration class managing device roles and MAC address.
@@ -27,6 +28,7 @@ public:
   enum class DeviceModule : uint8_t
   {
     Keyscanner, // Expand later with new modules
+    HidOutput,
     Count
   };
 
@@ -35,7 +37,13 @@ public:
    * @param moduleArray Array of DeviceModule to set.
    * @param arrSize Size of the moduleArray.
    */
-  void setDeviceModules(DeviceModule *moduleArray, size_t arrSize);
+  void setDeviceModules(const std::vector<DeviceModule> &modules);
+
+  /**
+   * @brief Append a device module.
+   * @param module Module to append.
+   */
+  void appendDeviceModule(DeviceModule module);
 
   /**
    * @brief Set the device mode
@@ -51,10 +59,9 @@ public:
 
   /**
    * @brief Get the device modules.
-   * @param out Output array to store the modules.
-   * @param size Size of the output array.
+   * @return A vector containing the device modules.
    */
-  void getDeviceModules(DeviceModule *out, size_t size);
+  std::vector<DeviceModule> getDeviceModules();
 
   /**
    * @brief Get the device mode.
@@ -84,7 +91,7 @@ private:
   IStorage *storage = nullptr;
 
   // Array to hold device roles
-  DeviceModule modules[(size_t)DeviceModule::Count]{DeviceModule::Count};
+  std::vector<DeviceModule> modules;
 
   // Stores device mode
   DeviceMode mode = DeviceMode::Count;

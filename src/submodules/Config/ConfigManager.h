@@ -3,7 +3,7 @@
 
 #include <interfaces/ISerializable.h>
 #include <interfaces/IConfig.h>
-#include <submodules/Storage/NullStorage.h>
+#include <interfaces/implementations/NullStorage.h>
 #include <submodules/Logger.h>
 #include <unordered_map>
 #include <typeindex>
@@ -44,7 +44,7 @@ public:
   {
     if (&this->storage == &defaultNullStorage)
     {
-      configLog.warn("ConfigManager initialized with NullStorage: configuration changes will not be persisted. Note: this might be intentional for local copies");
+      configLog.debug("ConfigManager initialized with NullStorage: changes will not persist. This might be intentional for local copies");
     }
   };
 

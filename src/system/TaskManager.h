@@ -8,6 +8,7 @@
 #include <modules/KeyScannerTask.h>
 #include <modules/MasterTask.h>
 #include <modules/SlaveTask.h>
+#include <modules/HidOutputTask.h>
 
 #include <submodules/Config/ConfigManager.h>
 #include <submodules/Config/GlobalConfig.h>
@@ -18,6 +19,7 @@
 #include <interfaces/ITransport.h>
 #include <interfaces/ILogSink.h>
 #include <interfaces/IStorage.h>
+#include <interfaces/IHidOutput.h>
 
 using DeviceModule = GlobalConfig::DeviceModule;
 using DeviceMode = GlobalConfig::DeviceMode;
@@ -25,13 +27,14 @@ using DeviceMode = GlobalConfig::DeviceMode;
 class TaskManager
 {
 public:
-  static constexpr const char* NAMESPACE = "TaskManager";
+  static constexpr const char *NAMESPACE = "TaskManager";
 
   struct Platform
   {
     IGpio &gpio;
     ITransport &transport;
     IStorage &storage;
+    IHidOutput &hidOut;
   };
 
   enum TaskId : uint32_t // Define task IDs as bit flags, determines starting/stopping order
@@ -40,7 +43,8 @@ public:
     EVENT_BUS_TASK = 1 << 1,
     MASTER_TASK = 1 << 2,
     SLAVE_TASK = 1 << 3,
-    KEYSCANNER_TASK = 1 << 4
+    KEYSCANNER_TASK = 1 << 4,
+    HIDOUTPUT_TASK = 1 << 5
   };
 
   TaskManager(Platform &platform)
@@ -50,7 +54,8 @@ public:
         eventBusTask(),
         masterTask(platform.transport),
         slaveTask(platform.transport, &configManager),
-        keyScannerTask(&configManager, platform.gpio)
+        keyScannerTask(&configManager, platform.gpio),
+        hidOutputTask(platform.hidOut)
   {
   }
 
@@ -67,6 +72,7 @@ private:
   MasterTask masterTask;
   SlaveTask slaveTask;
   KeyScannerTask keyScannerTask;
+  HidOutputTask hidOutputTask;
 
   // Bitmap of currently active tasks
   uint32_t currentTasks = 0;
