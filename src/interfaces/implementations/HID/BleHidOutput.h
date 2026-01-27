@@ -14,11 +14,17 @@ public:
     void sendHidReport(const uint8_t *hidBitmap, size_t size) override;
     KroMode getKroMode() override;
 
+    void setConnected(bool state) { connected = state; }
+    void setAuthenticated(bool state) { authenticated = state; }
+
 private:
     BLEHIDDevice *hid;
     BLECharacteristic *inputReport;
     BLECharacteristic *outputReport;
     SixKroHelper sixKro;
+    BLEServer *server;
+    bool connected = false;
+    bool authenticated = false;
 };
 
 #endif
