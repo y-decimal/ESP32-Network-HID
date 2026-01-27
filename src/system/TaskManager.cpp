@@ -213,6 +213,7 @@ uint32_t getRequiredTaskForModule(DeviceModule module)
         taskLog.info("Module: HidOutput");
         return TaskManager::TaskId::HIDOUTPUT_TASK;
     default:
+        taskLog.warn("Unknown module: %u", static_cast<uint8_t>(module));
         return 0;
     }
 }
