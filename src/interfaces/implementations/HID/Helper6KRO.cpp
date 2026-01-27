@@ -71,14 +71,14 @@ bool SixKroHelper::isModifier(uint8_t hidCode)
 {
     switch (hidCode)
     {
-    case KEY_MOD_LCTRL:
-    case KEY_MOD_LSHIFT:
-    case KEY_MOD_LALT:
-    case KEY_MOD_LMETA:
-    case KEY_MOD_RCTRL:
-    case KEY_MOD_RSHIFT:
-    case KEY_MOD_RALT:
-    case KEY_MOD_RMETA:
+    case HID_KEY_LCTRL:
+    case HID_KEY_LSHIFT:
+    case HID_KEY_LALT:
+    case HID_KEY_LMETA:
+    case HID_KEY_RCTRL:
+    case HID_KEY_RSHIFT:
+    case HID_KEY_RALT:
+    case HID_KEY_RMETA:
         return true;
     default:
         return false;

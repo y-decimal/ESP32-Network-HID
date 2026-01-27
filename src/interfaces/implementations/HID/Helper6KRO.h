@@ -8,17 +8,16 @@
 #include <cstring>
 
 /**
- * Modifier masks - used for the first byte in the HID report.
- * NOTE: The second byte in the report is reserved, 0x00
+ * HID Usage codes for modifier keys (appear in bitmap)
  */
-#define KEY_MOD_LCTRL 0x01
-#define KEY_MOD_LSHIFT 0x02
-#define KEY_MOD_LALT 0x04
-#define KEY_MOD_LMETA 0x08
-#define KEY_MOD_RCTRL 0x10
-#define KEY_MOD_RSHIFT 0x20
-#define KEY_MOD_RALT 0x40
-#define KEY_MOD_RMETA 0x80
+#define HID_KEY_LCTRL 0xE0
+#define HID_KEY_LSHIFT 0xE1
+#define HID_KEY_LALT 0xE2
+#define HID_KEY_LMETA 0xE3
+#define HID_KEY_RCTRL 0xE4
+#define HID_KEY_RSHIFT 0xE5
+#define HID_KEY_RALT 0xE6
+#define HID_KEY_RMETA 0xE7
 
 class SixKroHelper
 {
