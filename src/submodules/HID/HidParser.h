@@ -44,6 +44,12 @@ public:
      */
     void getOutputBitmap(uint8_t *out, size_t outSize);
 
+    /**
+     * @brief Get the vector of currently pressed keys in the order they were pressed
+     * @return Const reference to the vector of pressed HID usage codes
+     */
+    const std::vector<uint8_t> &getPressedKeysInOrder() const;
+
 private:
     struct Run // All Ranges and lengths are in BIT, not Byte
     {
@@ -53,11 +59,13 @@ private:
     };
 
     std::vector<Run> mapIterators;
+    std::vector<uint8_t> pressedKeysInOrder;
 
     uint8_t *outputBitmap;
     size_t outputSize = 0;
 
     void buildMap(const uint8_t *descriptor, size_t length);
+    void updatePressedKeysVector(uint8_t keyCode, bool pressedState);
 };
 
 #endif

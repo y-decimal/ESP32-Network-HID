@@ -28,6 +28,9 @@ void HidParser::mapBitmap(const uint8_t *hidMap, size_t hidMapSize)
             // Set bit in destination
             if (bitValue)
                 outputBitmap[destByteIdx] |= (1 << destBitInByte);
+
+            // Update pressed keys vector
+            updatePressedKeysVector(srcBitPos, bitValue);
         }
     }
 }
@@ -43,6 +46,37 @@ void HidParser::getOutputBitmap(uint8_t *out, size_t outSize)
         return;
 
     memcpy(out, outputBitmap, outputSize);
+}
+
+const std::vector<uint8_t> &HidParser::getPressedKeysInOrder() const
+{
+    return pressedKeysInOrder;
+}
+
+void HidParser::updatePressedKeysVector(uint8_t keyCode, bool pressedState)
+{
+    if (pressedState)
+    {
+        // Key is pressed - add if not already in vector
+        for (uint8_t existingKey : pressedKeysInOrder)
+        {
+            if (existingKey == keyCode)
+                return; // Already in vector, don't add duplicate
+        }
+        pressedKeysInOrder.push_back(keyCode);
+    }
+    else
+    {
+        // Key is not pressed - remove from vector if present
+        for (int i = pressedKeysInOrder.size() - 1; i >= 0; i--)
+        {
+            if (pressedKeysInOrder[i] == keyCode)
+            {
+                pressedKeysInOrder.erase(pressedKeysInOrder.begin() + i);
+                return; // Found and removed
+            }
+        }
+    }
 }
 
 inline void HidParser::buildMap(const uint8_t *descriptor, size_t length)
