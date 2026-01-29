@@ -5,7 +5,7 @@
 #include <interfaces/ITransport.h>
 #include <submodules/TransportProtocol.h>
 #include <submodules/EventRegistry.h>
-#include <submodules/HidMapper.h>
+#include <submodules/HID/HidMapper.h>
 #include <submodules/Config/ConfigManager.h>
 #include <submodules/Config/KeyScannerConfig.h>
 #include <vector>
