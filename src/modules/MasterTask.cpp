@@ -8,7 +8,8 @@ MasterTask *MasterTask::instance = nullptr;
 HidMapper MasterTask::hidMapper;
 std::vector<uint8_t> MasterTask::oldBitmap = {0};
 
-MasterTask::MasterTask(ITransport &transport) : transportRef(&transport)
+MasterTask::MasterTask(ITransport &transport, ConfigManager *configMgr)
+    : transportRef(&transport), configManager(configMgr)
 {
   if (instance)
   {
@@ -34,7 +35,21 @@ void MasterTask::taskEntry(void *arg)
   task->protocol->onBitmapEvent(bitmapReceiveCallback);
   task->protocol->onPairingRequest(pairReceiveCallback);
   task->protocol->onConfigReceived(configReceiveCallback);
-  log.debug("Registered TransportProtocol callbacks");
+  EventRegistry::registerHandler(EventType::RawKey, internalEventProcessor);
+  EventRegistry::registerHandler(EventType::RawBitmap, internalEventProcessor);
+
+  log.debug("Registered callbacks");
+
+  KeyScannerConfig *keyScannerConfig = task->configManager->getConfig<KeyScannerConfig>();
+
+  if (keyScannerConfig == nullptr)
+    log.info("taskEntry: Could not retrieve KeyScannerConfig");
+  else
+  {
+    std::vector<uint8_t> map = keyScannerConfig->getLocalToHidMap();
+    hidMapper.insertMap(map.data(), map.size(), 0);
+    log.info("Inserted internal HID map for KeyScannerConfig with size %zu", map.size());
+  }
 
   for (;;)
   {
@@ -214,4 +229,37 @@ void MasterTask::configReceiveCallback(ConfigManager *config, uint8_t senderId)
   log.info("Received Map from device %d", senderId);
 
   delete config;
+}
+
+void MasterTask::internalEventProcessor(const Event &event)
+{
+  if (instance == nullptr)
+  {
+    log.error("internalEventProcessor: instance is null");
+    return;
+  }
+
+  switch (event.type)
+  {
+  case EventType::RawKey:
+  {
+    RawKeyEvent rawKeyEvent{event.rawKeyEvt.keyIndex, event.rawKeyEvt.state};
+    keyReceiveCallback(rawKeyEvent, 0);
+    break;
+  }
+  case EventType::RawBitmap:
+  {
+    RawBitmapEvent rawBitmapEvent;
+    uint8_t *bitmapData = static_cast<uint8_t *>(malloc(event.rawBitmapEvt.bitmapSize));
+    memcpy(bitmapData, event.rawBitmapEvt.bitMapData, event.rawBitmapEvt.bitmapSize);
+    rawBitmapEvent.bitmapSize = event.rawBitmapEvt.bitmapSize;
+    rawBitmapEvent.bitMapData = bitmapData;
+    bitmapReceiveCallback(rawBitmapEvent, 0);
+    free(rawBitmapEvent.bitMapData);
+    break;
+  }
+  default:
+    log.warn("internalEventProcessor: Unsupported event type %d", static_cast<uint8_t>(event.type));
+    break;
+  }
 }

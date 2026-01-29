@@ -68,6 +68,9 @@ void KeyScannerTask::sendBitMapEvent(uint8_t bitmapSize, uint8_t *bitMap)
 
 void KeyScannerTask::taskEntry(void *arg)
 {
+  // Yield immediately to allow the calling task to complete
+  vTaskDelay(1);
+  
   KeyScannerTask *task = static_cast<KeyScannerTask *>(arg);
 
   if (!task)
@@ -142,7 +145,21 @@ void KeyScannerTask::taskEntry(void *arg)
       }
     }
     else
-      vPortYield();
+    {
+      // Calculate time until next scan
+      uint64_t timeUntilNextScan = keyScanInterval - (time - lastScanTime);
+      
+      // If more than 1ms until next scan, sleep to save CPU
+      // Otherwise use yield for precision timing
+      if (timeUntilNextScan > 1000)
+      {
+        vTaskDelay(pdMS_TO_TICKS(1));
+      }
+      else
+      {
+        vPortYield();
+      }
+    }
   }
 }
 

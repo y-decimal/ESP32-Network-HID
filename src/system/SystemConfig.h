@@ -30,4 +30,9 @@ static constexpr uint32_t STACK_LOGGER = 4096;
 static constexpr UBaseType_t PRIORITY_LOGGER = 3;
 static constexpr BaseType_t CORE_LOGGER = 0;
 
+// Hid Output Task Config
+static constexpr uint32_t STACK_HIDOUTPUT = 4096;
+static constexpr UBaseType_t PRIORITY_HIDOUTPUT = 5;
+static constexpr BaseType_t CORE_HIDOUTPUT = 1;
+
 #endif

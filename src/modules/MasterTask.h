@@ -5,7 +5,7 @@
 #include <interfaces/ITransport.h>
 #include <submodules/TransportProtocol.h>
 #include <submodules/EventRegistry.h>
-#include <submodules/HidMapper.h>
+#include <submodules/HID/HidMapper.h>
 #include <submodules/Config/ConfigManager.h>
 #include <submodules/Config/KeyScannerConfig.h>
 #include <vector>
@@ -15,7 +15,7 @@ class MasterTask : public ITask
 public:
     static constexpr const char *NAMESPACE = "MasterTask";
 
-    MasterTask(ITransport &transport);
+    MasterTask(ITransport &transport, ConfigManager *configMgr);
     ~MasterTask();
     void start(TaskParameters params) override;
     void stop() override;
@@ -25,6 +25,7 @@ private:
     TaskHandle_t masterTaskHandle = nullptr;
     ITransport *transportRef = nullptr;
     TransportProtocol *protocol = nullptr;
+    ConfigManager *configManager = nullptr;
     static MasterTask *instance;
 
     static HidMapper hidMapper;
@@ -35,6 +36,7 @@ private:
     static void keyReceiveCallback(RawKeyEvent &keyEvent, uint8_t senderId);
     static void bitmapReceiveCallback(RawBitmapEvent &bitmapEvent, uint8_t senderId);
     static void configReceiveCallback(ConfigManager *config, uint8_t senderId);
+    static void internalEventProcessor(const Event &event);
 };
 
 #endif
