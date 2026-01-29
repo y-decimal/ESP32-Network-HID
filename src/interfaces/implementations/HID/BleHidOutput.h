@@ -2,7 +2,8 @@
 #define BLEHIDOUTPUT_H
 
 #include <interfaces/IHidOutput.h>
-#include <interfaces/implementations/HID/Helper6KRO.h>
+#include <submodules/HID/Helper6KRO.h>
+#include <submodules/HID/HelperMediaKeys.h>
 #include <BLEHIDDevice.h>
 
 class BleHidOutput : public IHidOutput
@@ -23,6 +24,7 @@ private:
     BLECharacteristic *inputReportMediaControls;
     BLECharacteristic *outputReport;
     SixKroHelper sixKro;
+    MediaKeysHelper mediaKeys;
     BLEServer *server;
     bool connected = false;
     bool authenticated = false;

@@ -1,7 +1,6 @@
 #include <interfaces/implementations/HID/BleHidOutput.h>
 #include <BLEDevice.h>
 #include <BLESecurity.h>
-#include <interfaces/implementations/HID/Helper6KRO.h>
 
 #include <submodules/Logger.h>
 

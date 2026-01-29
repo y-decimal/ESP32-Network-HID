@@ -28,7 +28,6 @@ public:
 
     static uint8_t reportDescriptor6KRO[63];
 
-    static uint8_t reportDescriptorMediaControls[31];
 
 private:
     std::vector<uint8_t> pressedKeysInOrder;
