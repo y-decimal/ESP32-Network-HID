@@ -30,25 +30,34 @@ public:
      */
     void mapBitmap(const uint8_t *hidMap, size_t hidMapSize);
 
+    /**
+     * @brief Get the size of the output bitmap in bytes
+     * @return Size of outputBitmap in bytes
+     */
     size_t getOutputSize();
 
+    /**
+     * @brief Copy the output bitmap to an external buffer
+     * @param out The external buffer to copy into
+     * @param outSize The size of the external buffer in bytes, must be at least the same as
+     * the size of the output bitmap, use getOutputSize() if unsure
+     */
     void getOutputBitmap(uint8_t *out, size_t outSize);
 
 private:
-    struct Run
+    struct Run // All Ranges and lengths are in BIT, not Byte
     {
         uint8_t srcRangeStart;
         uint8_t destRangeStart;
         uint8_t rangeLength;
     };
 
-    // static constexpr uint8_t unusedValue = 0xFF;
-    // uint8_t hidToOutMap[256] = {unusedValue};
-
     std::vector<Run> mapIterators;
 
     uint8_t *outputBitmap;
     size_t outputSize = 0;
+
+    void buildMap(const uint8_t *descriptor, size_t length);
 };
 
 #endif
